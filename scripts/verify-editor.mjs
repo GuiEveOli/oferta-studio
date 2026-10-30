@@ -1,0 +1,36 @@
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import fs from 'node:fs';
+const c=vm.createContext({console,document:{querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},crypto:{randomUUID:()=>Math.random().toString(36)}});
+vm.runInContext(fs.readFileSync('public/offers-data.js','utf8'),c);c.OfferData=c.window.OfferData;
+const source=fs.readFileSync('public/studio.js','utf8');vm.runInContext(source.slice(0,source.lastIndexOf('\nrender();')),c);
+const run=code=>vm.runInContext(code,c),get=code=>JSON.parse(run('JSON.stringify('+code+')'));
+run("render=renderProperties=renderBoardList=drawStage=toast=()=>{};S.boards=[makeBoard({id:'p',sku:'1',name:'Produto',price:13.99,retailPrice:14.99,loyaltyPrice:13.99,offerKind:'club',image:'/test.png'})];S.active=0;");
+const set=(key,value)=>{c.value=value;run(`updateMechanic({dataset:{mechanic:'${key}'},type:'${typeof value==='boolean'?'checkbox':'text'}',value,checked:value},true)`)};
+assert.equal(get('current().offer.model'),'price');assert.equal(get('current().offer.showClub'),true);
+set('model','percentage');set('percentage',30);set('upTo','true');
+assert.equal(get("current().nodes.find(n=>n.role==='offerDiscount').value"),30);assert.equal(get("current().nodes.find(n=>n.role==='offerDiscount').upTo"),true);
+run("current().nodes.find(n=>n.role==='offerDiscount').x=73;current().nodes.find(n=>n.role==='offerDiscount').fill='#123456';current().nodes.find(n=>n.role==='name').fill='#aabbcc'");
+set('showClub',false);assert.equal(get("current().nodes.some(n=>n.role==='clubBadge')"),false);assert.equal(get('current().offer.price'),13.99);
+set('model','price');assert.equal(get("current().nodes.find(n=>n.role==='price').value"),13.99);set('model','percentage');assert.equal(get("current().nodes.find(n=>n.role==='offerDiscount').x"),73);assert.equal(get("current().nodes.find(n=>n.role==='offerDiscount').fill"),'#123456');assert.equal(get("current().nodes.find(n=>n.role==='name').fill"),'#aabbcc');
+set('percentage',101);assert.equal(get('current().offer.percentage'),30);
+set('model','takePay');assert.equal(get("current().nodes.find(n=>n.role==='offerHeadline').text"),'LEVE 2\nPAGUE 1');assert.equal(get("current().nodes.some(n=>n.role==='offerLegal')"),true);assert.equal(get("current().nodes.some(n=>n.role==='clubBadge')"),false);set('showClub',true);assert.equal(get("current().nodes.some(n=>n.role==='clubBadge')"),true);set('takeQty',5);set('payQty',4);assert.equal(get("current().nodes.find(n=>n.role==='offerHeadline').text"),'LEVE 5\nPAGUE 4');set('payQty',5);assert.equal(get('current().offer.payQty'),4);
+set('model','percentage');run("historyGo('undo')");assert.equal(get('current().offer.model'),'takePay');run("historyGo('redo')");assert.equal(get('current().offer.model'),'percentage');assert.equal(get('current().offer.upTo'),true);
+const near=(a,b)=>assert.ok(Math.abs(a-b)<1e-8,`${a} != ${b}`);
+for(const count of [2,3])for(const gap of [-35,0,45]){
+ const images=Array.from({length:count},(_,i)=>({id:String(i),type:'image',role:'productImage',src:'/x',x:80+i*210,y:600+i*14,width:220+i*10,height:320+i*7,rotation:i*12}));c.images=images;c.gap=gap;
+ run('spaceImageNodes(images,gap,images.map(()=>({naturalWidth:300,naturalHeight:600})))');const bounds=get('images.map(n=>imageBounds(n,{naturalWidth:300,naturalHeight:600}))');for(let i=1;i<count;i++)near(bounds[i].left-bounds[i-1].right,gap);images.forEach((n,i)=>{assert.equal(n.y,600+i*14);assert.equal(n.width,220+i*10);assert.equal(n.height,320+i*7);assert.equal(n.rotation,i*12)});
+}
+run("current().nodes=[{id:'a',type:'image',role:'productImage',src:'/x',x:0,y:600,width:200,height:400},{id:'b',type:'image',role:'productImage',src:'/y',x:300,y:620,width:200,height:400}];loadImage=()=>Promise.resolve({naturalWidth:300,naturalHeight:600});current().imageSpacing=20;S.history.set(current().id,[])");
+await run('setImageSpacing(50)');await run('setImageSpacing(50)');assert.equal(get('S.history.get(current().id).length'),1);assert.equal(get('current().imageSpacing'),50);near(get('current().nodes[1].x-current().nodes[0].x'),250);run("historyGo('undo')");assert.equal(get('current().imageSpacing'),20);near(get('current().nodes[0].x'),0);near(get('current().nodes[1].x'),300);
+console.log('Editor checks passed: independent badge, three offer models, percentage variants, value/layout/color retention, bounds validation, spacing with rotated/fitted images, undo/redo.');
+
+run("current().nodes=[{id:'a',type:'image',role:'productImage',x:30,y:600,width:100,height:200,rotation:15},{id:'b',type:'image',role:'productImage',x:300,y:620,width:130,height:180,rotation:0}];current().imageScale=100;current().imageSpacing=20;S.history.set(current().id,[])");
+const beforeScale=get('current().nodes');run('setProductScale(200)');assert.equal(get('current().imageScale'),200);assert.equal(get('current().imageSpacing'),40);assert.equal(get('current().nodes[0].width'),200);assert.equal(get('current().nodes[1].height'),360);assert.equal(get('current().nodes[0].rotation'),15);near(get('current().nodes[1].x-current().nodes[0].x'),540);near(get('current().nodes[1].y-current().nodes[0].y'),40);
+run('setProductScale(200)');assert.equal(get('S.history.get(current().id).length'),1);run("historyGo('undo')");assert.equal(get('current().imageScale'),100);assert.deepEqual(get('current().nodes'),beforeScale);run("historyGo('redo')");assert.equal(get('current().imageScale'),200);run('setProductScale(100)');get('current().nodes').forEach((node,i)=>{near(node.x,beforeScale[i].x);near(node.y,beforeScale[i].y);near(node.width,beforeScale[i].width);near(node.height,beforeScale[i].height)});
+const glyph={isType:type=>type==='Textbox',set(key,value){if(typeof key==='string')this[key]=value;else Object.assign(this,key);return this},initDimensions(){this.height=Math.ceil(900/this.width)*this.fontSize*1.2},setCoords(){}};
+const object={scaleX:2,scaleY:1,getObjects:()=>[glyph]};c.liveObject=object;c.textNode={type:'text',text:'Texto para redimensionar',width:200,height:80,fontSize:40,x:0,y:0};run('previewTextResize(liveObject,textNode)');assert.equal(glyph.width,400);assert.equal(glyph.fontSize,40);near(glyph.scaleX*object.scaleX,glyph.scaleY*object.scaleY);assert.equal(get('textNode.width'),200);
+object.scaleX=object.scaleY=1.5;run('previewTextResize(liveObject,textNode)');assert.equal(glyph.fontSize,60);near(glyph.scaleX*object.scaleX,1);near(glyph.scaleY*object.scaleY,1);assert.equal(get('textNode.fontSize'),40);
+console.log('Additional checks passed: proportional product scale, common center, scaled spacing, scale undo/redo, no-op commits, live text reflow without stretched glyphs.');
+
+run("S.boards=[makeBoard({id:'check',sku:'1',name:'Produto',price:10,image:'/x'})];S.active=0;updateMechanic({dataset:{mechanic:'model'},type:'select',value:'percentage'},true);updateMechanic({dataset:{mechanic:'upTo'},type:'checkbox',checked:true},true)");assert.equal(get('current().offer.upTo'),true);assert.equal(get("current().nodes.find(n=>n.role==='offerDiscount').upTo"),true);run("updateMechanic({dataset:{mechanic:'upTo'},type:'checkbox',checked:false},true)");assert.equal(get('current().offer.upTo'),false);run("historyGo('undo')");assert.equal(get('current().offer.upTo'),true);

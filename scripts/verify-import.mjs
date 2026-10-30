@@ -1,0 +1,30 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+const context=vm.createContext({console,document:{querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},crypto:{randomUUID:()=>Math.random().toString(36)}});
+vm.runInContext(fs.readFileSync('public/offers-data.js','utf8'),context);
+context.OfferData=context.window.OfferData;
+const data=context.OfferData;
+const source=fs.readFileSync('public/studio.js','utf8');
+vm.runInContext(source.slice(0,source.lastIndexOf('\nrender();')),context);
+const run=code=>vm.runInContext(code,context),plain=v=>JSON.parse(JSON.stringify(v));
+for(const [input,value] of [['R$ 2.99',2.99],['R$ 1.234,56',1234.56],['49,90',49.9],[0,0],['NULL',null],['?',null],['',null],[-2,null],['12abc',null]])assert.equal(data.parsePrice(input),value);
+const infoHeader=Array(20).fill('');infoHeader[7]='SKU';infoHeader[8]='Produto';infoHeader[19]='Imagem';
+const info=(sku,name='Produto original',image='https://example.com/product.png')=>{const r=Array(20).fill('');r[7]=sku;r[8]=name;r[11]=99999;r[19]=image;return r};
+const priceHeader=Array(26).fill('');priceHeader[7]='TIPO_OFERTA';priceHeader[8]='SEQPRODUTO';priceHeader[10]='PRECO_VAREJO';priceHeader[13]='PRECO_FIDELIDADE';priceHeader[25]='CLUSTER';
+const price=(sku,type='Normal',cluster='Capa A',k=19.9,n=12.5,t='',u='')=>{const r=Array(26).fill('');r[7]=type;r[8]=sku;r[9]='NOME ERRADO NA PLANILHA DE PREÇOS';r[10]=k;r[13]=n;r[19]=t;r[20]=u;r[25]=cluster;return r};
+const catalog=data.parseCatalog([infoHeader,info('00123'),info(123),info(123,'Produto original','https://example.com/alternate.png'),info('456','Produto dois')],'catalog.xlsx');
+assert.equal(catalog.skuCount,2);assert.equal(catalog.products[0].images.length,2);assert.equal(catalog.imageVariants,1);
+const prices=data.parsePrices([priceHeader,price(123),price('00123'),price(123,'Normal','Capa B',9.9),price('456','Club Koch'),price('123','MercaPromo Pague e Leve','Capa A',8,7,4,6),price('999'),price('123','Club Koch','Capa A',20,'NULL'),price('456','De por (Parcelado)'),price('123','MercaPromo Pague e Leve','Capa A',8,7,5,4)],'prices.xlsx');
+const report=data.combine(catalog,prices);assert.equal(report.products.length,4);assert.equal(report.duplicates,1);assert.equal(report.issues.length,4);assert.equal(report.clusters.length,2);
+assert.equal(report.products[0].price,19.9);assert.equal(report.products[0].name,'Produto original');assert.equal(report.products[1].price,9.9);assert.equal(report.products[2].price,12.5);assert.equal(report.products[3].price,null);assert.equal(report.products[3].takeQty,6);assert.equal(report.products[3].payQty,4);
+assert.ok(report.issues.some(i=>i.reason.includes('fidelidade')));assert.ok(report.issues.some(i=>i.reason.includes('sem regra')));assert.ok(report.issues.some(i=>i.reason.includes('não encontrado')));assert.ok(report.issues.some(i=>i.reason.includes('Leve/Pague inválido')));
+assert.throws(()=>data.parseCatalog([priceHeader,price(123)],'wrong.xlsx'),/segundo campo/);
+const ambiguous=data.parseCatalog([infoHeader,info(123,'Produto A'),info(123,'Produto B')],'ambiguous.xlsx');assert.equal(data.combine(ambiguous,prices).products.length,0);
+const normal=report.products[0],club=report.products[2],takePay=report.products[3];
+for(const [p,expectedPrice,badge,legal] of [[normal,19.9,false,false],[club,12.5,true,false],[takePay,null,true,true]]){context.product=p;const nodes=plain(run('defaultNodes(product)'));assert.equal(!!nodes.find(n=>n.role==='clubBadge'),badge);assert.equal(!!nodes.find(n=>n.role==='offerLegal'),legal);if(expectedPrice!==null)assert.equal(nodes.find(n=>n.role==='price').value,expectedPrice);else{assert.ok(!nodes.some(n=>n.type==='price'));assert.equal(nodes.find(n=>n.role==='offerHeadline').text,'LEVE 6\nPAGUE 4')}}
+run('S.boards=[makeBoard(product)];S.active=0');
+for(const p of [normal,club,takePay]){context.replacement=p;run('toast=()=>{};closeModal=()=>{};replaceProduct(replacement)');const roles=plain(run('current().nodes.map(n=>n.role)'));assert.equal(roles.includes('clubBadge'),p.offerKind!=='normal');assert.equal(roles.includes('offerLegal'),p.offerKind==='takePay');assert.equal(roles.includes('price'),p.offerKind!=='takePay')}
+const loadedCatalog=JSON.parse(fs.readFileSync('public/assets/catalog.json')),loadedPrices=JSON.parse(fs.readFileSync('public/assets/prices.json')),real=data.combine(loadedCatalog,loadedPrices);
+assert.equal(loadedPrices.rowCount,15748);assert.equal(real.skuCount,18);assert.equal(real.clusters.length,3);assert.equal(real.products.find(p=>p.sku==='79673').price,13.99);assert.equal(real.products.find(p=>p.sku==='78079').price,8.49);const gatorade=real.products.find(p=>p.sku==='20091');assert.equal(gatorade.offerKind,'takePay');assert.equal(gatorade.takeQty,4);assert.equal(gatorade.payQty,3);assert.equal(gatorade.price,null);
+console.log(JSON.stringify({passed:true,realOffers:real.products.length,matchedSKUs:real.skuCount,priceRows:loadedPrices.rowCount,clusters:real.clusters.length,checks:'SKU joins, both price columns, missing loyalty price, no catalog price fallback, T/U quantities, variant images, cluster isolation, deduplication, unsupported types, layouts and replacement across all mechanics'}));

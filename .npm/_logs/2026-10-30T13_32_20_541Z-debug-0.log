@@ -1,0 +1,108 @@
+0 verbose cli /usr/local/nvm/versions/node/v24.22.1/bin/node /usr/local/nvm/versions/node/v24.22.1/bin/npm
+1 info using npm@12.2.1
+2 info using node@v24.22.1
+3 silly config load:file:/usr/local/nvm/versions/node/v24.22.1/lib/node_modules/npm/npmrc
+4 silly config load:file:/home/oliveiraguieveraldo/.cache/typescript/6.0/.npmrc
+5 silly config load:file:/home/oliveiraguieveraldo/.npmrc
+6 silly config load:file:/usr/local/nvm/versions/node/v24.22.1/etc/npmrc
+7 verbose title npm install @types/estree@ts6.0 @types/less@ts6.0 @types/stylus@ts6.0 @types/ws@ts6.0 @types/yargs@ts6.0
+8 verbose argv "install" "--ignore-scripts" "@types/estree@ts6.0" "@types/less@ts6.0" "@types/stylus@ts6.0" "@types/ws@ts6.0" "@types/yargs@ts6.0" "--save-dev" "--user-agent" "typesInstaller/6.0.3"
+9 verbose logfile logs-max:10 dir:/home/oliveiraguieveraldo/.npm/_logs/2026-10-30T13_32_20_541Z-
+10 verbose logfile /home/oliveiraguieveraldo/.npm/_logs/2026-10-30T13_32_20_541Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:2348810240 maxSize:587202560 maxEntrySize:293601280
+13 silly packumentCache corgi:https://registry.npmjs.org/@types%2festree cache-miss
+14 silly packumentCache corgi:https://registry.npmjs.org/@types%2fless cache-miss
+15 silly packumentCache corgi:https://registry.npmjs.org/@types%2fstylus cache-miss
+16 silly packumentCache corgi:https://registry.npmjs.org/@types%2fws cache-miss
+17 silly packumentCache corgi:https://registry.npmjs.org/@types%2fyargs cache-miss
+18 http fetch GET 200 https://registry.npmjs.org/@types%2fless 169ms (cache miss)
+19 silly packumentCache corgi:https://registry.npmjs.org/@types%2fless set size:undefined disposed:false
+20 http fetch GET 200 https://registry.npmjs.org/@types%2festree 185ms (cache miss)
+21 silly packumentCache corgi:https://registry.npmjs.org/@types%2festree set size:undefined disposed:false
+22 http fetch GET 200 https://registry.npmjs.org/@types%2fws 196ms (cache miss)
+23 silly packumentCache corgi:https://registry.npmjs.org/@types%2fws set size:undefined disposed:false
+24 http fetch GET 200 https://registry.npmjs.org/@types%2fyargs 203ms (cache miss)
+25 silly packumentCache corgi:https://registry.npmjs.org/@types%2fyargs set size:undefined disposed:false
+26 http fetch GET 200 https://registry.npmjs.org/@types%2fstylus 251ms (cache miss)
+27 silly packumentCache corgi:https://registry.npmjs.org/@types%2fstylus set size:undefined disposed:false
+28 silly idealTree buildDeps
+29 silly fetch manifest @types/less@3.0.8
+30 silly packumentCache full:https://registry.npmjs.org/@types%2fless cache-miss
+31 http fetch GET 200 https://registry.npmjs.org/@types%2fless 115ms (cache miss)
+32 silly packumentCache full:https://registry.npmjs.org/@types%2fless set size:undefined disposed:false
+33 silly fetch manifest @types/estree@1.0.10
+34 silly packumentCache full:https://registry.npmjs.org/@types%2festree cache-miss
+35 http fetch GET 200 https://registry.npmjs.org/@types%2festree 44ms (cache miss)
+36 silly packumentCache full:https://registry.npmjs.org/@types%2festree set size:undefined disposed:false
+37 silly fetch manifest @types/ws@8.18.2
+38 silly packumentCache full:https://registry.npmjs.org/@types%2fws cache-miss
+39 http fetch GET 200 https://registry.npmjs.org/@types%2fws 61ms (cache miss)
+40 silly packumentCache full:https://registry.npmjs.org/@types%2fws set size:undefined disposed:false
+41 silly fetch manifest @types/yargs@17.0.35
+42 silly packumentCache full:https://registry.npmjs.org/@types%2fyargs cache-miss
+43 http fetch GET 200 https://registry.npmjs.org/@types%2fyargs 91ms (cache miss)
+44 silly packumentCache full:https://registry.npmjs.org/@types%2fyargs set size:undefined disposed:false
+45 silly fetch manifest @types/stylus@0.48.43
+46 silly packumentCache full:https://registry.npmjs.org/@types%2fstylus cache-miss
+47 http fetch GET 200 https://registry.npmjs.org/@types%2fstylus 184ms (cache miss)
+48 silly packumentCache full:https://registry.npmjs.org/@types%2fstylus set size:undefined disposed:false
+49 silly placeDep ROOT @types/estree@1.0.10 OK for:  want: 1.0.10
+50 silly placeDep ROOT @types/less@3.0.8 OK for:  want: 3.0.8
+51 silly placeDep ROOT @types/stylus@0.48.43 OK for:  want: 0.48.43
+52 silly placeDep ROOT @types/ws@8.18.2 OK for:  want: 8.18.2
+53 silly placeDep ROOT @types/yargs@17.0.35 OK for:  want: 17.0.35
+54 silly fetch manifest @types/node@*
+55 silly packumentCache full:https://registry.npmjs.org/@types%2fnode cache-miss
+56 http fetch GET 200 https://registry.npmjs.org/@types%2fnode 391ms (cache miss)
+57 silly packumentCache full:https://registry.npmjs.org/@types%2fnode set size:undefined disposed:false
+58 silly fetch manifest @types/yargs-parser@*
+59 silly packumentCache full:https://registry.npmjs.org/@types%2fyargs-parser cache-miss
+60 http fetch GET 200 https://registry.npmjs.org/@types%2fyargs-parser 43ms (cache miss)
+61 silly packumentCache full:https://registry.npmjs.org/@types%2fyargs-parser set size:undefined disposed:false
+62 silly placeDep ROOT @types/node@26.6.6 OK for: @types/stylus@0.48.43 want: *
+63 silly fetch manifest undici-types@~8.9.0
+64 silly packumentCache full:https://registry.npmjs.org/undici-types cache-miss
+65 http fetch GET 200 https://registry.npmjs.org/undici-types 50ms (cache miss)
+66 silly packumentCache full:https://registry.npmjs.org/undici-types set size:undefined disposed:false
+67 silly placeDep ROOT undici-types@8.9.0 OK for: @types/node@26.6.6 want: ~8.9.0
+68 silly placeDep ROOT @types/yargs-parser@21.0.3 OK for: @types/yargs@17.0.35 want: *
+69 silly reify moves {}
+70 http cache @types/yargs-parser@https://registry.npmjs.org/@types/yargs-parser/-/yargs-parser-21.0.3.tgz 1ms (cache hit)
+71 http cache undici-types@https://registry.npmjs.org/undici-types/-/undici-types-8.9.0.tgz 0ms (cache hit)
+72 http cache @types/node@https://registry.npmjs.org/@types/node/-/node-26.6.6.tgz 0ms (cache hit)
+73 http cache @types/yargs@https://registry.npmjs.org/@types/yargs/-/yargs-17.0.35.tgz 0ms (cache hit)
+74 http cache @types/ws@https://registry.npmjs.org/@types/ws/-/ws-8.18.2.tgz 0ms (cache hit)
+75 http cache @types/less@https://registry.npmjs.org/@types/less/-/less-3.0.8.tgz 0ms (cache hit)
+76 http cache @types/stylus@https://registry.npmjs.org/@types/stylus/-/stylus-0.48.43.tgz 0ms (cache hit)
+77 http cache @types/estree@https://registry.npmjs.org/@types/estree/-/estree-1.0.10.tgz 0ms (cache hit)
+78 silly tarball no local data for @types/yargs-parser@https://registry.npmjs.org/@types/yargs-parser/-/yargs-parser-21.0.3.tgz. Extracting by manifest.
+79 silly tarball no local data for undici-types@https://registry.npmjs.org/undici-types/-/undici-types-8.9.0.tgz. Extracting by manifest.
+80 silly tarball no local data for @types/node@https://registry.npmjs.org/@types/node/-/node-26.6.6.tgz. Extracting by manifest.
+81 silly tarball no local data for @types/yargs@https://registry.npmjs.org/@types/yargs/-/yargs-17.0.35.tgz. Extracting by manifest.
+82 silly tarball no local data for @types/ws@https://registry.npmjs.org/@types/ws/-/ws-8.18.2.tgz. Extracting by manifest.
+83 silly tarball no local data for @types/less@https://registry.npmjs.org/@types/less/-/less-3.0.8.tgz. Extracting by manifest.
+84 silly tarball no local data for @types/stylus@https://registry.npmjs.org/@types/stylus/-/stylus-0.48.43.tgz. Extracting by manifest.
+85 silly tarball no local data for @types/estree@https://registry.npmjs.org/@types/estree/-/estree-1.0.10.tgz. Extracting by manifest.
+86 http fetch GET 200 https://registry.npmjs.org/@types/yargs-parser/-/yargs-parser-21.0.3.tgz 141ms (cache miss)
+87 http fetch GET 200 https://registry.npmjs.org/@types/ws/-/ws-8.18.2.tgz 139ms (cache miss)
+88 http fetch GET 200 https://registry.npmjs.org/@types/yargs/-/yargs-17.0.35.tgz 146ms (cache miss)
+89 http fetch GET 200 https://registry.npmjs.org/@types/less/-/less-3.0.8.tgz 170ms (cache miss)
+90 http fetch GET 200 https://registry.npmjs.org/@types/estree/-/estree-1.0.10.tgz 171ms (cache miss)
+91 http fetch GET 200 https://registry.npmjs.org/@types/stylus/-/stylus-0.48.43.tgz 204ms (cache miss)
+92 http fetch GET 200 https://registry.npmjs.org/undici-types/-/undici-types-8.9.0.tgz 223ms (cache miss)
+93 http fetch GET 200 https://registry.npmjs.org/@types/node/-/node-26.6.6.tgz 299ms (cache miss)
+94 silly ADD node_modules/@types/yargs-parser
+95 silly ADD node_modules/undici-types
+96 silly ADD node_modules/@types/node
+97 silly ADD node_modules/@types/yargs
+98 silly ADD node_modules/@types/ws
+99 silly ADD node_modules/@types/stylus
+100 silly ADD node_modules/@types/less
+101 silly ADD node_modules/@types/estree
+102 verbose cwd /home/oliveiraguieveraldo/.cache/typescript/6.0
+103 verbose os Linux 6.18.55+
+104 verbose node v24.22.1
+105 verbose npm  v12.2.1
+106 verbose exit 0
+107 info ok

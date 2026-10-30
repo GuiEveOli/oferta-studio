@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+import vm from 'node:vm';
+const [catalogFile,priceFile]=process.argv.slice(2);
+if(!catalogFile||!priceFile)throw new Error('Usage: node scripts/prepare-offer-sources.mjs <catalog.xlsx> <prices.xlsx>');
+const context=vm.createContext({console,TextDecoder,TextEncoder,Uint8Array,ArrayBuffer});
+vm.runInContext(fs.readFileSync('public/vendor/xlsx.full.min.js','utf8'),context);
+vm.runInContext(fs.readFileSync('public/offers-data.js','utf8'),context);
+const rows=file=>{const workbook=context.XLSX.read(fs.readFileSync(file),{type:'buffer'});return context.XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]],{header:1,raw:true,defval:''})};
+const catalog=context.OfferData.parseCatalog(rows(catalogFile),'Relatório de informações anterior');
+const prices=context.OfferData.parsePrices(rows(priceFile),'Preços enviados — campanha 20123');
+fs.writeFileSync('public/assets/catalog.json',JSON.stringify(catalog));
+fs.writeFileSync('public/assets/prices.json',JSON.stringify(prices));
+const report=context.OfferData.combine(catalog,prices);
+console.log(JSON.stringify({catalogSKUs:catalog.skuCount,ambiguous:catalog.ambiguous,priceRows:prices.rowCount,offers:report.products.length,matchedSKUs:report.skuCount,clusters:report.clusters,duplicates:report.duplicates,issues:report.issues.length,kinds:[...new Set(report.products.map(p=>p.offerKind))]}));
