@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';import fs from 'node:fs';import vm from 'node:vm';
-const c=vm.createContext({console,document:{querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},crypto:{randomUUID:()=>Math.random().toString(36)}});
-vm.runInContext(fs.readFileSync('public/offers-data.js','utf8'),c);c.OfferData=c.window.OfferData;const source=fs.readFileSync('public/studio.js','utf8');vm.runInContext(source.slice(0,source.lastIndexOf('\nrender();')),c);
+const c=vm.createContext({structuredClone,console,document:{querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},crypto:{randomUUID:()=>Math.random().toString(36)}});
+vm.runInContext(fs.readFileSync('public/offers-data.js','utf8'),c);c.OfferData=c.window.OfferData;const source=fs.readFileSync('public/studio.js','utf8');vm.runInContext(fs.readFileSync('public/presets.js','utf8'),c);vm.runInContext(source.slice(0,source.lastIndexOf('\nrender();')),c);
 const run=s=>vm.runInContext(s,c),get=s=>JSON.parse(run('JSON.stringify('+s+')'));
 run("renderProperties=renderBoardList=drawStage=toast=()=>{};loadImage=()=>{throw new Error('Layout must not load images')};const p={id:'p',sku:'1',name:'Produto',price:10,image:'/a.png'}");
 for(const format of ['vertical','panoramic','mini'])for(const count of [2,3]){

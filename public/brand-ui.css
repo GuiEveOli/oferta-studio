@@ -1,0 +1,307 @@
+/* Paleta da interface por bandeira. Não altera as cores dos criativos. */
+html{--brand-primary:#123878;--brand-primary-hover:#0b285b;--ui-14261633:#141b2633;--ui-15231525:#151a2325;--ui-19231b66:#191d2366;--ui-22332215:#22283315;--ui-23302120:#21263020;--ui-24331e:#1e2633;--ui-252c28:#25282c;--ui-253724:#242b37;--ui-25372415:#242b3715;--ui-253a2210:#222b3a10;--ui-253a2226:#222b3a26;--ui-2637200e:#2028370e;--ui-263a2205:#222b3a05;--ui-263a2222:#222b3a22;--ui-273b2210:#222b3b10;--ui-28312a:#282b31;--ui-29342a:#292d34;--ui-29372b:#292e37;--ui-324c1d:#1d2e4c;--ui-34492b:#2b3649;--ui-355429:#293954;--ui-384f2b:#2b384f;--ui-3b512e:#2e3b51;--ui-3c493e:#3c4149;--ui-3c5a29:#293b5a;--ui-445f2e:#2e405f;--ui-476832:#324668;--ui-48573d:#3d4757;--ui-486e30:#30476e;--ui-496e2a:#2a436e;--ui-4a6634:#344666;--ui-4c5746:#464c57;--ui-4d6242:#424e62;--ui-4f6c38:#384b6c;--ui-516046:#465060;--ui-517530:#304975;--ui-526047:#475060;--ui-527331:#314973;--ui-536448:#485264;--ui-536d40:#40516d;--ui-577541:#415475;--ui-5a7d35:#354f7d;--ui-5b763e:#3e5376;--ui-5c6756:#565c67;--ui-5c6a51:#515a6a;--ui-5d7050:#505c70;--ui-5d705012:#505c7012;--ui-5e7151:#515d71;--ui-606c58:#585f6c;--ui-637356:#566173;--ui-638442:#425a84;--ui-647155:#555f71;--ui-65765a:#5a6476;--ui-667f50:#50617f;--ui-677b55:#55637b;--ui-687f55:#55647f;--ui-69953f:#3f5f95;--ui-6a844a:#4a5f84;--ui-6b8b50:#50668b;--ui-6c775f:#5f6877;--ui-6c7b5d:#5d687b;--ui-6c7c60:#606a7c;--ui-6d9746:#466497;--ui-6e914d:#4d6691;--ui-6e9248:#486392;--ui-6e9d43:#43649d;--ui-6f7e62:#626c7e;--ui-709751:#516b97;--ui-738966:#667389;--ui-769a56:#566f9a;--ui-77816d:#6d7481;--ui-779b53:#536d9b;--ui-779c50:#506c9c;--ui-789d51:#516d9d;--ui-798d67:#67758d;--ui-799756:#566e97;--ui-7a9f57:#57719f;--ui-7b8570:#707885;--ui-7c8478:#747b88;--ui-7ca153:#5370a1;--ui-7ca34f:#4f6ea3;--ui-7d8d6d:#6d798d;--ui-7d906b:#6b7990;--ui-7e8873:#737b88;--ui-7f8e71:#717c8e;--ui-7f916f:#6f7b91;--ui-80936e:#6e7c93;--ui-809969:#697b99;--ui-81877f:#79808d;--ui-819270:#707c92;--ui-829473:#737f94;--ui-838b7b:#79808d;--ui-849574:#748095;--ui-849672:#727f96;--ui-84a557:#5774a5;--ui-84a954:#5473a9;--ui-859576:#768195;--ui-859673:#738096;--ui-87917d:#7d8491;--ui-889b78:#78859b;--ui-88aa61:#617caa;--ui-89917f:#7e8592;--ui-89997e:#7e8899;--ui-8a9480:#808794;--ui-8b9482:#828994;--ui-8b9b7d:#7d889b;--ui-8b9d7c:#7c889d;--ui-8bb765:#6583b7;--ui-8c997f:#7f8999;--ui-8c9a7e:#7e889a;--ui-8c9a7f:#7f899a;--ui-8c9b7d:#7d889b;--ui-8c9b7e:#7e899b;--ui-8c9e7e:#7e8a9e;--ui-8ca477:#7788a4;--ui-8d9782:#828a97;--ui-8d9d80:#808b9d;--ui-8e9687:#868c98;--ui-8e9984:#848c99;--ui-8e9a83:#838b9a;--ui-8f9d82:#828c9d;--ui-8fb859:#597cb8;--ui-90a57c:#7c8ba5;--ui-90ac72:#7287ac;--ui-90ac75:#7589ac;--ui-91988c:#89909b;--ui-919d86:#868e9d;--ui-91a083:#838ea0;--ui-91ae72:#7288ae;--ui-91b765:#6583b7;--ui-92998d:#8a919c;--ui-929b87:#878e9b;--ui-92a184:#848fa1;--ui-93a083:#838ea0;--ui-94a287:#8791a2;--ui-94a387:#8791a3;--ui-95a089:#8991a0;--ui-95a486:#8691a4;--ui-96a58a:#8a94a5;--ui-98a08e:#8e95a0;--ui-98a58c:#8c95a5;--ui-98b774:#748db7;--ui-99a98a:#8a95a9;--ui-9aa88d:#8d97a8;--ui-9aac89:#8996ac;--ui-9ba391:#9198a3;--ui-9ba393:#9399a3;--ui-9baa8c:#8c97aa;--ui-9bbd75:#758fbd;--ui-9cb77f:#7f94b7;--ui-a0a698:#979da7;--ui-a0aa96:#969daa;--ui-a0ac96:#969eac;--ui-a0ad93:#939dad;--ui-a1ae96:#969fae;--ui-a4aa9d:#9ca2ab;--ui-a5ada0:#9fa5ae;--ui-a5c475:#7592c4;--ui-a5c57f:#7f99c5;--ui-a6ad9d:#9da3ad;--ui-a7c583:#839bc5;--ui-a8c77e:#7e99c7;--ui-adbaa5:#a5adba;--ui-afc495:#95a6c4;--ui-afc596:#96a7c5;--ui-b0c792:#92a5c7;--ui-b5cd9b:#9badcd;--ui-b5e45c:#0b285b;--ui-b6c6a8:#a8b3c6;--ui-b7cda1:#a1b1cd;--ui-b8da8e2b:#8eaada2b;--ui-bacaad:#adb8ca;--ui-bdcbb0:#b0bacb;--ui-c3dca8:#a8bbdc;--ui-c6d4b8:#b8c2d4;--ui-c6d5b4:#b4c0d5;--ui-c6f36b:#123878;--ui-c7d5bb:#bbc5d5;--ui-c8d7ba:#bac5d7;--ui-c9dfb1:#b1c2df;--ui-cbd6c1:#c1c9d6;--ui-cdd5c7:#c7ccd5;--ui-d6dfcc:#ccd3df;--ui-d6dfce:#ced4df;--ui-d9ecbf:#bfd0ec;--ui-dae7c8:#c8d3e7;--ui-dbe2d3:#d3d8e2;--ui-dbe4d1:#d1d8e4;--ui-dce3d3:#d3d9e3;--ui-dce3d4:#d4dae3;--ui-dce4d3:#d3d9e4;--ui-dce6d0:#d0d8e6;--ui-dce6d1:#d1d9e6;--ui-dce9cd:#cdd7e9;--ui-dfe5d8:#d8dde5;--ui-dfe5d9:#d9dde5;--ui-e0e5d9:#d9dde5;--ui-e0e6d9:#d9dee6;--ui-e0e7d7:#d7dde7;--ui-e1e7da:#dadfe7;--ui-e2e7d9:#d9dee7;--ui-e2e7dc:#dce0e7;--ui-e2e8d9:#d9dee8;--ui-e2e9d9:#d9dfe9;--ui-e4eadc:#dce1ea;--ui-e4eddb:#dbe2ed;--ui-e5e8e2:#e2e4e8;--ui-e5ebde:#dee3eb;--ui-e5f0d7:#d7e0f0;--ui-e5f1d7:#d7e1f1;--ui-e5f4d1:#d1def4;--ui-e6eadf:#dfe3ea;--ui-e7ebe2:#e2e5eb;--ui-e8ecdf:#dfe4ec;--ui-e8f3d7:#d7e1f3;--ui-e9ece5:#e5e8ec;--ui-e9ece6:#e6e8ec;--ui-e9ede2:#e2e6ed;--ui-e9ede4:#e4e7ed;--ui-e9efdf:#dfe5ef;--ui-e9f0e1:#e1e6f0;--ui-e9f1dc:#dce4f1;--ui-eaeee4:#e4e8ee;--ui-eaf3dc:#dce4f3;--ui-eaf4dc:#dce5f4;--ui-eaf5db:#dbe5f5;--ui-eaf5df:#dfe7f5;--ui-ecefe7:#e7eaef;--ui-ecefe9:#e9ebef;--ui-edf0e7:#e7eaf0;--ui-edf0e8:#e8ebf0;--ui-edf0e9:#e9ecf0;--ui-edf1e7:#e7ebf1;--ui-edf3e7:#e7ebf3;--ui-edf4e3:#e3e9f4;--ui-edf4e5:#e5ebf4;--ui-edf5e3:#e3eaf5;--ui-edf6df:#dfe7f6;--ui-eef1e8:#e8ebf1;--ui-eef5e5:#e5ebf5;--ui-eff8e1:#e1e9f8;--ui-f0f4e9:#e9edf4;--ui-f0f6e8:#e8edf6;--ui-f1f3ed:#edeff3;--ui-f1f7e7:#e7edf7;--ui-f2f8e9:#e9eef8;--ui-f3f6ed:#edf0f6;--ui-f3f8eb:#ebf0f8;--ui-f4f6ef:#eff2f6;--ui-f4f8ed:#edf1f8;--ui-f4f9ec:#ecf1f9;--ui-f5f6f3:#f3f4f6;--ui-f6f8f2:#f2f4f8;--ui-f6f8f3:#f3f5f8;--ui-f7f8f5:#f5f6f8;--ui-f7f9f2:#f2f5f9;--ui-f7f9f3:#f3f5f9;--ui-f7faf1:#f1f4fa;--ui-f7faf2:#f2f5fa;--ui-f8faf4:#f4f6fa;--ui-f8faf5:#f5f7fa;--ui-f8fbf3:#f3f6fb;--ui-f9fbf6:#f6f8fb;--ui-fafbf8:#f8f9fb;--ui-fafcf7:#f7f9fc;--ui-fbfcf9:#f9fafc;--ui-fcfdfb:#fbfcfd}
+html[data-brand="komprao"]{--brand-primary:#e4002b;--brand-primary-hover:#b60022;--ui-14261633:#26141733;--ui-15231525:#23151825;--ui-19231b66:#23191b66;--ui-22332215:#33222515;--ui-23302120:#30212420;--ui-24331e:#331e22;--ui-252c28:#2c2526;--ui-253724:#372427;--ui-25372415:#37242715;--ui-253a2210:#3a222610;--ui-253a2226:#3a222626;--ui-2637200e:#3720240e;--ui-263a2205:#3a222605;--ui-263a2222:#3a222622;--ui-273b2210:#3b222710;--ui-28312a:#31282a;--ui-29342a:#34292b;--ui-29372b:#37292c;--ui-324c1d:#4c1d26;--ui-34492b:#492b31;--ui-355429:#542931;--ui-384f2b:#4f2b32;--ui-3b512e:#512e34;--ui-3c493e:#493c3e;--ui-3c5a29:#5a2932;--ui-445f2e:#5f2e37;--ui-476832:#68323c;--ui-48573d:#573d42;--ui-486e30:#6e303b;--ui-496e2a:#6e2a36;--ui-4a6634:#66343d;--ui-4c5746:#574649;--ui-4d6242:#624248;--ui-4f6c38:#6c3842;--ui-516046:#60464b;--ui-517530:#75303d;--ui-526047:#60474c;--ui-527331:#73313d;--ui-536448:#64484d;--ui-536d40:#6d4048;--ui-577541:#75414b;--ui-5a7d35:#7d3542;--ui-5b763e:#763e48;--ui-5c6756:#675659;--ui-5c6a51:#6a5156;--ui-5d7050:#705056;--ui-5d705012:#70505612;--ui-5e7151:#715157;--ui-606c58:#6c585c;--ui-637356:#73565b;--ui-638442:#84424e;--ui-647155:#71555a;--ui-65765a:#765a5f;--ui-667f50:#7f5059;--ui-677b55:#7b555c;--ui-687f55:#7f555d;--ui-69953f:#953f4f;--ui-6a844a:#844a55;--ui-6b8b50:#8b505b;--ui-6c775f:#775f63;--ui-6c7b5d:#7b5d62;--ui-6c7c60:#7c6065;--ui-6d9746:#974655;--ui-6e914d:#914d59;--ui-6e9248:#924856;--ui-6e9d43:#9d4353;--ui-6f7e62:#7e6267;--ui-709751:#97515e;--ui-738966:#89666c;--ui-769a56:#9a5662;--ui-77816d:#816d71;--ui-779b53:#9b5360;--ui-779c50:#9c505e;--ui-789d51:#9d515f;--ui-798d67:#8d676e;--ui-799756:#975662;--ui-7a9f57:#9f5764;--ui-7b8570:#857074;--ui-7c8478:#887478;--ui-7ca153:#a15361;--ui-7ca34f:#a34f5e;--ui-7d8d6d:#8d6d73;--ui-7d906b:#906b72;--ui-7e8873:#887377;--ui-7f8e71:#8e7176;--ui-7f916f:#916f75;--ui-80936e:#936e75;--ui-809969:#996972;--ui-81877f:#8d797d;--ui-819270:#927076;--ui-829473:#947379;--ui-838b7b:#8d797d;--ui-849574:#95747a;--ui-849672:#967279;--ui-84a557:#a55765;--ui-84a954:#a95464;--ui-859576:#95767c;--ui-859673:#967379;--ui-87917d:#917d81;--ui-889b78:#9b787e;--ui-88aa61:#aa616e;--ui-89917f:#927e82;--ui-89997e:#997e83;--ui-8a9480:#948084;--ui-8b9482:#948285;--ui-8b9b7d:#9b7d82;--ui-8b9d7c:#9d7c82;--ui-8bb765:#b76574;--ui-8c997f:#997f84;--ui-8c9a7e:#9a7e83;--ui-8c9a7f:#9a7f84;--ui-8c9b7d:#9b7d82;--ui-8c9b7e:#9b7e83;--ui-8c9e7e:#9e7e84;--ui-8ca477:#a4777f;--ui-8d9782:#978286;--ui-8d9d80:#9d8085;--ui-8e9687:#988689;--ui-8e9984:#998488;--ui-8e9a83:#9a8387;--ui-8f9d82:#9d8287;--ui-8fb859:#b8596a;--ui-90a57c:#a57c84;--ui-90ac72:#ac727d;--ui-90ac75:#ac757f;--ui-91988c:#9b898c;--ui-919d86:#9d868a;--ui-91a083:#a08388;--ui-91ae72:#ae727d;--ui-91b765:#b76574;--ui-92998d:#9c8a8e;--ui-929b87:#9b878b;--ui-92a184:#a18489;--ui-93a083:#a08388;--ui-94a287:#a2878c;--ui-94a387:#a3878c;--ui-95a089:#a0898d;--ui-95a486:#a4868c;--ui-96a58a:#a58a8f;--ui-98a08e:#a08e91;--ui-98a58c:#a58c91;--ui-98b774:#b77480;--ui-99a98a:#a98a90;--ui-9aa88d:#a88d92;--ui-9aac89:#ac898f;--ui-9ba391:#a39194;--ui-9ba393:#a39396;--ui-9baa8c:#aa8c92;--ui-9bbd75:#bd7582;--ui-9cb77f:#b77f89;--ui-a0a698:#a7979a;--ui-a0aa96:#aa969a;--ui-a0ac96:#ac969a;--ui-a0ad93:#ad9398;--ui-a1ae96:#ae969a;--ui-a4aa9d:#ab9c9f;--ui-a5ada0:#ae9fa2;--ui-a5c475:#c47583;--ui-a5c57f:#c57f8c;--ui-a6ad9d:#ad9da0;--ui-a7c583:#c5838f;--ui-a8c77e:#c77e8b;--ui-adbaa5:#baa5a9;--ui-afc495:#c4959e;--ui-afc596:#c5969f;--ui-b0c792:#c7929c;--ui-b5cd9b:#cd9ba4;--ui-b5e45c:#b60022;--ui-b6c6a8:#c6a8ae;--ui-b7cda1:#cda1a9;--ui-b8da8e2b:#da8e9c2b;--ui-bacaad:#caadb2;--ui-bdcbb0:#cbb0b5;--ui-c3dca8:#dca8b2;--ui-c6d4b8:#d4b8bd;--ui-c6d5b4:#d5b4ba;--ui-c6f36b:#e4002b;--ui-c7d5bb:#d5bbc0;--ui-c8d7ba:#d7babf;--ui-c9dfb1:#dfb1b9;--ui-cbd6c1:#d6c1c5;--ui-cdd5c7:#d5c7ca;--ui-d6dfcc:#dfcccf;--ui-d6dfce:#dfced1;--ui-d9ecbf:#ecbfc7;--ui-dae7c8:#e7c8ce;--ui-dbe2d3:#e2d3d6;--ui-dbe4d1:#e4d1d4;--ui-dce3d3:#e3d3d6;--ui-dce3d4:#e3d4d7;--ui-dce4d3:#e4d3d6;--ui-dce6d0:#e6d0d4;--ui-dce6d1:#e6d1d5;--ui-dce9cd:#e9cdd2;--ui-dfe5d8:#e5d8da;--ui-dfe5d9:#e5d9db;--ui-e0e5d9:#e5d9db;--ui-e0e6d9:#e6d9db;--ui-e0e7d7:#e7d7da;--ui-e1e7da:#e7dadc;--ui-e2e7d9:#e7d9dc;--ui-e2e7dc:#e7dcde;--ui-e2e8d9:#e8d9dc;--ui-e2e9d9:#e9d9dc;--ui-e4eadc:#eadcdf;--ui-e4eddb:#eddbde;--ui-e5e8e2:#e8e2e3;--ui-e5ebde:#ebdee0;--ui-e5f0d7:#f0d7dc;--ui-e5f1d7:#f1d7dc;--ui-e5f4d1:#f4d1d7;--ui-e6eadf:#eadfe1;--ui-e7ebe2:#ebe2e4;--ui-e8ecdf:#ecdfe1;--ui-e8f3d7:#f3d7dc;--ui-e9ece5:#ece5e6;--ui-e9ece6:#ece6e7;--ui-e9ede2:#ede2e4;--ui-e9ede4:#ede4e6;--ui-e9efdf:#efdfe2;--ui-e9f0e1:#f0e1e4;--ui-e9f1dc:#f1dce0;--ui-eaeee4:#eee4e6;--ui-eaf3dc:#f3dce0;--ui-eaf4dc:#f4dce0;--ui-eaf5db:#f5dbe0;--ui-eaf5df:#f5dfe3;--ui-ecefe7:#efe7e8;--ui-ecefe9:#efe9ea;--ui-edf0e7:#f0e7e9;--ui-edf0e8:#f0e8e9;--ui-edf0e9:#f0e9ea;--ui-edf1e7:#f1e7e9;--ui-edf3e7:#f3e7e9;--ui-edf4e3:#f4e3e6;--ui-edf4e5:#f4e5e8;--ui-edf5e3:#f5e3e6;--ui-edf6df:#f6dfe3;--ui-eef1e8:#f1e8ea;--ui-eef5e5:#f5e5e8;--ui-eff8e1:#f8e1e5;--ui-f0f4e9:#f4e9eb;--ui-f0f6e8:#f6e8eb;--ui-f1f3ed:#f3edee;--ui-f1f7e7:#f7e7ea;--ui-f2f8e9:#f8e9ec;--ui-f3f6ed:#f6edef;--ui-f3f8eb:#f8ebed;--ui-f4f6ef:#f6eff0;--ui-f4f8ed:#f8edef;--ui-f4f9ec:#f9ecee;--ui-f5f6f3:#f6f3f4;--ui-f6f8f2:#f8f2f3;--ui-f6f8f3:#f8f3f4;--ui-f7f8f5:#f8f5f6;--ui-f7f9f2:#f9f2f3;--ui-f7f9f3:#f9f3f4;--ui-f7faf1:#faf1f3;--ui-f7faf2:#faf2f3;--ui-f8faf4:#faf4f5;--ui-f8faf5:#faf5f6;--ui-f8fbf3:#fbf3f4;--ui-f9fbf6:#fbf6f7;--ui-fafbf8:#fbf8f9;--ui-fafcf7:#fcf7f8;--ui-fbfcf9:#fcf9fa;--ui-fcfdfb:#fdfbfb}
+
+.btn.primary{color:#fff}.btn.primary:hover{background:var(--brand-primary-hover);border-color:var(--brand-primary-hover)}
+.sidebar>.brand-switcher{width:100%;margin-top:26px}.sidebar>.nav-label{margin-top:22px}
+.brand-switch-label{display:block;font-size:10px;font-weight:650;color:var(--muted);margin-bottom:8px}
+.brand-switch{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:4px;gap:3px;min-width:0}
+.brand-switch>button{flex:1;padding:9px 4px;min-width:0;border:0;background:transparent;border-radius:7px;font-size:11px;font-weight:650;color:var(--muted);transition:background .18s,color .18s,box-shadow .18s}
+.brand-switch>button[aria-checked=true]{background:var(--brand-primary);color:white;box-shadow:0 2px 5px #00000015}.brand-switch>button:focus-visible{outline:2px solid var(--brand-primary)}
+.brand-mobile{display:none}.editor-brand{font-size:10px;font-weight:700;background:var(--bg);color:var(--brand-primary);padding:6px 9px;border-radius:5px}
+input[type=checkbox],input[type=range],.image-spacing-range{accent-color:var(--brand-primary)}
+@media(max-width:900px) and (min-width:701px){.brand-switch{flex-direction:column}.brand-switch>button{font-size:9px;padding:8px 2px}.brand-switch-label{font-size:9px}.sidebar nav{margin-top:16px}}
+@media(max-width:700px){.brand-mobile{display:block;margin-left:auto}.brand-mobile .brand-switch-label{display:none}.brand-mobile .brand-switch>button{padding:7px 8px;font-size:10px}.topbar:has(.brand-mobile) .breadcrumb{display:none}.topbar:has(.brand-mobile) .mobile-label{order:-1}.editor-brand{font-size:9px;padding:4px}.editor-top .project-title{max-width:100px}}
+@media(prefers-reduced-motion:reduce){.brand-switch>button{transition:none}}
+@media(max-width:400px){.topbar:has(.brand-mobile) .logo>span{display:none}}
+
+/* Cores interpoladas no elemento persistente: a troca de tela não interrompe o degradê. */
+@property --brand-primary{syntax:"<color>";inherits:true;initial-value:#123878}
+@property --brand-primary-hover{syntax:"<color>";inherits:true;initial-value:#0b285b}
+@property --ui-14261633{syntax:"<color>";inherits:true;initial-value:#141b2633}
+@property --ui-15231525{syntax:"<color>";inherits:true;initial-value:#151a2325}
+@property --ui-19231b66{syntax:"<color>";inherits:true;initial-value:#191d2366}
+@property --ui-22332215{syntax:"<color>";inherits:true;initial-value:#22283315}
+@property --ui-23302120{syntax:"<color>";inherits:true;initial-value:#21263020}
+@property --ui-24331e{syntax:"<color>";inherits:true;initial-value:#1e2633}
+@property --ui-252c28{syntax:"<color>";inherits:true;initial-value:#25282c}
+@property --ui-253724{syntax:"<color>";inherits:true;initial-value:#242b37}
+@property --ui-25372415{syntax:"<color>";inherits:true;initial-value:#242b3715}
+@property --ui-253a2210{syntax:"<color>";inherits:true;initial-value:#222b3a10}
+@property --ui-253a2226{syntax:"<color>";inherits:true;initial-value:#222b3a26}
+@property --ui-2637200e{syntax:"<color>";inherits:true;initial-value:#2028370e}
+@property --ui-263a2205{syntax:"<color>";inherits:true;initial-value:#222b3a05}
+@property --ui-263a2222{syntax:"<color>";inherits:true;initial-value:#222b3a22}
+@property --ui-273b2210{syntax:"<color>";inherits:true;initial-value:#222b3b10}
+@property --ui-28312a{syntax:"<color>";inherits:true;initial-value:#282b31}
+@property --ui-29342a{syntax:"<color>";inherits:true;initial-value:#292d34}
+@property --ui-29372b{syntax:"<color>";inherits:true;initial-value:#292e37}
+@property --ui-324c1d{syntax:"<color>";inherits:true;initial-value:#1d2e4c}
+@property --ui-34492b{syntax:"<color>";inherits:true;initial-value:#2b3649}
+@property --ui-355429{syntax:"<color>";inherits:true;initial-value:#293954}
+@property --ui-384f2b{syntax:"<color>";inherits:true;initial-value:#2b384f}
+@property --ui-3b512e{syntax:"<color>";inherits:true;initial-value:#2e3b51}
+@property --ui-3c493e{syntax:"<color>";inherits:true;initial-value:#3c4149}
+@property --ui-3c5a29{syntax:"<color>";inherits:true;initial-value:#293b5a}
+@property --ui-445f2e{syntax:"<color>";inherits:true;initial-value:#2e405f}
+@property --ui-476832{syntax:"<color>";inherits:true;initial-value:#324668}
+@property --ui-48573d{syntax:"<color>";inherits:true;initial-value:#3d4757}
+@property --ui-486e30{syntax:"<color>";inherits:true;initial-value:#30476e}
+@property --ui-496e2a{syntax:"<color>";inherits:true;initial-value:#2a436e}
+@property --ui-4a6634{syntax:"<color>";inherits:true;initial-value:#344666}
+@property --ui-4c5746{syntax:"<color>";inherits:true;initial-value:#464c57}
+@property --ui-4d6242{syntax:"<color>";inherits:true;initial-value:#424e62}
+@property --ui-4f6c38{syntax:"<color>";inherits:true;initial-value:#384b6c}
+@property --ui-516046{syntax:"<color>";inherits:true;initial-value:#465060}
+@property --ui-517530{syntax:"<color>";inherits:true;initial-value:#304975}
+@property --ui-526047{syntax:"<color>";inherits:true;initial-value:#475060}
+@property --ui-527331{syntax:"<color>";inherits:true;initial-value:#314973}
+@property --ui-536448{syntax:"<color>";inherits:true;initial-value:#485264}
+@property --ui-536d40{syntax:"<color>";inherits:true;initial-value:#40516d}
+@property --ui-577541{syntax:"<color>";inherits:true;initial-value:#415475}
+@property --ui-5a7d35{syntax:"<color>";inherits:true;initial-value:#354f7d}
+@property --ui-5b763e{syntax:"<color>";inherits:true;initial-value:#3e5376}
+@property --ui-5c6756{syntax:"<color>";inherits:true;initial-value:#565c67}
+@property --ui-5c6a51{syntax:"<color>";inherits:true;initial-value:#515a6a}
+@property --ui-5d7050{syntax:"<color>";inherits:true;initial-value:#505c70}
+@property --ui-5d705012{syntax:"<color>";inherits:true;initial-value:#505c7012}
+@property --ui-5e7151{syntax:"<color>";inherits:true;initial-value:#515d71}
+@property --ui-606c58{syntax:"<color>";inherits:true;initial-value:#585f6c}
+@property --ui-637356{syntax:"<color>";inherits:true;initial-value:#566173}
+@property --ui-638442{syntax:"<color>";inherits:true;initial-value:#425a84}
+@property --ui-647155{syntax:"<color>";inherits:true;initial-value:#555f71}
+@property --ui-65765a{syntax:"<color>";inherits:true;initial-value:#5a6476}
+@property --ui-667f50{syntax:"<color>";inherits:true;initial-value:#50617f}
+@property --ui-677b55{syntax:"<color>";inherits:true;initial-value:#55637b}
+@property --ui-687f55{syntax:"<color>";inherits:true;initial-value:#55647f}
+@property --ui-69953f{syntax:"<color>";inherits:true;initial-value:#3f5f95}
+@property --ui-6a844a{syntax:"<color>";inherits:true;initial-value:#4a5f84}
+@property --ui-6b8b50{syntax:"<color>";inherits:true;initial-value:#50668b}
+@property --ui-6c775f{syntax:"<color>";inherits:true;initial-value:#5f6877}
+@property --ui-6c7b5d{syntax:"<color>";inherits:true;initial-value:#5d687b}
+@property --ui-6c7c60{syntax:"<color>";inherits:true;initial-value:#606a7c}
+@property --ui-6d9746{syntax:"<color>";inherits:true;initial-value:#466497}
+@property --ui-6e914d{syntax:"<color>";inherits:true;initial-value:#4d6691}
+@property --ui-6e9248{syntax:"<color>";inherits:true;initial-value:#486392}
+@property --ui-6e9d43{syntax:"<color>";inherits:true;initial-value:#43649d}
+@property --ui-6f7e62{syntax:"<color>";inherits:true;initial-value:#626c7e}
+@property --ui-709751{syntax:"<color>";inherits:true;initial-value:#516b97}
+@property --ui-738966{syntax:"<color>";inherits:true;initial-value:#667389}
+@property --ui-769a56{syntax:"<color>";inherits:true;initial-value:#566f9a}
+@property --ui-77816d{syntax:"<color>";inherits:true;initial-value:#6d7481}
+@property --ui-779b53{syntax:"<color>";inherits:true;initial-value:#536d9b}
+@property --ui-779c50{syntax:"<color>";inherits:true;initial-value:#506c9c}
+@property --ui-789d51{syntax:"<color>";inherits:true;initial-value:#516d9d}
+@property --ui-798d67{syntax:"<color>";inherits:true;initial-value:#67758d}
+@property --ui-799756{syntax:"<color>";inherits:true;initial-value:#566e97}
+@property --ui-7a9f57{syntax:"<color>";inherits:true;initial-value:#57719f}
+@property --ui-7b8570{syntax:"<color>";inherits:true;initial-value:#707885}
+@property --ui-7c8478{syntax:"<color>";inherits:true;initial-value:#747b88}
+@property --ui-7ca153{syntax:"<color>";inherits:true;initial-value:#5370a1}
+@property --ui-7ca34f{syntax:"<color>";inherits:true;initial-value:#4f6ea3}
+@property --ui-7d8d6d{syntax:"<color>";inherits:true;initial-value:#6d798d}
+@property --ui-7d906b{syntax:"<color>";inherits:true;initial-value:#6b7990}
+@property --ui-7e8873{syntax:"<color>";inherits:true;initial-value:#737b88}
+@property --ui-7f8e71{syntax:"<color>";inherits:true;initial-value:#717c8e}
+@property --ui-7f916f{syntax:"<color>";inherits:true;initial-value:#6f7b91}
+@property --ui-80936e{syntax:"<color>";inherits:true;initial-value:#6e7c93}
+@property --ui-809969{syntax:"<color>";inherits:true;initial-value:#697b99}
+@property --ui-81877f{syntax:"<color>";inherits:true;initial-value:#79808d}
+@property --ui-819270{syntax:"<color>";inherits:true;initial-value:#707c92}
+@property --ui-829473{syntax:"<color>";inherits:true;initial-value:#737f94}
+@property --ui-838b7b{syntax:"<color>";inherits:true;initial-value:#79808d}
+@property --ui-849574{syntax:"<color>";inherits:true;initial-value:#748095}
+@property --ui-849672{syntax:"<color>";inherits:true;initial-value:#727f96}
+@property --ui-84a557{syntax:"<color>";inherits:true;initial-value:#5774a5}
+@property --ui-84a954{syntax:"<color>";inherits:true;initial-value:#5473a9}
+@property --ui-859576{syntax:"<color>";inherits:true;initial-value:#768195}
+@property --ui-859673{syntax:"<color>";inherits:true;initial-value:#738096}
+@property --ui-87917d{syntax:"<color>";inherits:true;initial-value:#7d8491}
+@property --ui-889b78{syntax:"<color>";inherits:true;initial-value:#78859b}
+@property --ui-88aa61{syntax:"<color>";inherits:true;initial-value:#617caa}
+@property --ui-89917f{syntax:"<color>";inherits:true;initial-value:#7e8592}
+@property --ui-89997e{syntax:"<color>";inherits:true;initial-value:#7e8899}
+@property --ui-8a9480{syntax:"<color>";inherits:true;initial-value:#808794}
+@property --ui-8b9482{syntax:"<color>";inherits:true;initial-value:#828994}
+@property --ui-8b9b7d{syntax:"<color>";inherits:true;initial-value:#7d889b}
+@property --ui-8b9d7c{syntax:"<color>";inherits:true;initial-value:#7c889d}
+@property --ui-8bb765{syntax:"<color>";inherits:true;initial-value:#6583b7}
+@property --ui-8c997f{syntax:"<color>";inherits:true;initial-value:#7f8999}
+@property --ui-8c9a7e{syntax:"<color>";inherits:true;initial-value:#7e889a}
+@property --ui-8c9a7f{syntax:"<color>";inherits:true;initial-value:#7f899a}
+@property --ui-8c9b7d{syntax:"<color>";inherits:true;initial-value:#7d889b}
+@property --ui-8c9b7e{syntax:"<color>";inherits:true;initial-value:#7e899b}
+@property --ui-8c9e7e{syntax:"<color>";inherits:true;initial-value:#7e8a9e}
+@property --ui-8ca477{syntax:"<color>";inherits:true;initial-value:#7788a4}
+@property --ui-8d9782{syntax:"<color>";inherits:true;initial-value:#828a97}
+@property --ui-8d9d80{syntax:"<color>";inherits:true;initial-value:#808b9d}
+@property --ui-8e9687{syntax:"<color>";inherits:true;initial-value:#868c98}
+@property --ui-8e9984{syntax:"<color>";inherits:true;initial-value:#848c99}
+@property --ui-8e9a83{syntax:"<color>";inherits:true;initial-value:#838b9a}
+@property --ui-8f9d82{syntax:"<color>";inherits:true;initial-value:#828c9d}
+@property --ui-8fb859{syntax:"<color>";inherits:true;initial-value:#597cb8}
+@property --ui-90a57c{syntax:"<color>";inherits:true;initial-value:#7c8ba5}
+@property --ui-90ac72{syntax:"<color>";inherits:true;initial-value:#7287ac}
+@property --ui-90ac75{syntax:"<color>";inherits:true;initial-value:#7589ac}
+@property --ui-91988c{syntax:"<color>";inherits:true;initial-value:#89909b}
+@property --ui-919d86{syntax:"<color>";inherits:true;initial-value:#868e9d}
+@property --ui-91a083{syntax:"<color>";inherits:true;initial-value:#838ea0}
+@property --ui-91ae72{syntax:"<color>";inherits:true;initial-value:#7288ae}
+@property --ui-91b765{syntax:"<color>";inherits:true;initial-value:#6583b7}
+@property --ui-92998d{syntax:"<color>";inherits:true;initial-value:#8a919c}
+@property --ui-929b87{syntax:"<color>";inherits:true;initial-value:#878e9b}
+@property --ui-92a184{syntax:"<color>";inherits:true;initial-value:#848fa1}
+@property --ui-93a083{syntax:"<color>";inherits:true;initial-value:#838ea0}
+@property --ui-94a287{syntax:"<color>";inherits:true;initial-value:#8791a2}
+@property --ui-94a387{syntax:"<color>";inherits:true;initial-value:#8791a3}
+@property --ui-95a089{syntax:"<color>";inherits:true;initial-value:#8991a0}
+@property --ui-95a486{syntax:"<color>";inherits:true;initial-value:#8691a4}
+@property --ui-96a58a{syntax:"<color>";inherits:true;initial-value:#8a94a5}
+@property --ui-98a08e{syntax:"<color>";inherits:true;initial-value:#8e95a0}
+@property --ui-98a58c{syntax:"<color>";inherits:true;initial-value:#8c95a5}
+@property --ui-98b774{syntax:"<color>";inherits:true;initial-value:#748db7}
+@property --ui-99a98a{syntax:"<color>";inherits:true;initial-value:#8a95a9}
+@property --ui-9aa88d{syntax:"<color>";inherits:true;initial-value:#8d97a8}
+@property --ui-9aac89{syntax:"<color>";inherits:true;initial-value:#8996ac}
+@property --ui-9ba391{syntax:"<color>";inherits:true;initial-value:#9198a3}
+@property --ui-9ba393{syntax:"<color>";inherits:true;initial-value:#9399a3}
+@property --ui-9baa8c{syntax:"<color>";inherits:true;initial-value:#8c97aa}
+@property --ui-9bbd75{syntax:"<color>";inherits:true;initial-value:#758fbd}
+@property --ui-9cb77f{syntax:"<color>";inherits:true;initial-value:#7f94b7}
+@property --ui-a0a698{syntax:"<color>";inherits:true;initial-value:#979da7}
+@property --ui-a0aa96{syntax:"<color>";inherits:true;initial-value:#969daa}
+@property --ui-a0ac96{syntax:"<color>";inherits:true;initial-value:#969eac}
+@property --ui-a0ad93{syntax:"<color>";inherits:true;initial-value:#939dad}
+@property --ui-a1ae96{syntax:"<color>";inherits:true;initial-value:#969fae}
+@property --ui-a4aa9d{syntax:"<color>";inherits:true;initial-value:#9ca2ab}
+@property --ui-a5ada0{syntax:"<color>";inherits:true;initial-value:#9fa5ae}
+@property --ui-a5c475{syntax:"<color>";inherits:true;initial-value:#7592c4}
+@property --ui-a5c57f{syntax:"<color>";inherits:true;initial-value:#7f99c5}
+@property --ui-a6ad9d{syntax:"<color>";inherits:true;initial-value:#9da3ad}
+@property --ui-a7c583{syntax:"<color>";inherits:true;initial-value:#839bc5}
+@property --ui-a8c77e{syntax:"<color>";inherits:true;initial-value:#7e99c7}
+@property --ui-adbaa5{syntax:"<color>";inherits:true;initial-value:#a5adba}
+@property --ui-afc495{syntax:"<color>";inherits:true;initial-value:#95a6c4}
+@property --ui-afc596{syntax:"<color>";inherits:true;initial-value:#96a7c5}
+@property --ui-b0c792{syntax:"<color>";inherits:true;initial-value:#92a5c7}
+@property --ui-b5cd9b{syntax:"<color>";inherits:true;initial-value:#9badcd}
+@property --ui-b5e45c{syntax:"<color>";inherits:true;initial-value:#0b285b}
+@property --ui-b6c6a8{syntax:"<color>";inherits:true;initial-value:#a8b3c6}
+@property --ui-b7cda1{syntax:"<color>";inherits:true;initial-value:#a1b1cd}
+@property --ui-b8da8e2b{syntax:"<color>";inherits:true;initial-value:#8eaada2b}
+@property --ui-bacaad{syntax:"<color>";inherits:true;initial-value:#adb8ca}
+@property --ui-bdcbb0{syntax:"<color>";inherits:true;initial-value:#b0bacb}
+@property --ui-c3dca8{syntax:"<color>";inherits:true;initial-value:#a8bbdc}
+@property --ui-c6d4b8{syntax:"<color>";inherits:true;initial-value:#b8c2d4}
+@property --ui-c6d5b4{syntax:"<color>";inherits:true;initial-value:#b4c0d5}
+@property --ui-c6f36b{syntax:"<color>";inherits:true;initial-value:#123878}
+@property --ui-c7d5bb{syntax:"<color>";inherits:true;initial-value:#bbc5d5}
+@property --ui-c8d7ba{syntax:"<color>";inherits:true;initial-value:#bac5d7}
+@property --ui-c9dfb1{syntax:"<color>";inherits:true;initial-value:#b1c2df}
+@property --ui-cbd6c1{syntax:"<color>";inherits:true;initial-value:#c1c9d6}
+@property --ui-cdd5c7{syntax:"<color>";inherits:true;initial-value:#c7ccd5}
+@property --ui-d6dfcc{syntax:"<color>";inherits:true;initial-value:#ccd3df}
+@property --ui-d6dfce{syntax:"<color>";inherits:true;initial-value:#ced4df}
+@property --ui-d9ecbf{syntax:"<color>";inherits:true;initial-value:#bfd0ec}
+@property --ui-dae7c8{syntax:"<color>";inherits:true;initial-value:#c8d3e7}
+@property --ui-dbe2d3{syntax:"<color>";inherits:true;initial-value:#d3d8e2}
+@property --ui-dbe4d1{syntax:"<color>";inherits:true;initial-value:#d1d8e4}
+@property --ui-dce3d3{syntax:"<color>";inherits:true;initial-value:#d3d9e3}
+@property --ui-dce3d4{syntax:"<color>";inherits:true;initial-value:#d4dae3}
+@property --ui-dce4d3{syntax:"<color>";inherits:true;initial-value:#d3d9e4}
+@property --ui-dce6d0{syntax:"<color>";inherits:true;initial-value:#d0d8e6}
+@property --ui-dce6d1{syntax:"<color>";inherits:true;initial-value:#d1d9e6}
+@property --ui-dce9cd{syntax:"<color>";inherits:true;initial-value:#cdd7e9}
+@property --ui-dfe5d8{syntax:"<color>";inherits:true;initial-value:#d8dde5}
+@property --ui-dfe5d9{syntax:"<color>";inherits:true;initial-value:#d9dde5}
+@property --ui-e0e5d9{syntax:"<color>";inherits:true;initial-value:#d9dde5}
+@property --ui-e0e6d9{syntax:"<color>";inherits:true;initial-value:#d9dee6}
+@property --ui-e0e7d7{syntax:"<color>";inherits:true;initial-value:#d7dde7}
+@property --ui-e1e7da{syntax:"<color>";inherits:true;initial-value:#dadfe7}
+@property --ui-e2e7d9{syntax:"<color>";inherits:true;initial-value:#d9dee7}
+@property --ui-e2e7dc{syntax:"<color>";inherits:true;initial-value:#dce0e7}
+@property --ui-e2e8d9{syntax:"<color>";inherits:true;initial-value:#d9dee8}
+@property --ui-e2e9d9{syntax:"<color>";inherits:true;initial-value:#d9dfe9}
+@property --ui-e4eadc{syntax:"<color>";inherits:true;initial-value:#dce1ea}
+@property --ui-e4eddb{syntax:"<color>";inherits:true;initial-value:#dbe2ed}
+@property --ui-e5e8e2{syntax:"<color>";inherits:true;initial-value:#e2e4e8}
+@property --ui-e5ebde{syntax:"<color>";inherits:true;initial-value:#dee3eb}
+@property --ui-e5f0d7{syntax:"<color>";inherits:true;initial-value:#d7e0f0}
+@property --ui-e5f1d7{syntax:"<color>";inherits:true;initial-value:#d7e1f1}
+@property --ui-e5f4d1{syntax:"<color>";inherits:true;initial-value:#d1def4}
+@property --ui-e6eadf{syntax:"<color>";inherits:true;initial-value:#dfe3ea}
+@property --ui-e7ebe2{syntax:"<color>";inherits:true;initial-value:#e2e5eb}
+@property --ui-e8ecdf{syntax:"<color>";inherits:true;initial-value:#dfe4ec}
+@property --ui-e8f3d7{syntax:"<color>";inherits:true;initial-value:#d7e1f3}
+@property --ui-e9ece5{syntax:"<color>";inherits:true;initial-value:#e5e8ec}
+@property --ui-e9ece6{syntax:"<color>";inherits:true;initial-value:#e6e8ec}
+@property --ui-e9ede2{syntax:"<color>";inherits:true;initial-value:#e2e6ed}
+@property --ui-e9ede4{syntax:"<color>";inherits:true;initial-value:#e4e7ed}
+@property --ui-e9efdf{syntax:"<color>";inherits:true;initial-value:#dfe5ef}
+@property --ui-e9f0e1{syntax:"<color>";inherits:true;initial-value:#e1e6f0}
+@property --ui-e9f1dc{syntax:"<color>";inherits:true;initial-value:#dce4f1}
+@property --ui-eaeee4{syntax:"<color>";inherits:true;initial-value:#e4e8ee}
+@property --ui-eaf3dc{syntax:"<color>";inherits:true;initial-value:#dce4f3}
+@property --ui-eaf4dc{syntax:"<color>";inherits:true;initial-value:#dce5f4}
+@property --ui-eaf5db{syntax:"<color>";inherits:true;initial-value:#dbe5f5}
+@property --ui-eaf5df{syntax:"<color>";inherits:true;initial-value:#dfe7f5}
+@property --ui-ecefe7{syntax:"<color>";inherits:true;initial-value:#e7eaef}
+@property --ui-ecefe9{syntax:"<color>";inherits:true;initial-value:#e9ebef}
+@property --ui-edf0e7{syntax:"<color>";inherits:true;initial-value:#e7eaf0}
+@property --ui-edf0e8{syntax:"<color>";inherits:true;initial-value:#e8ebf0}
+@property --ui-edf0e9{syntax:"<color>";inherits:true;initial-value:#e9ecf0}
+@property --ui-edf1e7{syntax:"<color>";inherits:true;initial-value:#e7ebf1}
+@property --ui-edf3e7{syntax:"<color>";inherits:true;initial-value:#e7ebf3}
+@property --ui-edf4e3{syntax:"<color>";inherits:true;initial-value:#e3e9f4}
+@property --ui-edf4e5{syntax:"<color>";inherits:true;initial-value:#e5ebf4}
+@property --ui-edf5e3{syntax:"<color>";inherits:true;initial-value:#e3eaf5}
+@property --ui-edf6df{syntax:"<color>";inherits:true;initial-value:#dfe7f6}
+@property --ui-eef1e8{syntax:"<color>";inherits:true;initial-value:#e8ebf1}
+@property --ui-eef5e5{syntax:"<color>";inherits:true;initial-value:#e5ebf5}
+@property --ui-eff8e1{syntax:"<color>";inherits:true;initial-value:#e1e9f8}
+@property --ui-f0f4e9{syntax:"<color>";inherits:true;initial-value:#e9edf4}
+@property --ui-f0f6e8{syntax:"<color>";inherits:true;initial-value:#e8edf6}
+@property --ui-f1f3ed{syntax:"<color>";inherits:true;initial-value:#edeff3}
+@property --ui-f1f7e7{syntax:"<color>";inherits:true;initial-value:#e7edf7}
+@property --ui-f2f8e9{syntax:"<color>";inherits:true;initial-value:#e9eef8}
+@property --ui-f3f6ed{syntax:"<color>";inherits:true;initial-value:#edf0f6}
+@property --ui-f3f8eb{syntax:"<color>";inherits:true;initial-value:#ebf0f8}
+@property --ui-f4f6ef{syntax:"<color>";inherits:true;initial-value:#eff2f6}
+@property --ui-f4f8ed{syntax:"<color>";inherits:true;initial-value:#edf1f8}
+@property --ui-f4f9ec{syntax:"<color>";inherits:true;initial-value:#ecf1f9}
+@property --ui-f5f6f3{syntax:"<color>";inherits:true;initial-value:#f3f4f6}
+@property --ui-f6f8f2{syntax:"<color>";inherits:true;initial-value:#f2f4f8}
+@property --ui-f6f8f3{syntax:"<color>";inherits:true;initial-value:#f3f5f8}
+@property --ui-f7f8f5{syntax:"<color>";inherits:true;initial-value:#f5f6f8}
+@property --ui-f7f9f2{syntax:"<color>";inherits:true;initial-value:#f2f5f9}
+@property --ui-f7f9f3{syntax:"<color>";inherits:true;initial-value:#f3f5f9}
+@property --ui-f7faf1{syntax:"<color>";inherits:true;initial-value:#f1f4fa}
+@property --ui-f7faf2{syntax:"<color>";inherits:true;initial-value:#f2f5fa}
+@property --ui-f8faf4{syntax:"<color>";inherits:true;initial-value:#f4f6fa}
+@property --ui-f8faf5{syntax:"<color>";inherits:true;initial-value:#f5f7fa}
+@property --ui-f8fbf3{syntax:"<color>";inherits:true;initial-value:#f3f6fb}
+@property --ui-f9fbf6{syntax:"<color>";inherits:true;initial-value:#f6f8fb}
+@property --ui-fafbf8{syntax:"<color>";inherits:true;initial-value:#f8f9fb}
+@property --ui-fafcf7{syntax:"<color>";inherits:true;initial-value:#f7f9fc}
+@property --ui-fbfcf9{syntax:"<color>";inherits:true;initial-value:#f9fafc}
+@property --ui-fcfdfb{syntax:"<color>";inherits:true;initial-value:#fbfcfd}
+html{transition:--brand-primary 650ms ease-in-out,--brand-primary-hover 650ms ease-in-out,--ui-14261633 650ms ease-in-out,--ui-15231525 650ms ease-in-out,--ui-19231b66 650ms ease-in-out,--ui-22332215 650ms ease-in-out,--ui-23302120 650ms ease-in-out,--ui-24331e 650ms ease-in-out,--ui-252c28 650ms ease-in-out,--ui-253724 650ms ease-in-out,--ui-25372415 650ms ease-in-out,--ui-253a2210 650ms ease-in-out,--ui-253a2226 650ms ease-in-out,--ui-2637200e 650ms ease-in-out,--ui-263a2205 650ms ease-in-out,--ui-263a2222 650ms ease-in-out,--ui-273b2210 650ms ease-in-out,--ui-28312a 650ms ease-in-out,--ui-29342a 650ms ease-in-out,--ui-29372b 650ms ease-in-out,--ui-324c1d 650ms ease-in-out,--ui-34492b 650ms ease-in-out,--ui-355429 650ms ease-in-out,--ui-384f2b 650ms ease-in-out,--ui-3b512e 650ms ease-in-out,--ui-3c493e 650ms ease-in-out,--ui-3c5a29 650ms ease-in-out,--ui-445f2e 650ms ease-in-out,--ui-476832 650ms ease-in-out,--ui-48573d 650ms ease-in-out,--ui-486e30 650ms ease-in-out,--ui-496e2a 650ms ease-in-out,--ui-4a6634 650ms ease-in-out,--ui-4c5746 650ms ease-in-out,--ui-4d6242 650ms ease-in-out,--ui-4f6c38 650ms ease-in-out,--ui-516046 650ms ease-in-out,--ui-517530 650ms ease-in-out,--ui-526047 650ms ease-in-out,--ui-527331 650ms ease-in-out,--ui-536448 650ms ease-in-out,--ui-536d40 650ms ease-in-out,--ui-577541 650ms ease-in-out,--ui-5a7d35 650ms ease-in-out,--ui-5b763e 650ms ease-in-out,--ui-5c6756 650ms ease-in-out,--ui-5c6a51 650ms ease-in-out,--ui-5d7050 650ms ease-in-out,--ui-5d705012 650ms ease-in-out,--ui-5e7151 650ms ease-in-out,--ui-606c58 650ms ease-in-out,--ui-637356 650ms ease-in-out,--ui-638442 650ms ease-in-out,--ui-647155 650ms ease-in-out,--ui-65765a 650ms ease-in-out,--ui-667f50 650ms ease-in-out,--ui-677b55 650ms ease-in-out,--ui-687f55 650ms ease-in-out,--ui-69953f 650ms ease-in-out,--ui-6a844a 650ms ease-in-out,--ui-6b8b50 650ms ease-in-out,--ui-6c775f 650ms ease-in-out,--ui-6c7b5d 650ms ease-in-out,--ui-6c7c60 650ms ease-in-out,--ui-6d9746 650ms ease-in-out,--ui-6e914d 650ms ease-in-out,--ui-6e9248 650ms ease-in-out,--ui-6e9d43 650ms ease-in-out,--ui-6f7e62 650ms ease-in-out,--ui-709751 650ms ease-in-out,--ui-738966 650ms ease-in-out,--ui-769a56 650ms ease-in-out,--ui-77816d 650ms ease-in-out,--ui-779b53 650ms ease-in-out,--ui-779c50 650ms ease-in-out,--ui-789d51 650ms ease-in-out,--ui-798d67 650ms ease-in-out,--ui-799756 650ms ease-in-out,--ui-7a9f57 650ms ease-in-out,--ui-7b8570 650ms ease-in-out,--ui-7c8478 650ms ease-in-out,--ui-7ca153 650ms ease-in-out,--ui-7ca34f 650ms ease-in-out,--ui-7d8d6d 650ms ease-in-out,--ui-7d906b 650ms ease-in-out,--ui-7e8873 650ms ease-in-out,--ui-7f8e71 650ms ease-in-out,--ui-7f916f 650ms ease-in-out,--ui-80936e 650ms ease-in-out,--ui-809969 650ms ease-in-out,--ui-81877f 650ms ease-in-out,--ui-819270 650ms ease-in-out,--ui-829473 650ms ease-in-out,--ui-838b7b 650ms ease-in-out,--ui-849574 650ms ease-in-out,--ui-849672 650ms ease-in-out,--ui-84a557 650ms ease-in-out,--ui-84a954 650ms ease-in-out,--ui-859576 650ms ease-in-out,--ui-859673 650ms ease-in-out,--ui-87917d 650ms ease-in-out,--ui-889b78 650ms ease-in-out,--ui-88aa61 650ms ease-in-out,--ui-89917f 650ms ease-in-out,--ui-89997e 650ms ease-in-out,--ui-8a9480 650ms ease-in-out,--ui-8b9482 650ms ease-in-out,--ui-8b9b7d 650ms ease-in-out,--ui-8b9d7c 650ms ease-in-out,--ui-8bb765 650ms ease-in-out,--ui-8c997f 650ms ease-in-out,--ui-8c9a7e 650ms ease-in-out,--ui-8c9a7f 650ms ease-in-out,--ui-8c9b7d 650ms ease-in-out,--ui-8c9b7e 650ms ease-in-out,--ui-8c9e7e 650ms ease-in-out,--ui-8ca477 650ms ease-in-out,--ui-8d9782 650ms ease-in-out,--ui-8d9d80 650ms ease-in-out,--ui-8e9687 650ms ease-in-out,--ui-8e9984 650ms ease-in-out,--ui-8e9a83 650ms ease-in-out,--ui-8f9d82 650ms ease-in-out,--ui-8fb859 650ms ease-in-out,--ui-90a57c 650ms ease-in-out,--ui-90ac72 650ms ease-in-out,--ui-90ac75 650ms ease-in-out,--ui-91988c 650ms ease-in-out,--ui-919d86 650ms ease-in-out,--ui-91a083 650ms ease-in-out,--ui-91ae72 650ms ease-in-out,--ui-91b765 650ms ease-in-out,--ui-92998d 650ms ease-in-out,--ui-929b87 650ms ease-in-out,--ui-92a184 650ms ease-in-out,--ui-93a083 650ms ease-in-out,--ui-94a287 650ms ease-in-out,--ui-94a387 650ms ease-in-out,--ui-95a089 650ms ease-in-out,--ui-95a486 650ms ease-in-out,--ui-96a58a 650ms ease-in-out,--ui-98a08e 650ms ease-in-out,--ui-98a58c 650ms ease-in-out,--ui-98b774 650ms ease-in-out,--ui-99a98a 650ms ease-in-out,--ui-9aa88d 650ms ease-in-out,--ui-9aac89 650ms ease-in-out,--ui-9ba391 650ms ease-in-out,--ui-9ba393 650ms ease-in-out,--ui-9baa8c 650ms ease-in-out,--ui-9bbd75 650ms ease-in-out,--ui-9cb77f 650ms ease-in-out,--ui-a0a698 650ms ease-in-out,--ui-a0aa96 650ms ease-in-out,--ui-a0ac96 650ms ease-in-out,--ui-a0ad93 650ms ease-in-out,--ui-a1ae96 650ms ease-in-out,--ui-a4aa9d 650ms ease-in-out,--ui-a5ada0 650ms ease-in-out,--ui-a5c475 650ms ease-in-out,--ui-a5c57f 650ms ease-in-out,--ui-a6ad9d 650ms ease-in-out,--ui-a7c583 650ms ease-in-out,--ui-a8c77e 650ms ease-in-out,--ui-adbaa5 650ms ease-in-out,--ui-afc495 650ms ease-in-out,--ui-afc596 650ms ease-in-out,--ui-b0c792 650ms ease-in-out,--ui-b5cd9b 650ms ease-in-out,--ui-b5e45c 650ms ease-in-out,--ui-b6c6a8 650ms ease-in-out,--ui-b7cda1 650ms ease-in-out,--ui-b8da8e2b 650ms ease-in-out,--ui-bacaad 650ms ease-in-out,--ui-bdcbb0 650ms ease-in-out,--ui-c3dca8 650ms ease-in-out,--ui-c6d4b8 650ms ease-in-out,--ui-c6d5b4 650ms ease-in-out,--ui-c6f36b 650ms ease-in-out,--ui-c7d5bb 650ms ease-in-out,--ui-c8d7ba 650ms ease-in-out,--ui-c9dfb1 650ms ease-in-out,--ui-cbd6c1 650ms ease-in-out,--ui-cdd5c7 650ms ease-in-out,--ui-d6dfcc 650ms ease-in-out,--ui-d6dfce 650ms ease-in-out,--ui-d9ecbf 650ms ease-in-out,--ui-dae7c8 650ms ease-in-out,--ui-dbe2d3 650ms ease-in-out,--ui-dbe4d1 650ms ease-in-out,--ui-dce3d3 650ms ease-in-out,--ui-dce3d4 650ms ease-in-out,--ui-dce4d3 650ms ease-in-out,--ui-dce6d0 650ms ease-in-out,--ui-dce6d1 650ms ease-in-out,--ui-dce9cd 650ms ease-in-out,--ui-dfe5d8 650ms ease-in-out,--ui-dfe5d9 650ms ease-in-out,--ui-e0e5d9 650ms ease-in-out,--ui-e0e6d9 650ms ease-in-out,--ui-e0e7d7 650ms ease-in-out,--ui-e1e7da 650ms ease-in-out,--ui-e2e7d9 650ms ease-in-out,--ui-e2e7dc 650ms ease-in-out,--ui-e2e8d9 650ms ease-in-out,--ui-e2e9d9 650ms ease-in-out,--ui-e4eadc 650ms ease-in-out,--ui-e4eddb 650ms ease-in-out,--ui-e5e8e2 650ms ease-in-out,--ui-e5ebde 650ms ease-in-out,--ui-e5f0d7 650ms ease-in-out,--ui-e5f1d7 650ms ease-in-out,--ui-e5f4d1 650ms ease-in-out,--ui-e6eadf 650ms ease-in-out,--ui-e7ebe2 650ms ease-in-out,--ui-e8ecdf 650ms ease-in-out,--ui-e8f3d7 650ms ease-in-out,--ui-e9ece5 650ms ease-in-out,--ui-e9ece6 650ms ease-in-out,--ui-e9ede2 650ms ease-in-out,--ui-e9ede4 650ms ease-in-out,--ui-e9efdf 650ms ease-in-out,--ui-e9f0e1 650ms ease-in-out,--ui-e9f1dc 650ms ease-in-out,--ui-eaeee4 650ms ease-in-out,--ui-eaf3dc 650ms ease-in-out,--ui-eaf4dc 650ms ease-in-out,--ui-eaf5db 650ms ease-in-out,--ui-eaf5df 650ms ease-in-out,--ui-ecefe7 650ms ease-in-out,--ui-ecefe9 650ms ease-in-out,--ui-edf0e7 650ms ease-in-out,--ui-edf0e8 650ms ease-in-out,--ui-edf0e9 650ms ease-in-out,--ui-edf1e7 650ms ease-in-out,--ui-edf3e7 650ms ease-in-out,--ui-edf4e3 650ms ease-in-out,--ui-edf4e5 650ms ease-in-out,--ui-edf5e3 650ms ease-in-out,--ui-edf6df 650ms ease-in-out,--ui-eef1e8 650ms ease-in-out,--ui-eef5e5 650ms ease-in-out,--ui-eff8e1 650ms ease-in-out,--ui-f0f4e9 650ms ease-in-out,--ui-f0f6e8 650ms ease-in-out,--ui-f1f3ed 650ms ease-in-out,--ui-f1f7e7 650ms ease-in-out,--ui-f2f8e9 650ms ease-in-out,--ui-f3f6ed 650ms ease-in-out,--ui-f3f8eb 650ms ease-in-out,--ui-f4f6ef 650ms ease-in-out,--ui-f4f8ed 650ms ease-in-out,--ui-f4f9ec 650ms ease-in-out,--ui-f5f6f3 650ms ease-in-out,--ui-f6f8f2 650ms ease-in-out,--ui-f6f8f3 650ms ease-in-out,--ui-f7f8f5 650ms ease-in-out,--ui-f7f9f2 650ms ease-in-out,--ui-f7f9f3 650ms ease-in-out,--ui-f7faf1 650ms ease-in-out,--ui-f7faf2 650ms ease-in-out,--ui-f8faf4 650ms ease-in-out,--ui-f8faf5 650ms ease-in-out,--ui-f8fbf3 650ms ease-in-out,--ui-f9fbf6 650ms ease-in-out,--ui-fafbf8 650ms ease-in-out,--ui-fafcf7 650ms ease-in-out,--ui-fbfcf9 650ms ease-in-out,--ui-fcfdfb 650ms ease-in-out}
+
+@font-face{font-family:"Cera Pro";src:url("/assets/fonts/cera-pro-light.ttf") format("truetype");font-weight:300;font-style:normal;font-display:block}
+@font-face{font-family:"Cera Pro";src:url("/assets/fonts/cera-pro-regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:block}
+@font-face{font-family:"Cera Pro";src:url("/assets/fonts/cera-pro-black.ttf") format("truetype");font-weight:900;font-style:normal;font-display:block}
+.brand-switch{position:relative;isolation:isolate;gap:0}
+.brand-switch:before{content:'';position:absolute;z-index:-1;left:4px;top:4px;width:calc((100% - 8px)/2);height:calc(100% - 8px);border-radius:7px;background:var(--brand-primary);box-shadow:0 2px 7px #0002;transform:translateX(0)}
+html[data-brand="komprao"] .brand-switch:before{transform:translateX(100%)}
+.brand-switch>button[aria-checked=true]{background:transparent;box-shadow:none}
+.brand-changing .brand-switch:before{background:linear-gradient(110deg,#123878,#E4002B);background-size:200% 100%;animation:switch-to-blue 650ms cubic-bezier(.2,.8,.2,1) both}
+html[data-brand="komprao"].brand-changing .brand-switch:before{animation-name:switch-to-red}
+@keyframes switch-to-red{from{transform:translateX(0);background-position:0%}to{transform:translateX(100%);background-position:100%}}
+@keyframes switch-to-blue{from{transform:translateX(100%);background-position:100%}to{transform:translateX(0);background-position:0%}}
+.brand-logo-panel{display:flex;align-items:center;justify-content:center;margin-top:14px;padding:13px 10px;min-height:80px;background:#fff;border:1px solid var(--border);border-radius:12px}
+.brand-logo-panel img{display:block;width:100%;max-width:180px;height:55px;object-fit:contain}
+.brand-changing .brand-logo-panel img{animation:brand-logo-enter 600ms ease both}
+@keyframes brand-logo-enter{from{opacity:0;transform:translateY(5px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:900px) and (min-width:701px){.brand-switch:before{width:calc(100% - 8px);height:calc((100% - 8px)/2)}html[data-brand="komprao"] .brand-switch:before{transform:translateY(100%)}.brand-changing .brand-switch:before{animation-name:switch-up}html[data-brand="komprao"].brand-changing .brand-switch:before{animation-name:switch-down}@keyframes switch-down{from{transform:translateY(0);background-position:0%}to{transform:translateY(100%);background-position:100%}}@keyframes switch-up{from{transform:translateY(100%);background-position:100%}to{transform:translateY(0);background-position:0%}}.brand-logo-panel{padding:10px 5px;min-height:55px}.brand-logo-panel img{height:32px}}
+@media(max-width:700px){.brand-mobile .brand-logo-panel{min-height:0;padding:3px 8px;margin-top:4px;border:0;background:transparent}.brand-mobile .brand-logo-panel img{width:100px;height:24px}.topbar:has(.brand-mobile){height:auto;min-height:76px;padding-block:8px}}
+@media(prefers-reduced-motion:reduce){html{transition:none}.brand-changing .brand-switch:before,.brand-changing .brand-logo-panel img{animation:none}}

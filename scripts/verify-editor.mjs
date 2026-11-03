@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import fs from 'node:fs';
-const c=vm.createContext({console,document:{querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},crypto:{randomUUID:()=>Math.random().toString(36)}});
+const c=vm.createContext({structuredClone,console,document:{querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},crypto:{randomUUID:()=>Math.random().toString(36)}});
 vm.runInContext(fs.readFileSync('public/offers-data.js','utf8'),c);c.OfferData=c.window.OfferData;
-const source=fs.readFileSync('public/studio.js','utf8');vm.runInContext(source.slice(0,source.lastIndexOf('\nrender();')),c);
+const source=fs.readFileSync('public/studio.js','utf8');vm.runInContext(fs.readFileSync('public/presets.js','utf8'),c);vm.runInContext(source.slice(0,source.lastIndexOf('\nrender();')),c);
 const run=code=>vm.runInContext(code,c),get=code=>JSON.parse(run('JSON.stringify('+code+')'));
 run("render=renderProperties=renderBoardList=drawStage=toast=()=>{};S.boards=[makeBoard({id:'p',sku:'1',name:'Produto',price:13.99,retailPrice:14.99,loyaltyPrice:13.99,offerKind:'club',image:'/test.png'})];S.active=0;");
 const set=(key,value)=>{c.value=value;run(`updateMechanic({dataset:{mechanic:'${key}'},type:'${typeof value==='boolean'?'checkbox':'text'}',value,checked:value},true)`)};

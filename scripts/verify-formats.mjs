@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import fs from 'node:fs';
-const c=vm.createContext({console,document:{querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){},createElement:()=>({})},window:{addEventListener(){}},crypto:{randomUUID:()=>Math.random().toString(36)}});
+const c=vm.createContext({structuredClone,console,document:{querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){},createElement:()=>({})},window:{addEventListener(){}},crypto:{randomUUID:()=>Math.random().toString(36)}});
 vm.runInContext(fs.readFileSync('public/offers-data.js','utf8'),c);c.OfferData=c.window.OfferData;
-const source=fs.readFileSync('public/studio.js','utf8');vm.runInContext(source.slice(0,source.lastIndexOf('\nrender();')),c);
+const source=fs.readFileSync('public/studio.js','utf8');vm.runInContext(fs.readFileSync('public/presets.js','utf8'),c);vm.runInContext(source.slice(0,source.lastIndexOf('\nrender();')),c);
 const run=code=>vm.runInContext(code,c),get=code=>JSON.parse(run('JSON.stringify('+code+')'));
 run(`renderProperties=drawStage=renderBoardList=()=>{};const product={id:'p',sku:'1',name:'Produto de teste',price:16.99,image:'/test.png',offerKind:'club'};`);
 for(const [format,width,height] of [['vertical',720,1281],['panoramic',1512,720],['mini',720,288]]){

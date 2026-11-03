@@ -43,19 +43,3 @@ yarn-error.log*
 
 # OS metadata
 .DS_Store
-
-# Cloud Shell & Sistema
-.cache/
-.codeoss/
-.config/
-.docker/
-.gemini/
-.local/
-.bash*
-.gitconfig
-.ssh/
-
-# Dependências e Builds
-node_modules/
-.next/
-*.env*

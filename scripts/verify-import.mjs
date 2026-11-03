@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
-const context=vm.createContext({console,document:{querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},crypto:{randomUUID:()=>Math.random().toString(36)}});
+const context=vm.createContext({structuredClone,console,document:{querySelector:()=>null,querySelectorAll:()=>[],addEventListener(){}},window:{addEventListener(){}},crypto:{randomUUID:()=>Math.random().toString(36)}});
 vm.runInContext(fs.readFileSync('public/offers-data.js','utf8'),context);
 context.OfferData=context.window.OfferData;
 const data=context.OfferData;
 const source=fs.readFileSync('public/studio.js','utf8');
-vm.runInContext(source.slice(0,source.lastIndexOf('\nrender();')),context);
+vm.runInContext(fs.readFileSync('public/presets.js','utf8'),context);vm.runInContext(source.slice(0,source.lastIndexOf('\nrender();')),context);
 const run=code=>vm.runInContext(code,context),plain=v=>JSON.parse(JSON.stringify(v));
 for(const [input,value] of [['R$ 2.99',2.99],['R$ 1.234,56',1234.56],['49,90',49.9],[0,0],['NULL',null],['?',null],['',null],[-2,null],['12abc',null]])assert.equal(data.parsePrice(input),value);
 const infoHeader=Array(20).fill('');infoHeader[7]='SKU';infoHeader[8]='Produto';infoHeader[19]='Imagem';
