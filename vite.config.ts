@@ -9,7 +9,12 @@ import { connectorPreview } from "./scripts/vite/connector-preview-plugin.mjs";
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
 
-const { d1, r2 } = hostingConfig;
+type HostingBindings = {
+  d1?: string;
+  r2?: string;
+};
+
+const { d1, r2 } = hostingConfig as HostingBindings;
 
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
