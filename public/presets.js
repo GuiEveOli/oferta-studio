@@ -154,6 +154,9 @@ window.OFERTA_PRESETS = {
         panel: { x: 496, y: 514, width: 552, height: 946 },
         direction: 'column', radius: 42, panelColor: '#ffffff',
       },
+      landscape: {
+        panel: { x: 832, y: 18, width: 319, height: 582 },
+      },
     },
   },
   // Único ponto de resolução dos padrões: geral → conjunto → formato.
