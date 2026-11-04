@@ -64,12 +64,12 @@ window.OFERTA_PRESETS = {
         "offerLegal": {"x": 0, "y": 666, "width": 829, "height": 32, "fontSize": 23}
       },
       "mini": {
-        "name": {"x": 45, "y": 39, "width": 330, "height": 72, "fontSize": 29},
+        "name": {"x": 45, "y": 39, "width": 330, "height": 72, "fontSize": 29, "align": "left"},
         "priceBand": {"x": 0, "y": 119, "width": 376, "height": 113},
-        "price": {"x": 0, "y": 125, "width": 369, "height": 103, "fontSize": 111},
+        "price": {"x": 45, "y": 125, "width": 369, "height": 115, "fontSize": 111, "align": "left"},
         "offerHeadline": {"x": 25, "y": 125, "width": 325, "height": 83, "fontSize": 46},
         "offerDiscount": {"x": 0, "y": 125, "width": 369, "height": 103, "fontSize": 105},
-        "clubBadge": {"x": 46, "y": 214, "width": 268, "height": 33},
+        "clubBadge": {"x": 46, "y": 218, "width": 268, "height": 33},
         "ctaBand": {"x": 458, "y": 118, "width": 236, "height": 55},
         "cta": {"x": 474, "y": 130, "width": 204, "height": 35, "fontSize": 29},
         "offerLegal": {"x": 14, "y": 264, "width": 380, "height": 18, "fontSize": 11}
@@ -111,6 +111,11 @@ window.OFERTA_PRESETS = {
     layouts: {
       vertical: {
         priceBand: { y:330 },
+      },
+      panoramic: {
+        "name": {"y": 70},
+        "priceBand": {"y": 265},
+        "price": {"x": -63, "y": 245, "width": 992, "height": 297, "fontSize": 300}
       },
     }, 
     productImages: {}
