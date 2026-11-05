@@ -80,9 +80,17 @@
     // Se nenhuma tiver imagem, usa a primeira ocorrência.
     const primary = list.find(p => p.image) || list[0];
 
+    const maxNameLength = 100;
+    const characters = Array.from(primary.name);
+
+    const name = characters.length > maxNameLength
+      ? characters.slice(0, maxNameLength - 1).join('').trimEnd() + '…'
+      : primary.name;
+
     catalog.push({
-        ...primary,
-        images: [...images],
+      ...primary,
+      name,
+      images: [...images],
     });
     }
     return {
@@ -140,6 +148,8 @@
       .map((r, index) => ({
         sku: sku(r[8]),
         offerType: clean(r[7]),
+        retailPriceRaw: clean(r[10]),
+        loyaltyPriceRaw: clean(r[13]),
         retailPrice: parsePrice(r[10]),
         loyaltyPrice: parsePrice(r[13]),
         payQty: quantity(r[19]),
@@ -160,8 +170,17 @@
       issues = [];
     let duplicates = 0;
     for (const offer of prices.offers) {
-      const k = kind(offer.offerType),
-        p = lookup.get(offer.sku);
+      const baseKind = kind(offer.offerType);
+      const pendingPrice =
+        baseKind !== 'takePay' &&
+        clean(
+          baseKind === 'club'
+            ? offer.loyaltyPriceRaw
+            : offer.retailPriceRaw
+        ) === '?';
+
+      const k = pendingPrice ? 'percentage' : baseKind;
+      const p = lookup.get(offer.sku);
       let reason = "";
       if (!validSku(offer.sku)) reason = "SKU vazio ou inválido";
       else if (!k)
@@ -190,13 +209,15 @@
         continue;
       }
       const showClub =
-        k === "club" ||
-        (k === "takePay" &&
-          normalize(offer.offerType) === "mercapromo pague e leve");
+        baseKind === 'club' ||
+        (
+          baseKind === 'takePay' &&
+          normalize(offer.offerType) === 'mercapromo pague e leve'
+        );
       const price =
-        k === "takePay"
+        k === 'takePay' || k === 'percentage'
           ? null
-          : k === "club"
+          : k === 'club'
             ? offer.loyaltyPrice
             : offer.retailPrice;
       const key = JSON.stringify([
@@ -220,6 +241,7 @@
         offerKind: k,
         price,
         showClub,
+        ...(pendingPrice ? { percentage: 0 } : {}),
       });
     }
     return {

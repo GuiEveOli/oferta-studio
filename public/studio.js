@@ -230,8 +230,87 @@ function sourceCard(kind) {
   return `<section class="source-card"><div class="card-title"><span>${catalog ? "01" : "02"} · ${title}</span>${source ? ico("circle-check", "check-circle") : ico("file-spreadsheet")}</div><div class="source-dropzone ${loading ? "busy" : ""}" data-source="${kind}">${ico(catalog ? "package-search" : "badge-dollar-sign")}<strong>${source ? h(source.filename) : "Arraste a planilha aqui"}</strong><p>${source ? `${Number(source.rowCount).toLocaleString("pt-BR")} linhas · ${catalog ? source.skuCount + " SKUs disponíveis" : source.offers.length + " registros de preço"}` : "Excel ou CSV · até 25 MB"}</p><button class="btn small" data-action="upload-source" data-source="${kind}" ${loading ? "disabled" : ""}>${loading ? '<span class="spinner"></span>' : ico("folder-open")}${source ? "Trocar planilha" : "Selecionar " + (catalog ? "informações" : "preços")}</button></div><div class="source-mappings">${mapping.map(([col, label]) => `<span><b>${col}</b>${label}</span>`).join("")}</div>${preloaded ? `<button class="source-previous" data-action="use-source" data-source="${kind}" ${loading ? "disabled" : ""}>${ico("file-check-2")}${catalog ? "Usar informações anteriores" : "Usar preços enviados"}</button>` : ""}${source?.imageVariants ? `<p class="hint">${source.imageVariants} SKUs têm várias imagens: usamos a primeira, e as demais ficam disponíveis para troca.</p>` : ""}${source?.ambiguous?.length ? `<p class="source-error">${source.ambiguous.length} ${source.ambiguous.length === 1 ? "SKU tem nome conflitante" : "SKUs têm nomes conflitantes"} e precisam de correção.</p>` : ""}${error ? `<p class="source-error" role="alert">${h(error)}</p>` : ""}</section>`;
 }
 function importView() {
-  const ready = S.catalogSource && S.priceSource;
-  return `<div class="page-heading"><div><div class="eyebrow">DOIS ARQUIVOS. UM FLUXO DE OFERTAS.</div><h1>Conecte produtos<br>e preços pelo SKU.</h1><p>Nome e imagem vêm da planilha de informações.<br>Preço, mecânica e capa vêm da planilha de preços.</p></div><span class="pill heading-tag">${ico("git-merge")}Cruzamento automático por SKU</span></div><div class="sources-grid">${sourceCard("catalog")}${sourceCard("prices")}</div><div class="import-next"><div><strong>${ready ? "As duas fontes estão prontas." : "Carregue as duas planilhas para continuar."}</strong><p>O preço antigo da planilha de informações será ignorado.</p></div><button class="btn primary" data-action="use-report" ${ready && !Object.values(S.sourceLoading).some(Boolean) ? "" : "disabled"}>Cruzar planilhas e continuar ${ico("arrow-right")}</button></div>${S.report ? importSummary() : ""}<div class="rules-grid"><div>${ico("tag")}<strong>Normal</strong><p>Preço varejo da coluna K.</p></div><div>${ico("badge-check")}<strong>Club Koch</strong><p>Preço fidelidade da coluna N + selo Clube K.</p></div><div>${ico("package-plus")}<strong>Leve / Pague</strong><p>LEVE U · PAGUE T, selo e texto legal.</p></div><div>${ico("package-plus")}<strong>Pague e Leve</strong><p>LEVE U · PAGUE T e texto legal, sem selo.</p></div></div><p class="hint">Os produtos são agrupados pela capa/cluster da coluna Z. Um SKU pode ter ofertas diferentes em capas diferentes.</p>`;
+  const isReady = Boolean(S.catalogSource && S.priceSource);
+  const isLoading = Object.values(S.sourceLoading || {}).some(Boolean);
+  const canContinue = isReady && !isLoading;
+
+  return `
+    <div class="page-heading">
+      <div>
+        <div class="eyebrow">DOIS ARQUIVOS. UM FLUXO DE OFERTAS.</div>
+        <h1>Conecte produtos<br>e preços pelo SKU.</h1>
+        <p>
+          Nome e imagem vêm da planilha de informações.<br>
+          Preço, mecânica e capa vêm da planilha de preços.
+        </p>
+      </div>
+      <span class="pill heading-tag">
+        ${ico("git-merge")}Cruzamento automático por SKU
+      </span>
+    </div>
+
+    <div class="sources-grid">
+      ${sourceCard("catalog")}
+      ${sourceCard("prices")}
+    </div>
+
+    <div class="import-next">
+      <div>
+        <strong>
+          ${isReady ? "As duas fontes estão prontas." : "Carregue as duas planilhas para continuar."}
+        </strong>
+        <p>O preço antigo da planilha de informações será ignorado.</p>
+      </div>
+      <div>
+        <label class="btn">
+          Abrir projeto salvo
+          <input 
+            type="file" 
+            id="project-file" 
+            accept=".zip,.json,application/zip,application/json" 
+            hidden
+          >
+        </label>
+
+        <button 
+          class="btn primary" 
+          data-action="use-report" 
+          ${canContinue ? "" : "disabled"}
+        >
+          Cruzar planilhas e continuar ${ico("arrow-right")}
+        </button>
+      </div>
+
+    </div>
+
+    ${S.report ? importSummary() : ""}
+
+    <div class="rules-grid">
+      ${renderOfferRules()}
+    </div>
+
+    <p class="hint">
+      Os produtos são agrupados pela capa/cluster da coluna Z. Um SKU pode ter ofertas diferentes em capas diferentes.
+    </p>
+  `;
+}
+
+// Subcomponente para organizar os cards informativos de regras
+function renderOfferRules() {
+  const rules = [
+    { icon: "tag", title: "Normal", desc: "Preço varejo da coluna K." },
+    { icon: "badge-check", title: "Club Koch", desc: "Preço fidelidade da coluna N + selo Clube K." },
+    { icon: "package-plus", title: "Leve / Pague", desc: "LEVE U · PAGUE T, selo e texto legal." },
+    { icon: "package-plus", title: "Pague e Leve", desc: "LEVE U · PAGUE T e texto legal, sem selo." }
+  ];
+
+  return rules.map(rule => `
+    <div>
+      ${ico(rule.icon)}
+      <strong>${rule.title}</strong>
+      <p>${rule.desc}</p>
+    </div>
+  `).join("");
 }
 function importSummary() {
   const r = S.report;
@@ -262,6 +341,9 @@ function offerLabel(p, offer) {
     if (offer.model === "takePay")
       return `LEVE ${offer.takeQty} PAGUE ${offer.payQty}`;
     return money(offer.price);
+  }
+  if (p.offerKind === 'percentage') {
+  return `${p.percentage ?? 0}% OFF`;
   }
   return p.offerKind === "takePay"
     ? `LEVE ${p.takeQty} PAGUE ${p.payQty}`
@@ -427,7 +509,11 @@ function baseNodes(p) {
 const OFFER_LEGAL = "*Mesmo produto, marca, gramatura e preço.";
 function initialOffer(p) {
   return {
-    model: p.offerKind === "takePay" ? "takePay" : "price",
+    model: p.offerKind === 'percentage'
+      ? 'percentage'
+      : p.offerKind === 'takePay'
+        ? 'takePay'
+        : 'price',
     showClub:
       typeof p.showClub === "boolean"
         ? p.showClub
@@ -435,7 +521,7 @@ function initialOffer(p) {
     price: p.price ?? p.retailPrice ?? 0,
     takeQty: p.takeQty || 2,
     payQty: p.payQty || 1,
-    percentage: 40,
+    percentage: p.percentage ?? 40,
     upTo: false,
   };
 }
@@ -643,7 +729,7 @@ function offerProperties(b) {
     )
     .join(
       "",
-    )}</select></label><label class="toggle-row">Mostrar selo Clube K<input type="checkbox" data-mechanic="showClub" ${o.showClub ? "checked" : ""}></label>${o.model === "takePay" ? `<div class="field-row" style="margin-top:12px">${field("Quantidade Leve", o.takeQty, 'data-mechanic="takeQty" type="number" min="2" step="1"')}${field("Quantidade Pague", o.payQty, 'data-mechanic="payQty" type="number" min="1" step="1"')}</div><label class="field"><span>Texto legal</span><textarea data-role="offerLegal" aria-label="Texto legal">${h(b.nodes.find((n) => n.role === "offerLegal")?.text || "")}</textarea></label>` : o.model === "percentage" ? `${field("Desconto (%)", o.percentage, 'data-mechanic="percentage" type="number" min="1" max="100" step="1"')}<label class="toggle-row">Mostrar “com até”<input type="checkbox" data-mechanic="upTo" aria-label="Mostrar com até" ${o.upTo ? "checked" : ""}></label>` : field("Preço (R$)", o.price, 'data-role="price" inputmode="decimal"')}<p class="hint">${o.model === "percentage" ? "Informe o desconto desejado. O selo pode ser ativado em qualquer modelo." : o.model === "takePay" ? "A faixa mostra as quantidades, sem preço monetário." : "Alterar o selo não altera o valor do preço."}</p></section>`;
+    )}</select></label><label class="toggle-row">Mostrar selo Clube K<input type="checkbox" data-mechanic="showClub" ${o.showClub ? "checked" : ""}></label>${o.model === "takePay" ? `<div class="field-row" style="margin-top:12px">${field("Quantidade Leve", o.takeQty, 'data-mechanic="takeQty" type="number" min="2" step="1"')}${field("Quantidade Pague", o.payQty, 'data-mechanic="payQty" type="number" min="1" step="1"')}</div><label class="field"><span>Texto legal</span><textarea data-role="offerLegal" aria-label="Texto legal">${h(b.nodes.find((n) => n.role === "offerLegal")?.text || "")}</textarea></label>` : o.model === "percentage" ? `${field("Desconto (%)", o.percentage, 'data-mechanic="percentage" type="number" min="0" max="100" step="1"')}<label class="toggle-row">Mostrar “com até”<input type="checkbox" data-mechanic="upTo" aria-label="Mostrar com até" ${o.upTo ? "checked" : ""}></label>` : field("Preço (R$)", o.price, 'data-role="price" inputmode="decimal"')}<p class="hint">${o.model === "percentage" ? "Informe o desconto desejado. O selo pode ser ativado em qualquer modelo." : o.model === "takePay" ? "A faixa mostra as quantidades, sem preço monetário." : "Alterar o selo não altera o valor do preço."}</p></section>`;
 }
 function updateMechanic(el, refresh) {
   const b = current();
@@ -659,12 +745,12 @@ function updateMechanic(el, refresh) {
     if (
       !Number.isFinite(value) ||
       !Number.isInteger(value) ||
-      value < 1 ||
-      (key === "percentage" && value > 100)
+      value < (key === 'percentage' ? 0 : 1) ||
+      (key === 'percentage' && value > 100)
     ) {
       if (refresh) {
         toast(
-          "Use um valor inteiro válido. O desconto deve ficar entre 1% e 100%.",
+          "Use um valor inteiro válido. O desconto deve ficar entre 0% e 100%.",
         );
         renderProperties();
       }
@@ -2712,29 +2798,56 @@ async function openExport() {
 function renderExport() {
   const n = S.exportSelected.size;
   openModal(
-    `<header class="modal-header"><div><div class="eyebrow" style="margin-bottom:8px">PRONTOS PARA SAIR DO ESTÚDIO</div><h2 id="modal-title">Exporte suas ofertas.</h2><p>Escolha os criativos e o formato. Cada imagem sai nas dimensões originais do formato escolhido.</p></div><button class="icon-btn" data-action="close-modal" aria-label="Fechar">${ico("x")}</button></header><div class="modal-content"><div class="export-controls"><button class="btn small" data-action="export-toggle-all">${ico(n === S.boards.length ? "square-check" : "square")}${n === S.boards.length ? "Desmarcar todos" : "Selecionar todos"}</button><span class="muted tiny">${n} de ${S.boards.length} selecionados</span><div class="spacer"></div><label class="tiny muted" for="export-format">Formato</label><select class="select" id="export-format">${[
-      ["png", "PNG"],
-      ["jpg", "JPG"],
-      ["webp", "WEBP"],
-    ]
-      .map(
-        ([v, l]) =>
-          `<option value="${v}" ${v === S.exportFormat ? "selected" : ""}>${l}</option>`,
-      )
-      .join("")}</select>${
-      S.exportFormat !== "png"
-        ? `<label class="tiny muted" for="export-quality">Qualidade</label><select class="select" id="export-quality" style="min-width:80px">${[
-            [1, "100%"],
-            [0.95, "95%"],
-            [0.85, "85%"],
-          ]
-            .map(
-              ([v, l]) =>
-                `<option value="${v}" ${v === S.exportQuality ? "selected" : ""}>${l}</option>`,
-            )
-            .join("")}</select>`
-        : ""
-    }</div><div class="export-grid">${S.boards.map((b, i) => `<article class="export-card ${S.exportSelected.has(b.id) ? "selected" : ""}" data-action="export-toggle" data-id="${b.id}" role="checkbox" tabindex="0" aria-checked="${S.exportSelected.has(b.id)}" aria-label="Exportar ${h(b.product.name)}"><div class="checkbox">${S.exportSelected.has(b.id) ? ico("check") : ""}</div><div class="export-card-preview"><img id="export-preview-${b.id}" src="${b.preview || "/assets/blank-preset.svg"}" alt="Prévia de ${h(b.product.name)}"></div><p>${h(b.product.name)}</p><small>${String(i + 1).padStart(2, "0")} · SKU ${h(b.product.sku)} · ${h(b.product.cluster)} · ${boardFormat(b).width} × ${boardFormat(b).height} px</small></article>`).join("")}</div><div id="export-error"></div><div id="export-progress"></div></div><footer class="modal-footer"><small>${n > 1 ? "Os criativos serão reunidos em um arquivo ZIP." : "Exportação no tamanho original do preset."}<br>Seus ajustes são aplicados individualmente.</small><button class="btn primary" data-action="download-export" id="download-export" ${!n ? "disabled" : ""}>${ico("download")}Exportar ${n} ${n === 1 ? "criativo" : "criativos"}</button></footer>`,
+    `<header class="modal-header">
+        <div>
+            <div class="eyebrow" style="margin-bottom: 8px">PRONTOS PARA SAIR DO ESTÚDIO</div>
+            <h2 id="modal-title">Exporte suas ofertas.</h2>
+            <p>Escolha os criativos e o formato. Cada imagem sai nas dimensões originais do formato escolhido.</p>
+        </div>
+        <button class="icon-btn" data-action="close-modal" aria-label="Fechar">${ico("x")}</button>
+    </header>
+    <div class="modal-content">
+        <div class="export-controls">
+            <button class="btn small" data-action="export-toggle-all">
+                ${ico(n === S.boards.length ? "square-check" : "square")}${n === S.boards.length ? "Desmarcar todos" :
+                "Selecionar todos"}</button>
+            <span class="muted tiny">${n} de ${S.boards.length} selecionados</span>
+            <div class="spacer"></div>
+            <label class="tiny muted" for="export-format">Formato</label>
+            <select class="select" id="export-format">
+  ${[
+    ["png", "PNG"],
+    ["jpg", "JPG"],
+    ["webp", "WEBP"],
+  ].map(([value, label]) =>
+    `<option value="${value}" ${value === S.exportFormat ? "selected" : ""}>
+      ${label}
+    </option>`
+  ).join("")}
+</select>
+
+${S.exportFormat !== "png" ? `
+  <label class="tiny muted" for="export-quality">Qualidade</label>
+  <select class="select" id="export-quality" style="min-width:80px">
+    ${[
+      [1, "100%"],
+      [0.95, "95%"],
+      [0.85, "85%"],
+    ].map(([value, label]) =>
+      `<option value="${value}" ${value === S.exportQuality ? "selected" : ""}>
+        ${label}
+      </option>`
+    ).join("")}
+  </select>
+` : ""}
+
+<label class="toggle-row">
+  Incluir projeto editável
+  <input type="checkbox" id="export-editable"
+    ${S.includeEditableProject !== false ? "checked" : ""}>
+</label>
+</div>
+<div class="export-grid">${S.boards.map((b, i) => `<article class="export-card ${S.exportSelected.has(b.id) ? "selected" : ""}" data-action="export-toggle" data-id="${b.id}" role="checkbox" tabindex="0" aria-checked="${S.exportSelected.has(b.id)}" aria-label="Exportar ${h(b.product.name)}"><div class="checkbox">${S.exportSelected.has(b.id) ? ico("check") : ""}</div><div class="export-card-preview"><img id="export-preview-${b.id}" src="${b.preview || "/assets/blank-preset.svg"}" alt="Prévia de ${h(b.product.name)}"></div><p>${h(b.product.name)}</p><small>${String(i + 1).padStart(2, "0")} · SKU ${h(b.product.sku)} · ${h(b.product.cluster)} · ${boardFormat(b).width} × ${boardFormat(b).height} px</small></article>`).join("")}</div><div id="export-error"></div><div id="export-progress"></div></div><footer class="modal-footer"><small>${n > 1 ? "Os criativos serão reunidos em um arquivo ZIP." : "Exportação no tamanho original do preset."}<br>Seus ajustes são aplicados individualmente.</small><button class="btn primary" data-action="download-export" id="download-export" ${!n ? "disabled" : ""}>${ico("download")}Exportar ${n} ${n === 1 ? "criativo" : "criativos"}</button></footer>`,
   );
   icons();
 }
@@ -2770,6 +2883,8 @@ async function doExport() {
     zip = new JSZip(),
     fmt = S.exportFormat,
     type = fmt === "jpg" ? "image/jpeg" : "image/" + fmt;
+  const includeProject = S.includeEditableProject !== false;
+  const exportedBoards = [];
   const errors = [];
   let done = 0;
   try {
@@ -2795,8 +2910,13 @@ async function doExport() {
           );
         const name = creativeFilename(b, fmt);
         done++;
-        if (boards.length === 1) download(blob, name);
-        else zip.file(name, blob);
+        if (boards.length === 1 && !includeProject) {
+          download(blob, name);
+        } else {
+          zip.file(name, blob);
+        }
+
+        exportedBoards.push(b);
         $("#export-progress").innerHTML =
           `<div class="export-progress"><div style="width:${((done + errors.length) / boards.length) * 100}%"></div></div><p class="hint">${done + errors.length} de ${boards.length} processados</p>`;
       } catch (e) {
@@ -2806,15 +2926,39 @@ async function doExport() {
         container.remove();
       }
     }
-    if (boards.length > 1 && done) {
+    if (done && (boards.length > 1 || includeProject)) {
+      if (includeProject) {
+        const project = {
+          version: 1,
+          workspace: 'site',
+          brand: S.brand,
+          title: S.title,
+          boards: exportedBoards.map(({ preview, ...board }) => board),
+        };
+
+        const formatNames = new Set(
+          exportedBoards.map(board =>
+            board.format === 'vertical' ? 'Vertical' : boardFormat(board).name
+          )
+        );
+
+        const formatName = formatNames.size === 1
+          ? [...formatNames][0]
+          : 'Formatos';
+
+        zip.file(
+          `${formatName} (Editável).json`,
+          JSON.stringify(project, null, 2)
+        );
+      }
+
       const blob = await zip.generateAsync({
-        type: "blob",
-        compression: "STORE",
+        type: 'blob',
+        compression: 'STORE',
       });
-      download(
-        blob,
-        norm(S.title).replace(/[^a-z0-9]+/g, "-") + "_" + fmt + ".zip",
-      );
+
+      const filename = norm(S.title).replace(/[^a-z0-9]+/g, '-');
+      download(blob, `${filename}_${fmt}.zip`);
     }
     if (errors.length) {
       $("#export-error").innerHTML =
@@ -2835,6 +2979,124 @@ async function doExport() {
     icons();
   }
 }
+
+async function openSavedProject(file) {
+  try {
+    let projectText;
+
+    if (/\.json$/i.test(file.name)) {
+      projectText = await file.text();
+    } else {
+      const zip = await JSZip.loadAsync(file);
+
+      const entry =
+        zip.file(/^[^/]+ \(Editável\)\.json$/i)[0] ??
+        zip.file('projeto.json');
+
+      if (!entry) {
+        throw new Error('Este ZIP não contém um projeto editável.');
+      }
+
+      projectText = await entry.async('string');
+    }
+
+    const project = JSON.parse(projectText.replace(/^\uFEFF/, ''));
+    const validId = id => typeof id === 'string' && /^[\w-]+$/.test(id);
+
+    if (
+      project?.version !== 1 ||
+      project.workspace !== 'site' ||
+      !Object.hasOwn(window.OFFER_BRANDS, project.brand) ||
+      !Array.isArray(project.boards) ||
+      !project.boards.length ||
+      !project.boards.every(board =>
+        board &&
+        validId(board.id) &&
+        board.brand === project.brand &&
+        Object.hasOwn(FORMATS, board.format) &&
+        board.product &&
+        validId(board.product.id) &&
+        typeof board.product.name === 'string' &&
+        board.theme &&
+        Array.isArray(board.nodes) &&
+        board.nodes.every(node => node && validId(node.id))
+      )
+    ) {
+      throw new Error('O arquivo de projeto é inválido ou incompatível.');
+    }
+
+    const restore = () => {
+      if (S.brand !== project.brand) {
+        switchBrand(project.brand);
+        if (S.brand !== project.brand) return;
+      }
+
+      S.boards = project.boards.map(board => ({
+        ...board,
+        preview: null,
+      }));
+
+      const products = [...new Map(
+        S.boards.map(board => [board.product.id, board.product])
+      ).values()];
+
+      const clusters = [...new Set(
+        products.map(product => product.cluster).filter(Boolean)
+      )];
+
+      // Reconstrói a lista de produtos a partir do projeto salvo.
+      S.report = {
+        products,
+        clusters,
+        issues: [],
+        duplicates: 0,
+        skuCount: new Set(products.map(product => product.sku)).size,
+        missingImages: products.filter(product => !product.image).length,
+      };
+
+      S.catalogSource = { products };
+      S.priceSource = null;
+      S.sourcesDirty = false;
+      S.selected = new Set(products.map(product => product.id));
+
+      S.title = typeof project.title === 'string'
+        ? project.title
+        : 'Projeto salvo';
+      S.workspace = 'site';
+      S.format = S.boards[0].format;
+      S.active = 0;
+      S.cluster = '';
+      S.query = '';
+      S.boardQuery = '';
+      S.page = 1;
+      S.zoom = 0;
+      S.history = new Map();
+      S.future = new Map();
+
+      clearModelSelection();
+      S.view = 'editor';
+      render();
+      toast('Projeto aberto.');
+    };
+
+    const targetBoards = project.brand === S.brand
+      ? S.boards
+      : brandSessions.get(project.brand)?.boards;
+
+    if (targetBoards?.length) {
+      openConfirm(
+        'Abrir projeto salvo?',
+        'O projeto substituirá os criativos abertos dessa bandeira.',
+        restore
+      );
+    } else {
+      restore();
+    }
+  } catch (error) {
+    toast(error.message || 'Não foi possível abrir o projeto.');
+  }
+}
+
 function showHelp() {
   S.modal = { type: "help" };
   openModal(
@@ -3365,56 +3627,105 @@ document.addEventListener("input", (e) => {
 });
 document.addEventListener("change", (e) => {
   const el = e.target;
+
+  if (el.id === "project-file") {
+    const file = el.files[0];
+    el.value = "";
+    if (file) openSavedProject(file);
+    return;
+  }
+
+  if (el.id === "export-editable") {
+    S.includeEditableProject = el.checked;
+    return;
+  }
+
   if (el.id === "catalog-file" || el.id === "prices-file") {
-    importSheet(el.files[0], el.id === "catalog-file" ? "catalog" : "prices");
+    importSheet(
+      el.files[0],
+      el.id === "catalog-file" ? "catalog" : "prices"
+    );
     el.value = "";
   }
+
   if (el.id === "image-file") {
     const file = el.files[0];
     el.value = "";
+
     if (!file) return;
-    if (file.size > 15 * 1024 * 1024)
+    if (file.size > 15 * 1024 * 1024) {
       return toast("A imagem deve ter até 15 MB.");
-    if (!file.type.startsWith("image/"))
+    }
+    if (!file.type.startsWith("image/")) {
       return toast("Selecione um arquivo de imagem.");
+    }
+
     const reader = new FileReader();
     reader.onload = () => applyImage(reader.result);
     reader.onerror = () => toast("Não foi possível ler a imagem.");
     reader.readAsDataURL(file);
   }
+
   if (el.id === "cluster-filter") {
     S.cluster = el.value;
     S.page = 1;
     updateProducts();
   }
+
   if (el.id === "select-page") {
     const ps = filteredProducts().slice(
       (S.page - 1) * S.pageSize,
-      S.page * S.pageSize,
+      S.page * S.pageSize
     );
+
     ps.forEach((p) => {
-      if (el.checked) S.selected.add(p.id);
-      else S.selected.delete(p.id);
+      if (el.checked) {
+        S.selected.add(p.id);
+      } else {
+        S.selected.delete(p.id);
+      }
     });
+
     updateProducts();
   }
-  if (el.dataset.background) updateBackground(el.dataset.background, el.value);
-  if (el.id === "align-reference") S.alignReference = el.value;
+
+  if (el.dataset.background) {
+    updateBackground(el.dataset.background, el.value);
+  }
+
+  if (el.id === "align-reference") {
+    S.alignReference = el.value;
+  }
+
   if (el.id === "export-format") {
     S.exportFormat = el.value;
     renderExport();
   }
-  if (el.id === "export-quality") S.exportQuality = Number(el.value);
-  if (el.hasAttribute("data-image-spacing")) setImageSpacing(el.value);
-  if (el.hasAttribute("data-product-scale")) setProductScale(el.value);
-  if (el.dataset.mechanic) updateMechanic(el, true);
+
+  if (el.id === "export-quality") {
+    S.exportQuality = Number(el.value);
+  }
+
+  if (el.hasAttribute("data-image-spacing")) {
+    setImageSpacing(el.value);
+  }
+
+  if (el.hasAttribute("data-product-scale")) {
+    setProductScale(el.value);
+  }
+
+  if (el.dataset.mechanic) {
+    updateMechanic(el, true);
+  }
+
   if (
     el.dataset.node ||
     el.dataset.theme ||
     el.dataset.role ||
     el.dataset.offer
-  )
+  ) {
     updateProperty(el, true);
+  }
 });
 function updateProperty(el, refresh) {
   const b = current();
