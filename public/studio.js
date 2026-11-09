@@ -201,8 +201,8 @@ function shell(content) {
   return `<aside class="sidebar">${logo()}${brandSwitcher()}<div class="nav-label">WORKSPACE</div><nav><button class="nav-item ${S.workspace === "site" ? "active" : ""}" data-action="workspace-site">${ico("panels-top-left")}<span>Banners Site</span><b class="nav-dot"></b></button>${supportsPaid() ? `<button class="nav-item ${S.workspace === "paid" ? "active" : ""}" data-action="workspace-paid">${ico("layout-grid")}<span>Mídia Paga</span></button>` : ""}<button class="nav-item" data-action="help">${ico("circle-help")}<span>Como funciona</span></button></nav><div class="sidebar-spacer"></div><div class="session-note">${ico("sparkles")}<b>Seu fluxo, mais leve.</b>Uma planilha. Vários produtos.<br>Cada oferta no seu lugar.</div></aside><main class="shell-main"><header class="topbar"><div class="breadcrumb">${ico("house")}<span>Meu espaço</span>${ico("chevron-right")}<b>${S.workspace === "paid" ? "Mídia Paga" : "Banners Site"}</b></div>${brandSwitcher("brand-mobile")}<span class="mobile-label">${logo()}</span></header><div class="page">${S.workspace === "paid" ? "" : stepper()}${content}</div></main>`;
 }
 function stepper() {
-  const names = ["Planilha", "Formato", "Produtos", "Editor"],
-    idx = { import: 0, formats: 1, products: 2, editor: 3 }[S.view];
+  const names = ["Planilha", "Produtos", "Formato", "Editor"],
+    idx = { import: 0, products: 1, formats: 2, editor: 3 }[S.view];
   return `<div class="stepper">${names.map((n, i) => `${i ? '<div class="step-line"></div>' : ""}<button class="step ${i === idx ? "current" : i < idx ? "done" : ""}" data-action="step" data-index="${i}" ${i > idx ? "disabled" : ""}><span class="num">${i < idx ? ico("check") : String(i + 1).padStart(2, "0")}</span>${n}</button>`).join("")}</div>`;
 }
 function sourceCard(kind) {
@@ -325,7 +325,7 @@ function importSummary() {
   return `<section class="import-summary"><strong>${r.products.length} ofertas disponíveis · ${r.skuCount} SKUs · ${r.clusters.length} capas</strong><p>${r.duplicates.toLocaleString("pt-BR")} repetições idênticas agrupadas entre unidades.</p>${r.missingImages ? `<p class="source-error">${r.missingImages} ofertas sem imagem no catálogo. Você poderá enviar ou substituir a imagem no editor.</p>` : ""}${r.issues.length ? `<details><summary>${r.issues.length.toLocaleString("pt-BR")} linhas com pendências — não serão diagramadas</summary><ul>${[...reasons].map(([reason, count]) => `<li>${h(reason)}: <b>${count.toLocaleString("pt-BR")}</b></li>`).join("")}</ul><p>Exemplos de SKUs para conferir:</p><div class="import-issues">${samples.map((i) => `<div><b>${h(i.sku || "Sem SKU")}</b><span>${h(i.reason)}</span></div>`).join("")}</div><p class="hint">Exibindo até 40 combinações de SKU e motivo. Corrija a fonte e importe novamente.</p></details>` : '<p class="success-note">Todos os registros puderam ser cruzados.</p>'}</section>`;
 }
 function formatsView() {
-  return `<div class="page-heading"><div><div class="eyebrow">UM BOM COMEÇO PARA CADA OFERTA</div><h1>Escolha o seu formato.</h1><p>Três layouts prontos para personalizar.</p></div><button class="btn ghost small" data-action="nav-import">${ico("arrow-left")}Voltar</button></div><div class="format-layout format-grid">${Object.values(
+  return `<div class="page-heading"><div><div class="eyebrow">UM BOM COMEÇO PARA CADA OFERTA</div><h1>Escolha o seu formato.</h1><p>Três layouts prontos para personalizar.</p></div><button class="btn ghost small" data-action="back-products">${ico("arrow-left")}Voltar</button></div><div class="format-layout format-grid">${Object.values(
     bannerPresets().formats,
   )
     .map(
@@ -369,7 +369,7 @@ function filteredProducts() {
   );
 }
 function productsView() {
-  return `<div class="page-heading"><div><div class="eyebrow">ESCOLHA O QUE VAI GANHAR DESTAQUE</div><h1>Suas próximas ofertas.</h1><p>Filtre por capa e selecione um produto por criativo.</p></div><button class="btn ghost small" data-action="open-formats">${ico("arrow-left")}Formato</button></div><div class="table-toolbar"><label class="search">${ico("search")}<input id="product-query" placeholder="Buscar por nome ou SKU" value="${h(S.query)}" aria-label="Buscar produtos por nome ou SKU"></label><select id="cluster-filter" class="select cluster-filter" aria-label="Filtrar por capa ou cluster"><option value="">Todas as capas</option>${S.report.clusters.map((x) => `<option value="${h(x)}" ${x === S.cluster ? "selected" : ""}>${h(x)}</option>`).join("")}</select><span class="table-stats" id="table-stats"></span></div><div class="products-table"><div class="product-header"><input type="checkbox" id="select-page" aria-label="Selecionar página"><span>Produto</span><span class="sku-col">SKU</span><span>Oferta</span></div><div id="product-rows"></div><div class="pagination" id="pagination"></div></div><div class="selection-bar" id="selection-bar"></div>${importSummary()}`;
+  return `<div class="page-heading"><div><div class="eyebrow">ESCOLHA O QUE VAI GANHAR DESTAQUE</div><h1>Suas próximas ofertas.</h1><p>Filtre por capa e selecione um produto por criativo.</p></div><button class="btn ghost small" data-action="nav-import">${ico("arrow-left")}Voltar às planilhas</button></div><div class="table-toolbar"><label class="search">${ico("search")}<input id="product-query" placeholder="Buscar por nome ou SKU" value="${h(S.query)}" aria-label="Buscar produtos por nome ou SKU"></label><select id="cluster-filter" class="select cluster-filter" aria-label="Filtrar por capa ou cluster"><option value="">Todas as capas</option>${S.report.clusters.map((x) => `<option value="${h(x)}" ${x === S.cluster ? "selected" : ""}>${h(x)}</option>`).join("")}</select><span class="table-stats" id="table-stats"></span></div><div class="products-table"><div class="product-header"><input type="checkbox" id="select-page" aria-label="Selecionar página"><span>Produto</span><span class="sku-col">SKU</span><span>Oferta</span></div><div id="product-rows"></div><div class="pagination" id="pagination"></div></div><div class="selection-bar" id="selection-bar"></div>${importSummary()}`;
 }
 function updateProducts() {
   const all = filteredProducts(),
@@ -398,7 +398,7 @@ function updateProducts() {
 function updateSelectionBar() {
   const n = S.selected.size;
   $("#selection-bar").innerHTML =
-    `<div><strong>${n} ${n === 1 ? "produto selecionado" : "produtos selecionados"}</strong><small>${n ? "Um criativo para cada oferta." : "Marque os produtos que você quer diagramar."}</small></div><div style="display:flex;gap:10px">${n ? '<button class="btn ghost small" style="color:var(--ui-bacaad)" data-action="clear-selection">Limpar</button>' : ""}<button class="btn primary" data-action="start-editor" ${!n ? "disabled" : ""}>Diagramar ${n || ""} ${n === 1 ? "criativo" : "criativos"}${ico("arrow-right")}</button></div>`;
+    `<div><strong>${n} ${n === 1 ? "produto selecionado" : "produtos selecionados"}</strong><small>${n ? "Um criativo para cada oferta." : "Marque os produtos que você quer diagramar."}</small></div><div style="display:flex;gap:10px">${n ? '<button class="btn ghost small" style="color:var(--ui-bacaad)" data-action="clear-selection">Limpar</button>' : ""}<button class="btn primary" data-action="open-formats" ${!n ? "disabled" : ""}>Escolher formato ${n || ""} ${n === 1 ? "criativo" : "criativos"}${ico("arrow-right")}</button></div>`;
 }
 function defaultTheme(format = "vertical") {
   const theme = {
@@ -2330,7 +2330,7 @@ function campaignTitle(filename) {
 }
 function useReport() {
   if (!S.sourcesDirty && S.report?.products.length) {
-    S.view = "formats";
+    S.view = "products";
     render();
     return;
   }
@@ -2353,7 +2353,7 @@ function useReport() {
     S.zoom = 0;
     S.query = "";
     S.page = 1;
-    S.view = data.products.length ? "formats" : "import";
+    S.view = data.products.length ? "products" : "import";
     render();
     toast(
       data.products.length
@@ -2442,7 +2442,13 @@ function applyRows(rows, filename, kind) {
   );
 }
 function startEditor() {
-  const products = S.report.products.filter((p) => S.selected.has(p.id));
+    const productsById = new Map(
+    S.report.products.map((product) => [product.id, product]),
+  );
+
+const products = [...S.selected]
+  .map((id) => productsById.get(id))
+  .filter(Boolean);
   if (!products.length) return;
   const old = new Map(
     S.boards
@@ -3268,33 +3274,42 @@ async function action(el, event) {
       useReport();
       break;
     case "open-formats":
-      if (S.sourcesDirty) {
-        S.view = "import";
-        render();
-        toast("Cruze as duas fontes antes de escolher o formato.");
-        break;
+      if (S.sourcesDirty || !S.report?.products.length) {
+        return toast("Cruze as duas planilhas para continuar.");
+      }
+      if (!S.selected.size) {
+        return toast("Selecione pelo menos um produto.");
       }
       S.view = "formats";
       render();
       break;
+
     case "choose-format":
-      if (S.sourcesDirty || !S.report?.products.length)
+      if (S.sourcesDirty || !S.report?.products.length) {
         return toast("Cruze as duas planilhas para continuar.");
-      S.format = FORMATS[el.dataset.format] ? el.dataset.format : S.format;
-      S.zoom = 0;
-      S.view = "products";
-      render();
-      break;
-    case "step": {
-      const i = Number(el.dataset.index);
-      if (i > 0 && S.sourcesDirty) {
-        S.view = "import";
-        render();
-        return toast("Cruze as fontes atualizadas para continuar.");
       }
-      if (i === 0) S.view = "import";
-      if (i === 1) S.view = "formats";
-      if (i === 2 && S.report) S.view = "products";
+      if (!S.selected.size) {
+        return toast("Selecione pelo menos um produto.");
+      }
+      if (!Object.hasOwn(bannerPresets().formats, el.dataset.format)) break;
+
+      S.format = el.dataset.format;
+      S.zoom = 0;
+      startEditor();
+      break;
+
+    case "step": {
+      const nextView = ["import", "products", "formats"][Number(el.dataset.index)];
+      if (!nextView) break;
+
+      if (nextView !== "import" && (S.sourcesDirty || !S.report?.products.length)) {
+        return toast("Cruze as duas planilhas para continuar.");
+      }
+      if (nextView === "formats" && !S.selected.size) {
+        return toast("Selecione pelo menos um produto.");
+      }
+
+      S.view = nextView;
       render();
       break;
     }
