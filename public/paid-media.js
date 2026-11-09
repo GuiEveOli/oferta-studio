@@ -750,7 +750,367 @@ window.PaidMedia = (() => {
       `<span>${results.length} ofertas · ${P.page}/${pages}</span><button class="btn small" data-pm="prev-page" ${P.page === 1 ? "disabled" : ""}>Anterior</button><button class="btn small" data-pm="next-page" ${P.page === pages ? "disabled" : ""}>Próxima</button>`;
     icons();
   }
+  function openSlotEditor(p, index) {
+    const product = p.slots[index];
+    if (!product) return;
 
+    const offer = initialOffer(product);
+    let offerFields = "";
+
+    if (offer.model === "takePay") {
+      offerFields = `<div class="field-row">
+        ${dataField("Quantidade Leve", offer.takeQty, 'name="takeQty" min="2" step="1" required')}
+        ${dataField("Quantidade Pague", offer.payQty, 'name="payQty" min="1" step="1" required')}
+      </div>`;
+    } else if (offer.model === "percentage") {
+      offerFields = dataField(
+        "Desconto (%)",
+        offer.percentage,
+        'name="percentage" min="0" max="100" step="1" required',
+      );
+    } else {
+      offerFields = dataField(
+        "Preço (R$)",
+        offer.price,
+        'name="price" min="0" step="0.01" required',
+      );
+    }
+
+    S.modal = { type: "paid-slot-editor" };
+    openModal(`
+      <header class="modal-header">
+        <div>
+          <h2 id="modal-title">Editar produto · Slot ${index + 1}</h2>
+          <p>SKU ${h(product.sku)} · As alterações valem para os três formatos.</p>
+        </div>
+        <button type="button" class="icon-btn" data-action="close-modal"
+          aria-label="Fechar">${ico("x")}</button>
+      </header>
+
+      <form id="pm-slot-editor">
+        <div class="modal-content">
+          ${dataField("Nome do produto", product.name, 'name="name" required', "text")}
+          ${offerFields}
+
+          <label class="toggle-row">
+            Mostrar selo Clube K
+            <input type="checkbox" name="showClub" ${offer.showClub ? "checked" : ""}>
+          </label>
+
+          <label class="field">
+            <span>Substituir imagem</span>
+            <input type="file" name="image" accept="image/*">
+          </label>
+          <p class="hint">Deixe o campo vazio para usar a imagem atual.</p>
+        </div>
+
+        <footer class="modal-footer">
+          <button type="button" class="btn" data-pm="clear-slot"
+            data-index="${index}">Remover produto</button>
+          <button type="button" class="btn" data-pm="replace-slot"
+            data-index="${index}">Trocar produto</button>
+          <button type="submit" class="btn primary">Salvar alterações</button>
+        </footer>
+      </form>
+    `);
+
+    const form = $("#pm-slot-editor");
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const data = new FormData(form);
+      const updated = {
+        ...product,
+        name: String(data.get("name")).trim(),
+        showClub: data.has("showClub"),
+      };
+
+      if (!updated.name) return toast("Informe o nome do produto.");
+
+      if (offer.model === "takePay") {
+        updated.takeQty = Number(data.get("takeQty"));
+        updated.payQty = Number(data.get("payQty"));
+
+        if (updated.takeQty <= updated.payQty) {
+          return toast("A quantidade Leve deve ser maior que Pague.");
+        }
+      } else if (offer.model === "percentage") {
+        updated.percentage = Number(data.get("percentage"));
+      } else {
+        updated.price = Number(data.get("price"));
+      }
+
+      const submit = form.querySelector('button[type="submit"]');
+      submit.disabled = true;
+
+      try {
+        const file = data.get("image");
+        if (file?.size) {
+          if (!file.type.startsWith("image/") || file.size > 15 * 1024 * 1024) {
+            return toast("Selecione uma imagem de até 15 MB.");
+          }
+
+          updated.image = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+
+          await loadImage(updated.image);
+        }
+
+        // O usuário pode ter fechado o popup durante o upload.
+        if (!form.isConnected || p.slots[index] !== product) return;
+
+        assign(p, index, updated);
+      } catch {
+        if (form.isConnected) toast("Não foi possível carregar a imagem.");
+      } finally {
+        submit.disabled = false;
+      }
+    });
+  }function openSlotEditor(p, index) {
+    const product = p.slots[index];
+    if (!product) return;
+
+    const offer = initialOffer(product);
+    let offerFields = "";
+
+    if (offer.model === "takePay") {
+      offerFields = `<div class="field-row">
+        ${dataField("Quantidade Leve", offer.takeQty, 'name="takeQty" min="2" step="1" required')}
+        ${dataField("Quantidade Pague", offer.payQty, 'name="payQty" min="1" step="1" required')}
+      </div>`;
+    } else if (offer.model === "percentage") {
+      offerFields = dataField(
+        "Desconto (%)",
+        offer.percentage,
+        'name="percentage" min="0" max="100" step="1" required',
+      );
+    } else {
+      offerFields = dataField(
+        "Preço (R$)",
+        offer.price,
+        'name="price" min="0" step="0.01" required',
+      );
+    }
+
+    S.modal = { type: "paid-slot-editor" };
+    openModal(`
+      <header class="modal-header">
+        <div>
+          <h2 id="modal-title">Editar produto · Slot ${index + 1}</h2>
+          <p>SKU ${h(product.sku)} · As alterações valem para os três formatos.</p>
+        </div>
+        <button type="button" class="icon-btn" data-action="close-modal"
+          aria-label="Fechar">${ico("x")}</button>
+      </header>
+
+      <form id="pm-slot-editor">
+        <div class="modal-content">
+          ${dataField("Nome do produto", product.name, 'name="name" required', "text")}
+          ${offerFields}
+
+          <label class="toggle-row">
+            Mostrar selo Clube K
+            <input type="checkbox" name="showClub" ${offer.showClub ? "checked" : ""}>
+          </label>
+
+          <label class="field">
+            <span>Substituir imagem</span>
+            <input type="file" name="image" accept="image/*">
+          </label>
+          <p class="hint">Deixe o campo vazio para usar a imagem atual.</p>
+        </div>
+
+        <footer class="modal-footer">
+          <button type="button" class="btn" data-pm="clear-slot"
+            data-index="${index}">Remover produto</button>
+          <button type="button" class="btn" data-pm="replace-slot"
+            data-index="${index}">Trocar produto</button>
+          <button type="submit" class="btn primary">Salvar alterações</button>
+        </footer>
+      </form>
+    `);
+
+    const form = $("#pm-slot-editor");
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const data = new FormData(form);
+      const updated = {
+        ...product,
+        name: String(data.get("name")).trim(),
+        showClub: data.has("showClub"),
+      };
+
+      if (!updated.name) return toast("Informe o nome do produto.");
+
+      if (offer.model === "takePay") {
+        updated.takeQty = Number(data.get("takeQty"));
+        updated.payQty = Number(data.get("payQty"));
+
+        if (updated.takeQty <= updated.payQty) {
+          return toast("A quantidade Leve deve ser maior que Pague.");
+        }
+      } else if (offer.model === "percentage") {
+        updated.percentage = Number(data.get("percentage"));
+      } else {
+        updated.price = Number(data.get("price"));
+      }
+
+      const submit = form.querySelector('button[type="submit"]');
+      submit.disabled = true;
+
+      try {
+        const file = data.get("image");
+        if (file?.size) {
+          if (!file.type.startsWith("image/") || file.size > 15 * 1024 * 1024) {
+            return toast("Selecione uma imagem de até 15 MB.");
+          }
+
+          updated.image = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+
+          await loadImage(updated.image);
+        }
+
+        // O usuário pode ter fechado o popup durante o upload.
+        if (!form.isConnected || p.slots[index] !== product) return;
+
+        assign(p, index, updated);
+      } catch {
+        if (form.isConnected) toast("Não foi possível carregar a imagem.");
+      } finally {
+        submit.disabled = false;
+      }
+    });
+  }function openSlotEditor(p, index) {
+    const product = p.slots[index];
+    if (!product) return;
+
+    const offer = initialOffer(product);
+    let offerFields = "";
+
+    if (offer.model === "takePay") {
+      offerFields = `<div class="field-row">
+        ${dataField("Quantidade Leve", offer.takeQty, 'name="takeQty" min="2" step="1" required')}
+        ${dataField("Quantidade Pague", offer.payQty, 'name="payQty" min="1" step="1" required')}
+      </div>`;
+    } else if (offer.model === "percentage") {
+      offerFields = dataField(
+        "Desconto (%)",
+        offer.percentage,
+        'name="percentage" min="0" max="100" step="1" required',
+      );
+    } else {
+      offerFields = dataField(
+        "Preço (R$)",
+        offer.price,
+        'name="price" min="0" step="0.01" required',
+      );
+    }
+
+    S.modal = { type: "paid-slot-editor" };
+    openModal(`
+      <header class="modal-header">
+        <div>
+          <h2 id="modal-title">Editar produto · Slot ${index + 1}</h2>
+          <p>SKU ${h(product.sku)} · As alterações valem para os três formatos.</p>
+        </div>
+        <button type="button" class="icon-btn" data-action="close-modal"
+          aria-label="Fechar">${ico("x")}</button>
+      </header>
+
+      <form id="pm-slot-editor">
+        <div class="modal-content">
+          ${dataField("Nome do produto", product.name, 'name="name" required', "text")}
+          ${offerFields}
+
+          <label class="toggle-row">
+            Mostrar selo Clube K
+            <input type="checkbox" name="showClub" ${offer.showClub ? "checked" : ""}>
+          </label>
+
+          <label class="field">
+            <span>Substituir imagem</span>
+            <input type="file" name="image" accept="image/*">
+          </label>
+          <p class="hint">Deixe o campo vazio para usar a imagem atual.</p>
+        </div>
+
+        <footer class="modal-footer">
+          <button type="button" class="btn" data-pm="clear-slot"
+            data-index="${index}">Remover produto</button>
+          <button type="button" class="btn" data-pm="replace-slot"
+            data-index="${index}">Trocar produto</button>
+          <button type="submit" class="btn primary">Salvar alterações</button>
+        </footer>
+      </form>
+    `);
+
+    const form = $("#pm-slot-editor");
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const data = new FormData(form);
+      const updated = {
+        ...product,
+        name: String(data.get("name")).trim(),
+        showClub: data.has("showClub"),
+      };
+
+      if (!updated.name) return toast("Informe o nome do produto.");
+
+      if (offer.model === "takePay") {
+        updated.takeQty = Number(data.get("takeQty"));
+        updated.payQty = Number(data.get("payQty"));
+
+        if (updated.takeQty <= updated.payQty) {
+          return toast("A quantidade Leve deve ser maior que Pague.");
+        }
+      } else if (offer.model === "percentage") {
+        updated.percentage = Number(data.get("percentage"));
+      } else {
+        updated.price = Number(data.get("price"));
+      }
+
+      const submit = form.querySelector('button[type="submit"]');
+      submit.disabled = true;
+
+      try {
+        const file = data.get("image");
+        if (file?.size) {
+          if (!file.type.startsWith("image/") || file.size > 15 * 1024 * 1024) {
+            return toast("Selecione uma imagem de até 15 MB.");
+          }
+
+          updated.image = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+
+          await loadImage(updated.image);
+        }
+
+        // O usuário pode ter fechado o popup durante o upload.
+        if (!form.isConnected || p.slots[index] !== product) return;
+
+        assign(p, index, updated);
+      } catch {
+        if (form.isConnected) toast("Não foi possível carregar a imagem.");
+      } finally {
+        submit.disabled = false;
+      }
+    });
+  }
   
   function openPicker(index) {
     P.slot = index;
@@ -1042,9 +1402,26 @@ window.PaidMedia = (() => {
         P.selected = null;
         render();
         break;
-      case "slot":
-        openPicker(Number(el.dataset.index));
+      case "slot": {
+        const index = Number(el.dataset.index);
+        if (p.slots[index]) openSlotEditor(p, index);
+        else openPicker(index);
         break;
+      }
+      case "clear-slot": {
+        const index = Number(el.dataset.index);
+        if (!p.slots[index]) break;
+
+        record();
+        p.slots[index] = null;
+        refreshSlot(p, index);
+        P.selected = null;
+
+        if (S.modal?.type === "paid-slot-editor") closeModal();
+
+        render();
+        break;
+      }
       case "choose": {
         const product = P.report.products.find((p) => p.id === el.dataset.id);
         if (product) assign(p, P.slot, product);
