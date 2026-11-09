@@ -147,6 +147,7 @@
       .slice(start)
       .map((r, index) => ({
         sku: sku(r[8]),
+        priceDescription: clean(r[9]),
         offerType: clean(r[7]),
         retailPriceRaw: clean(r[10]),
         loyaltyPriceRaw: clean(r[13]),

@@ -716,6 +716,60 @@ function syncOfferNodes(b) {
   b.nodes.push(...additions.filter((n) => n.role === "offerLegal"));
   b.preview = null;
 }
+
+function otherClusterPrices(b) {
+  return (S.report?.products ?? [])
+    .filter(
+      (p) =>
+        String(p.sku) === String(b.product.sku) &&
+        (p.offerKind === "normal" || p.offerKind === "club") &&
+        Number.isFinite(p.price),
+    )
+    .sort(
+      (a, z) =>
+        Number(z.cluster === b.product.cluster) -
+        Number(a.cluster === b.product.cluster),
+    );
+}
+
+function clusterPriceBox(b) {
+  const offers = otherClusterPrices(b);
+  if (!offers.length) return "";
+
+  return `
+    <details style="margin-top: 8px; font-size: 11px;">
+      <summary style="cursor: pointer; padding: 4px 0; font-weight: 600;">
+        Preços por capa (${offers.length})
+      </summary>
+
+      <div style="display: grid; gap: 3px; margin-top: 4px;">
+        ${offers.map((p) => {
+          const isCurrentCluster = p.cluster === b.product.cluster;
+
+          return `
+            <button
+              type="button"
+              class="btn small"
+              data-action="use-cluster-price"
+              data-id="${h(p.id)}"
+              style="display: flex; justify-content: space-between; align-items: center; gap: 6px; width: 100%; padding: 4px 6px; min-height: 0; font-size: 11px; line-height: 1.25; white-space: normal; text-align: left;"
+            >
+              <span>
+                ${h(p.cluster)}${isCurrentCluster ? " (Atual)" : ""}
+              </span>
+
+              <span style="display: grid; gap: 2px; text-align: right; white-space: nowrap;">
+                <strong>${h(money(p.price))}</strong>
+                ${p.offerKind === "club"
+                  ? '<span style="font-size: 9px;">Clube K</span>'
+                  : ""}
+              </span>
+            </button>`;
+        }).join("")}
+      </div>
+    </details>`;
+}
+
 function offerProperties(b) {
   const o = ensureOffer(b);
   return `<section class="property-section"><h3>Mecânica da oferta</h3><label class="field"><span>Tipo de oferta</span><select data-mechanic="model" aria-label="Tipo de oferta">${[
@@ -729,8 +783,10 @@ function offerProperties(b) {
     )
     .join(
       "",
-    )}</select></label><label class="toggle-row">Mostrar selo Clube K<input type="checkbox" data-mechanic="showClub" ${o.showClub ? "checked" : ""}></label>${o.model === "takePay" ? `<div class="field-row" style="margin-top:12px">${field("Quantidade Leve", o.takeQty, 'data-mechanic="takeQty" type="number" min="2" step="1"')}${field("Quantidade Pague", o.payQty, 'data-mechanic="payQty" type="number" min="1" step="1"')}</div><label class="field"><span>Texto legal</span><textarea data-role="offerLegal" aria-label="Texto legal">${h(b.nodes.find((n) => n.role === "offerLegal")?.text || "")}</textarea></label>` : o.model === "percentage" ? `${field("Desconto (%)", o.percentage, 'data-mechanic="percentage" type="number" min="0" max="100" step="1"')}<label class="toggle-row">Mostrar “com até”<input type="checkbox" data-mechanic="upTo" aria-label="Mostrar com até" ${o.upTo ? "checked" : ""}></label>` : field("Preço (R$)", o.price, 'data-role="price" inputmode="decimal"')}<p class="hint">${o.model === "percentage" ? "Informe o desconto desejado. O selo pode ser ativado em qualquer modelo." : o.model === "takePay" ? "A faixa mostra as quantidades, sem preço monetário." : "Alterar o selo não altera o valor do preço."}</p></section>`;
+    )}</select></label><label class="toggle-row">Mostrar selo Clube K<input type="checkbox" data-mechanic="showClub" ${o.showClub ? "checked" : ""}></label>${o.model === "takePay" ? `<div class="field-row" style="margin-top:12px">${field("Quantidade Leve", o.takeQty, 'data-mechanic="takeQty" type="number" min="2" step="1"')}${field("Quantidade Pague", o.payQty, 'data-mechanic="payQty" type="number" min="1" step="1"')}</div><label class="field"><span>Texto legal</span><textarea data-role="offerLegal" aria-label="Texto legal">${h(b.nodes.find((n) => n.role === "offerLegal")?.text || "")}</textarea></label>` : o.model === "percentage" ? `${field("Desconto (%)", o.percentage, 'data-mechanic="percentage" type="number" min="0" max="100" step="1"')}<label class="toggle-row">Mostrar “com até”<input type="checkbox" data-mechanic="upTo" aria-label="Mostrar com até" ${o.upTo ? "checked" : ""}></label>` : field("Preço (R$)", o.price, 'data-role="price" inputmode="decimal"') + clusterPriceBox(b)}<p class="hint">${o.model === "percentage" ? "Informe o desconto desejado. O selo pode ser ativado em qualquer modelo." : o.model === "takePay" ? "A faixa mostra as quantidades, sem preço monetário." : "Alterar o selo não altera o valor do preço."}</p></section>`;
 }
+
+
 function updateMechanic(el, refresh) {
   const b = current();
   if (!b) return;
@@ -3135,6 +3191,45 @@ function showHelp() {
 async function action(el, event) {
   const a = el.dataset.action;
   switch (a) {
+    case "use-cluster-price": {
+      const b = current();
+      if (!b) break;
+
+      const currentOffer = ensureOffer(b);
+      if (currentOffer.model !== "price") break;
+
+      const selectedOffer = otherClusterPrices(b).find(
+        (p) => String(p.id) === el.dataset.id,
+      );
+      const priceNode = b.nodes.find((n) => n.role === "price");
+
+      if (!selectedOffer || !priceNode) break;
+
+      const showClub = selectedOffer.offerKind === "club";
+      const priceChanged = priceNode.value !== selectedOffer.price;
+      const badgeChanged = currentOffer.showClub !== showClub;
+
+      if (!priceChanged && !badgeChanged) break;
+
+      snapshot(b);
+
+      if (priceChanged) {
+        priceNode.value = selectedOffer.price;
+        updateBoardPrice(b, selectedOffer.price);
+      }
+
+      if (badgeChanged) {
+        currentOffer.showClub = showClub;
+        syncOfferNodes(b);
+        clearModelSelection();
+      }
+
+      b.preview = null;
+      drawStage();
+      renderBoardList();
+      renderProperties();
+      break;
+    }
     case "switch-brand":
       switchBrand(el.dataset.brand);
       break;
@@ -3500,6 +3595,7 @@ async function action(el, event) {
       doExport();
       break;
   }
+  
 }
 function applyThemeToBoard(b, t) {
   b.theme = { ...t };
