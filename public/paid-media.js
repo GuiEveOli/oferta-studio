@@ -16,6 +16,7 @@ window.PaidMedia = (() => {
             nodes: [],
             background: C.colors.background,
             panel: C.getFormat(f, p.id).panelColor || C.colors.panel,
+            panelVisible: false,
             image: "",
           },
         ]),
@@ -159,6 +160,67 @@ window.PaidMedia = (() => {
   function filled(p) {
     return p.slots.filter(Boolean).length;
   }
+
+  const THEME_BACKGROUND_FILES = {
+    feed: "feed.webp",
+    stories: "stories.webp",
+    landscape: "horizontal.webp",
+  };
+
+  function campaignThemeImage(theme, packId, format) {
+    const filename =
+      theme.files?.[packId]?.[format] ?? THEME_BACKGROUND_FILES[format];
+
+    return `${theme.folder}/${packId}/${filename}`;
+  }
+
+  function campaignThemeSelect() {
+  const formats = Object.keys(C.formats);
+  const themes = Object.entries(C.themes || {});
+  const activeId = themes.find(([, theme]) =>
+    P.packs.every((p) =>
+      formats.every(
+        (f) => p.boards[f].image === campaignThemeImage(theme, p.id, f),
+      ),
+    ),
+  )?.[0];
+
+  const options = themes.map(([id, theme]) =>
+    `<option value="${h(id)}" ${id === activeId ? "selected" : ""}>
+      ${h(theme.label)}
+    </option>`,
+  ).join("");
+
+  return `<label class="field">
+    <span>Temática da campanha</span>
+    <select data-pm-theme aria-label="Temática da campanha"
+      ${P.busy ? "disabled" : ""}>
+      <option value="" disabled ${!activeId ? "selected" : ""}>
+        Escolher temática
+      </option>
+      ${options}
+    </select>
+  </label>`;
+}
+
+  function applyCampaignTheme(id) {
+    if (!Object.hasOwn(C.themes || {}, id)) return;
+
+    const theme = C.themes[id];
+    const formats = Object.keys(C.formats);
+
+    record();
+
+    for (const p of P.packs) {
+      for (const f of formats) {
+        p.boards[f].image = campaignThemeImage(theme, p.id, f);
+      }
+    }
+
+    render();
+    toast(`Temática ${theme.label} aplicada a todos os conjuntos.`);
+  }
+
   function render() {
     if (!supportsPaid()) {
       S.workspace = "site";
@@ -175,7 +237,7 @@ window.PaidMedia = (() => {
     const p = pack(),
       all = P.packs.reduce((n, p) => n + filled(p), 0),
       total = P.packs.reduce((n, p) => n + p.count, 0);
-    const content = `<div class="pm-heading"><div><div class="eyebrow">MÍDIA PAGA</div><h1>Uma seleção. Três formatos.</h1><p>Escolha os slots e adapte cada formato do seu jeito.</p></div><div class="pm-heading-actions"><button class="btn small" data-pm="sources">${ico("file-spreadsheet")}Planilhas</button><button class="btn primary" data-pm="export-all" ${P.busy ? "disabled" : ""}>${ico("download")}${P.busy ? "Exportando…" : "Exportar " + P.packs.length * Object.keys(C.formats).length + " imagens"}</button></div></div><div class="pm-campaign">${dataField("Nome da campanha", P.title, "data-pm-title", "text")}<span>${all}/${total} produtos · ${Object.keys(C.formats).length * P.packs.length} criativos</span><button class="icon-btn" data-pm="undo" ${P.history.length ? "" : "disabled"} title="Desfazer">${ico("undo-2")}</button><button class="icon-btn" data-pm="redo" ${P.future.length ? "" : "disabled"} title="Refazer">${ico("redo-2")}</button></div>${P.download ? `<div class="pm-download-ready" role="status"><span>${ico("circle-check")}ZIP pronto para baixar.</span><a class="btn small" id="pm-download-ready" href="${h(P.download.url)}" download="${h(P.download.name)}">${ico("download")}Baixar novamente</a></div>` : ""}<div class="pm-pack-tabs">${P.packs.map((p, i) => `<button data-pm="pack" data-index="${i}" class="${P.active === i ? "active" : ""}"><strong>${h(p.name)}</strong><small>${filled(p)}/${p.count} produtos · 3 formatos</small></button>`).join("")}</div><div class="pm-layout"><div class="pm-main"><div class="pm-slots">${p.slots.map((product, i) => `<button class="pm-slot ${product ? "filled" : ""}" data-pm="slot" data-index="${i}">${product ? thumb(product.image) : ico("plus")}<span><b>Slot ${i + 1}</b><small>${product ? h(product.name) : "Clique para selecionar"}</small>${product ? `<small>SKU ${h(product.sku)} · ${h(offerLabel(product))}</small>` : ""}</span>${ico("replace")}</button>`).join("")}</div><div class="pm-preview-toolbar"><b>${h(p.name)} · ${P.focus ? C.formats[P.focus].name : "Todos os formatos"}</b><div><button class="btn small" data-pm="background-quick">${ico("image")}Fundos do conjunto</button><button class="btn small" data-pm="overview">${ico("layout-grid")}Ver os 3</button><button class="btn small" data-pm="export-pack" ${P.busy ? "disabled" : ""}>Exportar conjunto</button></div></div><div class="pm-previews ${P.focus ? "single" : ""}">${Object.entries(
+    const content = `<div class="pm-heading"><div><div class="eyebrow">MÍDIA PAGA</div><h1>Uma seleção. Três formatos.</h1><p>Escolha os slots e adapte cada formato do seu jeito.</p></div><div class="pm-heading-actions"><button class="btn small" data-pm="sources">${ico("file-spreadsheet")}Planilhas</button><button class="btn primary" data-pm="export-all" ${P.busy ? "disabled" : ""}>${ico("download")}${P.busy ? "Exportando…" : "Exportar Meta e Google Ads"}</button></div></div><div class="pm-campaign">${dataField("Nome da campanha", P.title, "data-pm-title", "text")}${campaignThemeSelect()}<span>${all}/${total} produtos · ${Object.keys(C.formats).length * P.packs.length} criativos</span><button class="icon-btn" data-pm="undo" ${P.history.length ? "" : "disabled"} title="Desfazer">${ico("undo-2")}</button><button class="icon-btn" data-pm="redo" ${P.future.length ? "" : "disabled"} title="Refazer">${ico("redo-2")}</button></div>${P.download ? `<div class="pm-download-ready" role="status"><span>${ico("circle-check")}ZIP pronto para baixar.</span><a class="btn small" id="pm-download-ready" href="${h(P.download.url)}" download="${h(P.download.name)}">${ico("download")}Baixar novamente</a></div>` : ""}<div class="pm-pack-tabs">${P.packs.map((p, i) => `<button data-pm="pack" data-index="${i}" class="${P.active === i ? "active" : ""}"><strong>${h(p.name)}</strong><small>${filled(p)}/${p.count} produtos · 3 formatos</small></button>`).join("")}</div><div class="pm-layout"><div class="pm-main"><div class="pm-slots">${p.slots.map((product, i) => `<button class="pm-slot ${product ? "filled" : ""}" data-pm="slot" data-index="${i}">${product ? thumb(product.image) : ico("plus")}<span><b>Slot ${i + 1}</b><small>${product ? h(product.name) : "Clique para selecionar"}</small>${product ? `<small>SKU ${h(product.sku)} · ${h(offerLabel(product))}</small>` : ""}</span>${ico("replace")}</button>`).join("")}</div><div class="pm-preview-toolbar"><b>${h(p.name)} · ${P.focus ? C.formats[P.focus].name : "Todos os formatos"}</b><div><button class="btn small" data-pm="background-quick">${ico("image")}Fundos do conjunto</button><button class="btn small" data-pm="overview">${ico("layout-grid")}Ver os 3</button><button class="btn small" data-pm="export-pack" ${P.busy ? "disabled" : ""}>Exportar conjunto</button></div></div><div class="pm-previews ${P.focus ? "single" : ""}">${Object.entries(
       C.formats,
     )
       .filter(([f]) => !P.focus || P.focus === f)
@@ -688,6 +750,8 @@ window.PaidMedia = (() => {
       `<span>${results.length} ofertas · ${P.page}/${pages}</span><button class="btn small" data-pm="prev-page" ${P.page === 1 ? "disabled" : ""}>Anterior</button><button class="btn small" data-pm="next-page" ${P.page === pages ? "disabled" : ""}>Próxima</button>`;
     icons();
   }
+
+  
   function openPicker(index) {
     P.slot = index;
     P.query = "";
@@ -791,60 +855,119 @@ window.PaidMedia = (() => {
       );
     else apply();
   }
+  const GOOGLE_ADS_SIZES = {
+    feed: [[1080, 1080], [1200, 1200]],
+    stories: [[1080, 1350], [600, 750]],
+    landscape: [[1200, 628], [600, 314]],
+  };
+
+  function resizeForGoogleAds(source, width, height) {
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+
+    // Preenche o destino mantendo a proporção e centralizando o recorte.
+    const scale = Math.max(width / source.width, height / source.height);
+    const cropWidth = width / scale;
+    const cropHeight = height / scale;
+
+    const ctx = canvas.getContext("2d");
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(
+      source,
+      (source.width - cropWidth) / 2,
+      (source.height - cropHeight) / 2,
+      cropWidth,
+      cropHeight,
+      0,
+      0,
+      width,
+      height,
+    );
+
+    return canvas;
+  }
+
+  async function paidExportPng(canvas) {
+    const blob = await new Promise((resolve) =>
+      canvas.toBlob(resolve, "image/png"),
+    );
+
+    if (!blob) throw new Error("Não foi possível gerar a imagem.");
+    return blob;
+  }
+
   async function exportImages(all) {
     if (P.busy) return;
+
     const packs = all ? P.packs : [pack()];
-    if (packs.some((p) => filled(p) !== p.count))
-      return toast(
-        "Preencha todos os slots dos conjuntos que deseja exportar.",
-      );
+    if (packs.some((p) => filled(p) !== p.count)) {
+      return toast("Preencha todos os slots dos conjuntos que deseja exportar.");
+    }
+
     P.busy = true;
     render();
+
     const zip = new JSZip();
-    let done = 0,
-      ready = false;
+    const meta = zip.folder("Meta ADS");
+    const google = zip.folder("Google ADS");
+    let done = 0;
+    let ready = false;
+
     try {
-      for (const p of packs)
+      for (const p of packs) {
+        const number = P.packs.indexOf(p) + 1;
+
         for (const [f, c] of Object.entries(C.formats)) {
           const host = document.createElement("div");
           host.style.cssText = "position:fixed;left:-10000px;top:0";
           document.body.append(host);
-          let r;
+          let result;
+
           try {
-            r = await scene(host, p, f, 1);
-            if (r.failed.length)
-              throw Error("Não carregou: " + r.failed.join(", "));
-            const canvas = r.st.toCanvasElement(1);
-            if (canvas.width !== c.width || canvas.height !== c.height)
-              throw Error("Dimensões de exportação incorretas.");
-            const blob = await new Promise((resolve) =>
-              canvas.toBlob(resolve, "image/png"),
-            );
-            if (!blob) throw Error("Não foi possível gerar a imagem.");
-            const skus = p.slots
-              .map((p) => p.sku)
-              .join("-")
-              .replace(/[<>:"/\\|?*\x00-\x1f]/g, "_");
-            zip.file(
-              `${p.name}/${c.name} ${c.width}x${c.height} - ${skus}.png`,
-              blob,
-            );
+            result = await scene(host, p, f, 1);
+            if (result.failed.length) {
+              throw new Error("Não carregou: " + result.failed.join(", "));
+            }
+
+            const canvas = result.st.toCanvasElement(1);
+            if (canvas.width !== c.width || canvas.height !== c.height) {
+              throw new Error("Dimensões de exportação incorretas.");
+            }
+
+            const original = await paidExportPng(canvas);
+            meta.file(`Meta ADS - ${c.name} - ${number}.png`, original);
             done++;
+
+            for (const [width, height] of GOOGLE_ADS_SIZES[f] || []) {
+              const sameSize = width === canvas.width && height === canvas.height;
+              const blob = sameSize
+                ? original
+                : await paidExportPng(resizeForGoogleAds(canvas, width, height));
+
+              google.file(`Google ADS ${number} - ${width}x${height}.png`, blob);
+              done++;
+            }
           } finally {
-            await r?.st.dispose();
+            await result?.st.dispose();
             host.remove();
           }
         }
+      }
+
       const blob = await zip.generateAsync({ type: "blob" });
       if (P.download) URL.revokeObjectURL(P.download.url);
+
+      const title = P.title.replace(/[<>:"/\\|?*\x00-\x1f]/g, "_");
       P.download = {
         url: URL.createObjectURL(blob),
-        name: `${P.title.replace(/[<>:"/\\|?*\x00-\x1f]/g, "_")} - Mídia Paga${all ? "" : " - " + pack().name}.zip`,
+        name: `${title} - Mídia Paga${all ? "" : " - " + packs[0].name}.zip`,
       };
+
       ready = true;
       toast(`${done} imagens exportadas.`);
-    } catch (e) {
-      toast("Exportação interrompida: " + e.message);
+    } catch (error) {
+      toast("Exportação interrompida: " + error.message);
     } finally {
       P.busy = false;
       render();
@@ -1017,6 +1140,10 @@ window.PaidMedia = (() => {
   document.addEventListener("change", (e) => {
     const el = e.target;
     if (P.busy) return;
+    if (el.hasAttribute("data-pm-theme")) {
+      applyCampaignTheme(el.value);
+      return;
+    }
     if (el.hasAttribute("data-pm-layout-format")) {
       P.layoutFormat = el.value;
       renderProperties();

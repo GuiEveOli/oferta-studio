@@ -123,6 +123,27 @@ window.OFERTA_PRESETS = {
  },
  },
  paidMedia: {
+  themes: {
+    "encarte-semanal": {
+      label: "Encarte Semanal",
+      folder: "/assets/tematicas-midia/encarte-semanal",
+      files: {
+        "pack-1": {
+          feed: "Layout 01 - Carrosel - Encarte Semanal_01.png",
+          stories: "Layout 01 - Story - Encarte Semanal_1.png",
+          landscape: "Layout 01 - 1200x628 - Encarte Semanal_1.png",
+        },
+      },
+    },
+    "final-de-semana": {
+      label: "Final de Semana",
+      folder: "/assets/tematicas-midia/final-de-semana",
+    },
+    "super-barato": {
+      label: "Super Barato",
+      folder: "/assets/tematicas-midia/super-barato",
+    },
+  },
   // Quantidade inicial de produtos por conjunto. Cada um gera os três formatos.
   packs: [
     { id: 'pack-1', name: 'Conjunto 1', count: 2 },
