@@ -161,6 +161,30 @@
       .filter((o) => o.sku || o.offerType);
     return { filename, rowCount: offers.length, offers };
   }
+
+  function measuresIn(value) {
+    const pattern =
+      /(?<![\p{L}\p{N}.,])(\d+(?:[.,]\d+)?)\s*(kg|ml|g|l)(?![\p{L}\p{N}])/giu;
+
+    const measures = Array.from(
+      String(value ?? "").matchAll(pattern),
+      ([, amount, unit]) => {
+        const normalizedUnit = unit.toLowerCase();
+        const suffix = normalizedUnit === "l" ? "L" : normalizedUnit;
+        return amount.replace(".", ",") + suffix;
+      },
+    );
+
+    return [...new Set(measures)];
+  }
+
+  function productDisplayName(name, priceDescription) {
+    if (measuresIn(name).length > 0) return name;
+
+    const measures = measuresIn(priceDescription);
+    return measures.length === 1 ? `${name} ${measures[0]}` : name;
+  }
+
   function combine(catalog, prices) {
     if (!catalog || !prices)
       throw new Error("Carregue as duas planilhas para cruzar os produtos.");
@@ -238,6 +262,7 @@
       products.push({
         ...p,
         ...offer,
+        displayName: productDisplayName(p.name, offer.priceDescription),
         id: "offer-" + products.length,
         offerKind: k,
         price,

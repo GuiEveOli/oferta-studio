@@ -432,7 +432,7 @@ function baseNodes(p) {
       type: "text",
       label: "Nome do produto",
       role: "name",
-      text: p.name,
+      text: p.displayName || p.name,
       ...bannerPresets().layouts.vertical.name,
       fontFamily: "Cocogoose Pro",
       fontStyle: "bold",
@@ -2805,7 +2805,7 @@ function replaceProduct(p) {
   b.offerDrafts = {};
   b.nodes = b.nodes.filter((n) => !roles.has(n.role));
   const name = b.nodes.find((n) => n.role === "name");
-  if (name) name.text = p.name;
+  if (name) name.text = p.displayName || p.name;
   b.nodes
     .filter((n) => n.role === "productImage")
     .forEach((n) => (n.src = p.image));
