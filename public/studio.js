@@ -981,9 +981,24 @@ function renderProperties() {
   decorateDesignSections(el);
   icons();
 }
+
+function panoramicBackgroundPanel(b) {
+  if (b.format !== "panoramic") return null;
+
+  const mode = b.theme.backgroundMode || "template";
+  const imageOnPanel =
+    mode === "image" && b.theme.backgroundTarget === "panel";
+
+  return mode === "template" || imageOnPanel
+    ? bannerPresets(b.brand || S.brand).backgroundPanels.panoramic
+    : null;
+}
+
 function backgroundProperties(b) {
   const t = b.theme,
     mode = t.backgroundMode || "template";
+  const panelConfig = panoramicBackgroundPanel(b);
+  const hasPanel = Boolean(panelConfig);
   return `<label class="field"><span>Preset de cores</span><select data-background="preset" aria-label="Preset de cores"><option value="custom" disabled ${t.stylePreset === "custom" ? "selected" : ""}>Personalizado</option>${brandStylePresets()
     .map(
       (p) =>
@@ -1002,7 +1017,30 @@ function backgroundProperties(b) {
     )
     .join(
       "",
-    )}</select></label><div class="color-row">${colorField("Cor do fundo", t.background, 'data-theme="background"')}${colorField("Fim do degradê", t.backgroundEnd, 'data-theme="backgroundEnd"')}</div><label class="toggle-row">Usar degradê<input type="checkbox" data-theme="gradient" ${t.gradient ? "checked" : ""}></label><button class="btn small" data-action="background-image" style="width:100%;margin-top:12px">${ico("image-plus")}${t.backgroundImage ? "Trocar imagem de fundo" : "Adicionar imagem de fundo"}</button>${
+    )}</select></label><div class="color-row">${hasPanel
+        ? colorField(
+            "Cor do fundo",
+            t.outsideColor ?? panelConfig.outsideColor,
+            'data-theme="outsideColor"',
+          )
+        : ""
+      }${colorField(
+        hasPanel ? "Cor da forma" : "Cor do fundo",
+        t.background,
+        'data-theme="background"',
+      )}${colorField("Fim do degradê", t.backgroundEnd, 'data-theme="backgroundEnd"')}</div><label class="toggle-row">Usar degradê<input type="checkbox" data-theme="gradient" ${t.gradient ? "checked" : ""}></label>${b.format === "panoramic" ? `
+  <label class="field">
+    <span>Aplicar imagem em</span>
+    <select data-background="target" aria-label="Aplicar imagem em">
+      <option value="canvas" ${t.backgroundTarget !== "panel" ? "selected" : ""}>
+        Criativo inteiro
+      </option>
+      <option value="panel" ${t.backgroundTarget === "panel" ? "selected" : ""}>
+        Somente na forma
+      </option>
+    </select>
+  </label>
+` : ""}<button class="btn small" data-action="background-image" style="width:100%;margin-top:12px">${ico("image-plus")}${t.backgroundImage ? "Trocar imagem de fundo" : "Adicionar imagem de fundo"}</button>${
     t.backgroundImage
       ? `<label class="field" style="margin-top:12px"><span>Ajuste da imagem de fundo</span><select data-background="fit" aria-label="Ajuste da imagem de fundo">${[
           ["cover", "Preencher (recorta as bordas)"],
@@ -1044,7 +1082,15 @@ function updateBackground(key, value) {
     openImagePicker(null, "background");
     return;
   }
-  const prop = key === "mode" ? "backgroundMode" : "backgroundFit";
+  if (key === "target" && !["canvas", "panel"].includes(value)) return;
+
+  const prop = {
+    mode: "backgroundMode",
+    fit: "backgroundFit",
+    target: "backgroundTarget",
+  }[key];
+
+  if (!prop) return;
   if (b.theme[prop] === value) return;
   snapshot(b);
   b.theme = { ...b.theme, [prop]: value };
@@ -1078,6 +1124,13 @@ function applyBackgroundToAll() {
             : key === "backgroundImage"
               ? ""
               : theme[key]);
+    if (source.format === "panoramic" && b.format === "panoramic") {
+      theme.outsideColor = source.theme.outsideColor;
+    }
+    theme.backgroundTarget =
+      b.format === "panoramic"
+        ? source.theme.backgroundTarget ?? "canvas"
+        : "canvas";
     b.theme = theme;
     b.preview = null;
   }
@@ -1127,20 +1180,39 @@ function backgroundImageOptions(img, width, height, fit = "cover") {
 }
 async function addSceneBackground(st, b, failed) {
   if (b.theme.backgroundMode !== "image" || !b.theme.backgroundImage) return;
+
   try {
     const img = await loadImage(b.theme.backgroundImage);
     if (st.disposed || st.destroyed) return;
-    st.add(
-      new fabric.FabricImage(
-        img,
-        backgroundImageOptions(
-          img,
-          boardFormat(b).width,
-          boardFormat(b).height,
-          b.theme.backgroundFit,
-        ),
-      ),
+
+    const cfg = panoramicBackgroundPanel(b);
+    const format = boardFormat(b);
+    const options = backgroundImageOptions(
+      img,
+      cfg?.width ?? format.width,
+      cfg?.height ?? format.height,
+      b.theme.backgroundFit,
     );
+
+    if (cfg) {
+      options.left += cfg.x;
+      options.top += cfg.y;
+
+      options.clipPath = new fabric.Rect({
+        left: cfg.x,
+        top: cfg.y,
+        originX: "left",
+        originY: "top",
+        width: cfg.width,
+        height: cfg.height,
+        rx: cfg.radius,
+        ry: cfg.radius,
+        strokeWidth: 0,
+        absolutePositioned: true,
+      });
+    }
+
+    st.add(new fabric.FabricImage(img, options));
   } catch {
     failed.push("Imagem de fundo");
   }
@@ -1931,27 +2003,28 @@ async function createScene(container, b, scale, interactive = false) {
           { offset: 1, color: b.theme.backgroundEnd },
         ],
       })
-    : b.theme.background;
-  if (
-    b.format === "panoramic" &&
-    (!b.theme.backgroundMode || b.theme.backgroundMode === "template")
-  ) {
-    const cfg = bannerPresets(b.brand || S.brand).backgroundPanels.panoramic,
-      panel = new fabric.Rect({
-        left: cfg.x,
-        top: cfg.y,
-        width: cfg.width,
-        height: cfg.height,
-        rx: cfg.radius,
-        ry: cfg.radius,
-        fill: st.backgroundColor,
-        selectable: false,
-        evented: false,
-        objectCaching: false,
-      });
-    st.backgroundColor = cfg.outsideColor;
+        : b.theme.background;
+
+  const cfg = panoramicBackgroundPanel(b);
+
+  if (cfg) {
+    const panel = new fabric.Rect({
+      left: cfg.x,
+      top: cfg.y,
+      width: cfg.width,
+      height: cfg.height,
+      rx: cfg.radius,
+      ry: cfg.radius,
+      fill: st.backgroundColor,
+      selectable: false,
+      evented: false,
+      objectCaching: false,
+    });
+
+    st.backgroundColor = b.theme.outsideColor ?? cfg.outsideColor;
     st.add(panel);
   }
+
   const failed = [];
   const fonts = loadCreativeFonts();
   const ready = Promise.all([fonts, addSceneBackground(st, b, failed)])
@@ -3503,7 +3576,7 @@ async function action(el, event) {
         snapshot();
         current().theme = {
           ...current().theme,
-          backgroundMode: "color",
+          backgroundMode: panoramicBackgroundPanel(current()) ? "template" : "color",
           backgroundImage: "",
         };
         current().preview = null;
@@ -3940,13 +4013,22 @@ function updateProperty(el, refresh) {
     snapshot();
     const t = { ...b.theme, [key]: value };
     if (["background", "backgroundEnd"].includes(key)) t.stylePreset = "custom";
+    const isBackgroundColor = ["background", "backgroundEnd", "gradient"].includes(key);
+    const isPanoramicTemplate =
+      b.format === "panoramic" &&
+      (!t.backgroundMode || t.backgroundMode === "template");
+
     if (
-      ["background", "backgroundEnd", "gradient"].includes(key) &&
-      t.backgroundMode !== "image"
-    )
+      isBackgroundColor &&
+      t.backgroundMode !== "image" &&
+      !isPanoramicTemplate
+    ) {
       t.backgroundMode = "color";
+    }
+
     b.preview = null;
-    if (["background", "backgroundEnd", "gradient"].includes(key)) b.theme = t;
+
+    if (isBackgroundColor || key === "outsideColor") b.theme = t;
     else applyThemeToBoard(b, t);
     $$('[data-background="mode"]').forEach(
       (input) => (input.value = t.backgroundMode || "template"),
