@@ -75,7 +75,7 @@ const S = {
   history: new Map(),
   future: new Map(),
   exportSelected: new Set(),
-  exportFormat: "png",
+  exportFormat: "webp",
   exportQuality: 0.95,
   exporting: false,
   guides: false,
@@ -198,7 +198,75 @@ function logo() {
   return `<div class="logo"><img src="${brandProfile().icon}" alt=""><span>oferta<span style="font-weight:450">studio</span><span style="color:var(--brand-primary)">.</span></span></div>`;
 }
 function shell(content) {
-  return `<aside class="sidebar">${logo()}${brandSwitcher()}<div class="nav-label">WORKSPACE</div><nav><button class="nav-item ${S.workspace === "site" ? "active" : ""}" data-action="workspace-site">${ico("panels-top-left")}<span>Banners Site</span><b class="nav-dot"></b></button>${supportsPaid() ? `<button class="nav-item ${S.workspace === "paid" ? "active" : ""}" data-action="workspace-paid">${ico("layout-grid")}<span>Mídia Paga</span></button>` : ""}<button class="nav-item" data-action="help">${ico("circle-help")}<span>Como funciona</span></button></nav><div class="sidebar-spacer"></div><div class="session-note">${ico("sparkles")}<b>Seu fluxo, mais leve.</b>Uma planilha. Vários produtos.<br>Cada oferta no seu lugar.</div></aside><main class="shell-main"><header class="topbar"><div class="breadcrumb">${ico("house")}<span>Meu espaço</span>${ico("chevron-right")}<b>${S.workspace === "paid" ? "Mídia Paga" : "Banners Site"}</b></div>${brandSwitcher("brand-mobile")}<span class="mobile-label">${logo()}</span></header><div class="page">${S.workspace === "paid" ? "" : stepper()}${content}</div></main>`;
+  return `<aside class="sidebar">
+  ${logo()}
+  ${brandSwitcher()}
+
+  <div class="nav-label">WORKSPACE</div>
+
+  <nav>
+    <button
+      class="nav-item ${S.workspace === "site" ? "active" : ""}"
+      data-action="workspace-site"
+    >
+      ${ico("panels-top-left")}
+      <span>Banners Site</span>
+      <b class="nav-dot"></b>
+    </button>
+
+    ${supportsPaid()
+      ? `<button
+          class="nav-item ${S.workspace === "paid" ? "active" : ""}"
+          data-action="workspace-paid"
+        >
+          ${ico("layout-grid")}
+          <span>Mídia Paga</span>
+        </button>`
+      : ""}
+
+    <button class="nav-item" data-action="download-queue">
+      ${ico("folder-down")}  
+      <span>Fila de download</span>
+    </button>
+
+    <button class="nav-item" data-action="help">
+      ${ico("circle-help")}
+      <span>Como funciona</span>
+    </button>
+
+  </nav>
+
+  <div class="sidebar-spacer"></div>
+
+  <div class="session-note">
+    ${ico("sparkles")}
+    <b>Seu fluxo, mais leve.</b>
+    Uma planilha. Vários produtos.<br />
+    Cada oferta no seu lugar.
+  </div>
+</aside>
+
+<main class="shell-main">
+  <header class="topbar">
+    <div class="breadcrumb">
+      ${ico("house")}
+      <span>Meu espaço</span>
+      ${ico("chevron-right")}
+      <b>${S.workspace === "paid" ? "Mídia Paga" : "Banners Site"}</b>
+    </div>
+
+    ${brandSwitcher("brand-mobile")}
+
+    <span class="mobile-label">
+      ${logo()}
+    </span>
+  </header>
+
+  <div class="page">
+    ${S.workspace === "paid" ? "" : stepper()}
+    ${content}
+  </div>
+</main>`;
 }
 function stepper() {
   const names = ["Planilha", "Produtos", "Formato", "Editor"],
@@ -909,7 +977,7 @@ function historyGo(direction) {
 }
 function editorView() {
   const b = current();
-  return `<div class="editor"><header class="editor-top">${logo()}${supportsPaid() ? '<button class="btn small" data-action="workspace-paid">Mídia Paga</button>' : ""}<span class="editor-brand">${h(brandProfile().label)}</span><div class="top-separator"></div><button class="icon-btn" data-action="back-products" title="Voltar aos produtos">${ico("arrow-left")}</button><input class="project-title" id="project-title" value="${h(S.title)}" aria-label="Nome da campanha"><span class="session-indicator"><span class="status-dot"></span>Alterações mantidas nesta sessão</span><span class="spacer"></span><div class="undo-area" style="display:flex;gap:3px"><button class="icon-btn" id="undo-btn" data-action="undo" title="Desfazer (Ctrl+Z)">${ico("undo-2")}</button><button class="icon-btn" id="redo-btn" data-action="redo" title="Refazer (Ctrl+Shift+Z)">${ico("redo-2")}</button></div><button class="btn primary" data-action="export">${ico("download")}Exportar${ico("chevron-down")}</button></header><div class="editor-body"><aside class="boards-panel"><div class="panel-header">Criativos<span class="counter">${S.boards.length}</span></div><div class="board-search"><label class="search">${ico("search")}<input id="board-query" placeholder="Nome ou SKU" value="${h(S.boardQuery)}" aria-label="Buscar criativos"></label></div><div class="boards-list" id="boards-list"></div><div class="board-panel-bottom"><button class="btn" data-action="back-products">${ico("plus")}Adicionar produtos</button><p>Cada criativo tem suas<br>próprias configurações.</p></div></aside><main class="canvas-workspace"><div class="canvas-toolbar"><div class="left-tools"><button class="icon-btn" data-action="select-all-nodes" title="Selecionar todos os elementos (Ctrl+A)">${ico("scan")}</button><button class="icon-btn active" title="Selecionar e mover">${ico("mouse-pointer-2")}</button><button class="icon-btn" data-action="add-text" title="Adicionar texto">${ico("type")}</button><button class="icon-btn" data-action="add-rect" title="Adicionar forma">${ico("square")}</button><button class="icon-btn" data-action="add-image" title="Adicionar imagem">${ico("image-plus")}</button><div class="tool-divider"></div><button class="icon-btn ${S.guides ? "active" : ""}" data-action="toggle-guides" title="Mostrar guias">${ico("scan-line")}</button></div><span class="format-label">${ico("rectangle-horizontal")}${boardFormat(b).name} · ${boardFormat(b).width} × ${boardFormat(b).height} px</span></div><div class="canvas-area" id="canvas-area"><div class="artboard-wrapper" id="artboard-wrapper"><span class="canvas-caption" id="canvas-caption">01 · ${h(b.product.name)}</span><div id="fabric-container"></div></div></div><div class="canvas-bottom"><span>Shift + clique: selecionar vários · Arraste no fundo para selecionar</span><div class="zoom-controls"><button class="icon-btn" data-action="zoom-out" title="Diminuir zoom">${ico("minus")}</button><button class="zoom-value" data-action="zoom-fit" id="zoom-label" title="Ajustar à tela">Ajustar</button><button class="icon-btn" data-action="zoom-in" title="Aumentar zoom">${ico("plus")}</button><button class="icon-btn" data-action="zoom-fit" title="Ajustar à tela">${ico("maximize")}</button></div></div></main><aside class="properties-panel"><div class="property-tabs">${[
+  return `<div class="editor"><header class="editor-top">${logo()}${supportsPaid() ? '<button class="btn small" data-action="workspace-paid">Mídia Paga</button>' : ""}<span class="editor-brand">${h(brandProfile().label)}</span><div class="top-separator"></div><button class="icon-btn" data-action="back-products" title="Voltar aos produtos">${ico("arrow-left")}</button><input class="project-title" id="project-title" value="${h(S.title)}" aria-label="Nome da campanha"><span class="session-indicator"><span class="status-dot"></span>Alterações mantidas nesta sessão</span><span class="spacer"></span><div class="undo-area" style="display:flex;gap:3px"><button class="icon-btn" id="undo-btn" data-action="undo" title="Desfazer (Ctrl+Z)">${ico("undo-2")}</button><button class="icon-btn" id="redo-btn" data-action="redo" title="Refazer (Ctrl+Shift+Z)">${ico("redo-2")}</button></div><button class="btn small" data-action="download-queue">Fila de download</button><button class="btn primary" data-action="export">${ico("download")}Exportar${ico("chevron-down")}</button></header><div class="editor-body"><aside class="boards-panel"><div class="panel-header">Criativos<span class="counter">${S.boards.length}</span></div><div class="board-search"><label class="search">${ico("search")}<input id="board-query" placeholder="Nome ou SKU" value="${h(S.boardQuery)}" aria-label="Buscar criativos"></label></div><div class="boards-list" id="boards-list"></div><div class="board-panel-bottom"><button class="btn" data-action="back-products">${ico("plus")}Adicionar produtos</button><p>Cada criativo tem suas<br>próprias configurações.</p></div></aside><main class="canvas-workspace"><div class="canvas-toolbar"><div class="left-tools"><button class="icon-btn" data-action="select-all-nodes" title="Selecionar todos os elementos (Ctrl+A)">${ico("scan")}</button><button class="icon-btn active" title="Selecionar e mover">${ico("mouse-pointer-2")}</button><button class="icon-btn" data-action="add-text" title="Adicionar texto">${ico("type")}</button><button class="icon-btn" data-action="add-rect" title="Adicionar forma">${ico("square")}</button><button class="icon-btn" data-action="add-image" title="Adicionar imagem">${ico("image-plus")}</button><div class="tool-divider"></div><button class="icon-btn ${S.guides ? "active" : ""}" data-action="toggle-guides" title="Mostrar guias">${ico("scan-line")}</button></div><span class="format-label">${ico("rectangle-horizontal")}${boardFormat(b).name} · ${boardFormat(b).width} × ${boardFormat(b).height} px</span></div><div class="canvas-area" id="canvas-area"><div class="artboard-wrapper" id="artboard-wrapper"><span class="canvas-caption" id="canvas-caption">01 · ${h(b.product.name)}</span><div id="fabric-container"></div></div></div><div class="canvas-bottom"><span>Shift + clique: selecionar vários · Arraste no fundo para selecionar</span><div class="zoom-controls"><button class="icon-btn" data-action="zoom-out" title="Diminuir zoom">${ico("minus")}</button><button class="zoom-value" data-action="zoom-fit" id="zoom-label" title="Ajustar à tela">Ajustar</button><button class="icon-btn" data-action="zoom-in" title="Aumentar zoom">${ico("plus")}</button><button class="icon-btn" data-action="zoom-fit" title="Ajustar à tela">${ico("maximize")}</button></div></div></main><aside class="properties-panel"><div class="property-tabs">${[
     ["design", "Design"],
     ["layers", "Camadas"],
     ["elements", "Elementos"],
@@ -1491,6 +1559,7 @@ function slotGroup(n, children, interactive) {
   });
   return new fabric.Group([slot, ...children], {
     ...sceneOptions(n, interactive),
+    perPixelTargetFind: interactive && n.type === "image",
     subTargetCheck: false,
     layoutManager: new fabric.LayoutManager(new fabric.FixedLayout()),
   });
@@ -1960,6 +2029,8 @@ function bindSceneEvents(st, b) {
     }
   });
 }
+
+const EDITOR_CANVAS_MARGIN = 48;
 async function createScene(container, b, scale, interactive = false) {
   const host =
       typeof container === "string"
@@ -1974,9 +2045,13 @@ async function createScene(container, b, scale, interactive = false) {
         }
       }
     : fabric.StaticCanvas;
+  const margin = interactive ? EDITOR_CANVAS_MARGIN : 0;
+  const format = boardFormat(b);
+
   const st = new CanvasClass(canvas, {
-    width: boardFormat(b).width * scale,
-    height: boardFormat(b).height * scale,
+    width: format.width * scale + margin * 2,
+    height: format.height * scale + margin * 2,
+    controlsAboveOverlay: interactive,
     enableRetinaScaling: interactive,
     renderOnAddRemove: false,
     selection: interactive,
@@ -1992,7 +2067,19 @@ async function createScene(container, b, scale, interactive = false) {
   if (st.contextTop) st.contextTop.imageSmoothingQuality = "high";
   st.boardId = b.id;
   st.sceneReady = false;
-  st.setViewportTransform([scale, 0, 0, scale, 0, 0]);
+  st.setViewportTransform([scale, 0, 0, scale, margin, margin]);
+
+  if (interactive) {
+    st.clipPath = new fabric.Rect({
+      left: 0,
+      top: 0,
+      originX: "left",
+      originY: "top",
+      width: format.width,
+      height: format.height,
+      strokeWidth: 0,
+    });
+  }
   st.backgroundColor = b.theme.gradient
     ? new fabric.Gradient({
         type: "linear",
@@ -2319,6 +2406,10 @@ function updatePreview(b = current()) {
     return;
   try {
     b.preview = stage.toDataURL({
+      left: EDITOR_CANVAS_MARGIN,
+      top: EDITOR_CANVAS_MARGIN,
+      width: boardFormat(b).width * stage.getZoom(),
+      height: boardFormat(b).height * stage.getZoom(),
       format: "png",
       multiplier: 0.22 / stage.getZoom(),
       filter: (o) => !o.excludeFromExport,
@@ -2732,6 +2823,7 @@ function openModal(content, narrow = false) {
 }
 function closeModal() {
   if (S.exporting) return;
+  clearQueuePreview();
   window.PaidMedia?.closeBackgrounds();
   $("#modal-root").innerHTML = "";
   S.modal = null;
@@ -2982,7 +3074,7 @@ ${S.exportFormat !== "png" ? `
     ${S.includeEditableProject !== false ? "checked" : ""}>
 </label>
 </div>
-<div class="export-grid">${S.boards.map((b, i) => `<article class="export-card ${S.exportSelected.has(b.id) ? "selected" : ""}" data-action="export-toggle" data-id="${b.id}" role="checkbox" tabindex="0" aria-checked="${S.exportSelected.has(b.id)}" aria-label="Exportar ${h(b.product.name)}"><div class="checkbox">${S.exportSelected.has(b.id) ? ico("check") : ""}</div><div class="export-card-preview"><img id="export-preview-${b.id}" src="${b.preview || "/assets/blank-preset.svg"}" alt="Prévia de ${h(b.product.name)}"></div><p>${h(b.product.name)}</p><small>${String(i + 1).padStart(2, "0")} · SKU ${h(b.product.sku)} · ${h(b.product.cluster)} · ${boardFormat(b).width} × ${boardFormat(b).height} px</small></article>`).join("")}</div><div id="export-error"></div><div id="export-progress"></div></div><footer class="modal-footer"><small>${n > 1 ? "Os criativos serão reunidos em um arquivo ZIP." : "Exportação no tamanho original do preset."}<br>Seus ajustes são aplicados individualmente.</small><button class="btn primary" data-action="download-export" id="download-export" ${!n ? "disabled" : ""}>${ico("download")}Exportar ${n} ${n === 1 ? "criativo" : "criativos"}</button></footer>`,
+<div class="export-grid">${S.boards.map((b, i) => `<article class="export-card ${S.exportSelected.has(b.id) ? "selected" : ""}" data-action="export-toggle" data-id="${b.id}" role="checkbox" tabindex="0" aria-checked="${S.exportSelected.has(b.id)}" aria-label="Exportar ${h(b.product.name)}"><div class="checkbox">${S.exportSelected.has(b.id) ? ico("check") : ""}</div><div class="export-card-preview"><img id="export-preview-${b.id}" src="${b.preview || "/assets/blank-preset.svg"}" alt="Prévia de ${h(b.product.name)}"></div><p>${h(b.product.name)}</p><small>${String(i + 1).padStart(2, "0")} · SKU ${h(b.product.sku)} · ${h(b.product.cluster)} · ${boardFormat(b).width} × ${boardFormat(b).height} px</small></article>`).join("")}</div><div id="export-error"></div><div id="export-progress"></div></div><footer class="modal-footer"><small>${n > 1 ? "Os criativos serão reunidos em um arquivo ZIP." : "Exportação no tamanho original do preset."}<br>Seus ajustes são aplicados individualmente.</small><button class="btn primary" data-action="download-export" id="download-export" ${!n ? "disabled" : ""}>${ico("download")}Adicionar à fila ${n} ${n === 1 ? "criativo" : "criativos"}</button></footer>`,
   );
   icons();
 }
@@ -3005,6 +3097,191 @@ function download(blob, name) {
     if (a.isConnected) a.remove();
   }, 600000);
 }
+
+const downloadQueue = new Map();
+let downloadingQueue = false;
+
+function queueSegment(value, fallback) {
+  const segment = String(value ?? "")
+    .replace(/[<>:"/\\|?*\x00-\x1f]/g, "_")
+    .trim()
+    .replace(/[. ]+$/, "");
+
+  return segment || fallback;
+}
+
+function enqueueDownload(media, format, cluster, filename, data, id) {
+  const shortCluster = String(cluster ?? "")
+    .trim()
+    .replace(/^super\s+koch\s*[-–—]\s*/i, "");
+
+  const folder = [
+    media,
+    queueSegment(format, "Sem formato"),
+    queueSegment(shortCluster, "Sem cluster"),
+  ].join("/");
+
+  const name = queueSegment(filename, "Arquivo");
+  const basePath = `${folder}/${name}`;
+  const key = JSON.stringify([media, format, id ?? basePath]);
+
+  const occupied = new Set(
+    [...downloadQueue]
+      .filter(([otherKey]) => otherKey !== key)
+      .map(([, item]) => item.path),
+  );
+
+  const dot = name.lastIndexOf(".");
+  const stem = dot > 0 ? name.slice(0, dot) : name;
+  const extension = dot > 0 ? name.slice(dot) : "";
+
+  let path = basePath;
+  for (let number = 2; occupied.has(path); number++) {
+    path = `${folder}/${stem} (${number})${extension}`;
+  }
+
+  downloadQueue.set(key, { path, data });
+}
+
+let queuePreviewUrl = "";
+
+function clearQueuePreview() {
+  if (queuePreviewUrl) URL.revokeObjectURL(queuePreviewUrl);
+  queuePreviewUrl = "";
+}
+
+function previewQueueItem(key) {
+  const item = downloadQueue.get(key);
+  const preview = $("#download-queue-preview");
+
+  if (!preview || !(item?.data instanceof Blob)) return;
+  if (!item.data.type.startsWith("image/")) return;
+
+  clearQueuePreview();
+  queuePreviewUrl = URL.createObjectURL(item.data);
+
+  const image = document.createElement("img");
+  image.src = queuePreviewUrl;
+  image.alt = `Prévia de ${item.path.split("/").pop()}`;
+  image.style.cssText =
+    "display:block;max-width:100%;max-height:360px;object-fit:contain;margin:12px auto";
+
+  preview.replaceChildren(image);
+  preview.scrollIntoView({ block: "nearest" });
+}
+
+function openDownloadQueue() {
+  clearQueuePreview();
+  S.modal = { type: "download-queue" };
+
+  const groups = new Map();
+
+  for (const [key, { path, data }] of downloadQueue) {
+    const separator = path.lastIndexOf("/");
+    const folder = path.slice(0, separator);
+    const filename = path.slice(separator + 1);
+    const isImage = data instanceof Blob && data.type.startsWith("image/");
+
+    if (!groups.has(folder)) groups.set(folder, []);
+    groups.get(folder).push({ key, filename, isImage });
+  }
+
+  const count = downloadQueue.size;
+  const files = [...groups].map(([folder, items]) => `
+    <section class="dq-group">
+      <h3>${ico("folder")} <span>${h(folder.split("/").join(" › "))}</span></h3>
+      <ul class="dq-files">
+        ${items.map(({ key, filename, isImage }) => `
+          <li class="dq-file">
+            <span class="dq-file-icon" aria-hidden="true">
+              ${ico(isImage ? "image" : "file-text")}
+            </span>
+            <span class="dq-filename" title="${h(filename)}">${h(filename)}</span>
+            <div class="dq-actions">
+              ${isImage ? `
+                <button type="button" class="btn small" data-action="preview-queue-item"
+                  data-queue-key="${h(key)}"
+                  aria-label="Ver prévia de ${h(filename)}">Ver prévia</button>
+              ` : ""}
+              <button type="button" class="icon-btn dq-remove" data-action="remove-queue-item"
+                data-queue-key="${h(key)}" title="Remover da fila"
+                aria-label="Remover ${h(filename)}">${ico("trash-2")}</button>
+            </div>
+          </li>
+        `).join("")}
+      </ul>
+    </section>
+  `).join("");
+
+  openModal(`
+    <header class="modal-header dq-header">
+      <div class="dq-heading">
+        <span class="dq-heading-icon" aria-hidden="true">${ico("archive")}</span>
+        <div>
+          <h2 id="modal-title">Fila de download</h2>
+          <p>${count} ${count === 1 ? "arquivo" : "arquivos"} no ZIP</p>
+        </div>
+      </div>
+      <button type="button" class="icon-btn" data-action="close-modal"
+        aria-label="Fechar">${ico("x")}</button>
+    </header>
+    <div class="modal-content dq-content">
+      ${count ? `
+        <div class="dq-grid">
+          <div class="dq-list">${files}</div>
+          <aside class="dq-preview">
+            <h3>Prévia do criativo</h3>
+            <div id="download-queue-preview" class="dq-preview-stage" aria-live="polite">
+              <div class="dq-placeholder">
+                ${ico("image")}
+                <p>Clique em “Ver prévia” em um criativo.</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      ` : `
+        <div class="dq-placeholder dq-empty">
+          ${ico("archive")}
+          <strong>A fila está vazia</strong>
+          <p>Adicione criativos pelo exportador do Site ou da Mídia Paga.</p>
+        </div>
+      `}
+    </div>
+    <footer class="modal-footer dq-footer">
+      <button type="button" class="btn ghost" data-action="clear-download-queue"
+        ${count ? "" : "disabled"}>${ico("trash-2")} Limpar fila</button>
+      <button type="button" class="btn primary" data-action="save-download-queue"
+        ${count ? "" : "disabled"}>${ico("download")} Baixar ZIP</button>
+    </footer>
+  `);
+}
+
+async function saveDownloadQueue(button) {
+  if (downloadingQueue || !downloadQueue.size) return;
+
+  downloadingQueue = true;
+  button.disabled = true;
+
+  try {
+    const zip = new JSZip();
+    for (const { path, data } of downloadQueue.values()) {
+      zip.file(path, data);
+    }
+
+    const blob = await zip.generateAsync({
+      type: "blob",
+      compression: "STORE",
+    });
+
+    download(blob, "Criativos.zip");
+  } catch (error) {
+    toast("Não foi possível gerar o ZIP: " + error.message);
+  } finally {
+    downloadingQueue = false;
+    button.disabled = false;
+  }
+}
+
 async function doExport() {
   if (S.exporting || !S.exportSelected.size) return;
   S.exporting = true;
@@ -3015,7 +3292,6 @@ async function doExport() {
     (e) => (e.disabled = true),
   );
   const boards = S.boards.filter((b) => S.exportSelected.has(b.id)),
-    zip = new JSZip(),
     fmt = S.exportFormat,
     type = fmt === "jpg" ? "image/jpeg" : "image/" + fmt;
   const includeProject = S.includeEditableProject !== false;
@@ -3044,13 +3320,11 @@ async function doExport() {
             "Seu navegador não suporta este formato. Escolha PNG ou JPG.",
           );
         const name = creativeFilename(b, fmt);
-        done++;
-        if (boards.length === 1 && !includeProject) {
-          download(blob, name);
-        } else {
-          zip.file(name, blob);
-        }
+        const formatName =
+          !b.format || b.format === "vertical" ? "Vertical" : boardFormat(b).name;
 
+        enqueueDownload("Site", formatName, b.product.cluster, name, blob, `board:${b.id}`);
+        done++;
         exportedBoards.push(b);
         $("#export-progress").innerHTML =
           `<div class="export-progress"><div style="width:${((done + errors.length) / boards.length) * 100}%"></div></div><p class="hint">${done + errors.length} de ${boards.length} processados</p>`;
@@ -3061,39 +3335,42 @@ async function doExport() {
         container.remove();
       }
     }
-    if (done && (boards.length > 1 || includeProject)) {
-      if (includeProject) {
-        const project = {
-          version: 1,
-          workspace: 'site',
-          brand: S.brand,
-          title: S.title,
-          boards: exportedBoards.map(({ preview, ...board }) => board),
-        };
+    if (includeProject) {
+      const groups = new Map();
 
-        const formatNames = new Set(
-          exportedBoards.map(board =>
-            board.format === 'vertical' ? 'Vertical' : boardFormat(board).name
-          )
-        );
+      for (const board of exportedBoards) {
+        const format =
+          !board.format || board.format === "vertical"
+            ? "Vertical"
+            : boardFormat(board).name;
 
-        const formatName = formatNames.size === 1
-          ? [...formatNames][0]
-          : 'Formatos';
+        const cluster = board.product.cluster || "Sem cluster";
+        const key = JSON.stringify([format, cluster]);
 
-        zip.file(
-          `${formatName} (Editável).json`,
-          JSON.stringify(project, null, 2)
-        );
+        if (!groups.has(key)) groups.set(key, { format, cluster, boards: [] });
+
+        const { preview, ...editableBoard } = board;
+        groups.get(key).boards.push(editableBoard);
       }
 
-      const blob = await zip.generateAsync({
-        type: 'blob',
-        compression: 'STORE',
-      });
+      for (const { format, cluster, boards } of groups.values()) {
+        const project = {
+          version: 1,
+          workspace: "site",
+          brand: S.brand,
+          title: S.title,
+          boards,
+        };
 
-      const filename = norm(S.title).replace(/[^a-z0-9]+/g, '-');
-      download(blob, `${filename}_${fmt}.zip`);
+        enqueueDownload(
+          "Site",
+          format,
+          cluster,
+          `${format} (Editável).json`,
+          JSON.stringify(project, null, 2),
+          JSON.stringify(["editable", S.brand, S.title, cluster, boards.map((b) => b.id).sort()]),
+        );
+      }
     }
     if (errors.length) {
       $("#export-error").innerHTML =
@@ -3674,6 +3951,31 @@ async function action(el, event) {
       renderExport();
       break;
     }
+
+    case "download-queue":
+      openDownloadQueue();
+      break;
+
+    case "save-download-queue":
+      await saveDownloadQueue(el);
+      break;
+
+    case "preview-queue-item":
+      previewQueueItem(el.dataset.queueKey);
+      break;
+
+    case "remove-queue-item":
+      if (downloadingQueue) break;
+      downloadQueue.delete(el.dataset.queueKey);
+      openDownloadQueue();
+      break;
+
+    case "clear-download-queue":
+      if (downloadingQueue) break;
+      downloadQueue.clear();
+      openDownloadQueue();
+      break;
+
     case "export-toggle-all":
       if (S.exportSelected.size === S.boards.length) S.exportSelected.clear();
       else S.exportSelected = new Set(S.boards.map((b) => b.id));

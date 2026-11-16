@@ -41,7 +41,6 @@ window.PaidMedia = (() => {
     cluster: "",
     page: 1,
     slot: 0,
-    download: null,
     canvases: [],
     epoch: 0,
     history: [],
@@ -237,7 +236,7 @@ window.PaidMedia = (() => {
     const p = pack(),
       all = P.packs.reduce((n, p) => n + filled(p), 0),
       total = P.packs.reduce((n, p) => n + p.count, 0);
-    const content = `<div class="pm-heading"><div><div class="eyebrow">MÍDIA PAGA</div><h1>Uma seleção. Três formatos.</h1><p>Escolha os slots e adapte cada formato do seu jeito.</p></div><div class="pm-heading-actions"><button class="btn small" data-pm="sources">${ico("file-spreadsheet")}Planilhas</button><button class="btn primary" data-pm="export-all" ${P.busy ? "disabled" : ""}>${ico("download")}${P.busy ? "Exportando…" : "Exportar Meta e Google Ads"}</button></div></div><div class="pm-campaign">${dataField("Nome da campanha", P.title, "data-pm-title", "text")}${campaignThemeSelect()}<span>${all}/${total} produtos · ${Object.keys(C.formats).length * P.packs.length} criativos</span><button class="icon-btn" data-pm="undo" ${P.history.length ? "" : "disabled"} title="Desfazer">${ico("undo-2")}</button><button class="icon-btn" data-pm="redo" ${P.future.length ? "" : "disabled"} title="Refazer">${ico("redo-2")}</button></div>${P.download ? `<div class="pm-download-ready" role="status"><span>${ico("circle-check")}ZIP pronto para baixar.</span><a class="btn small" id="pm-download-ready" href="${h(P.download.url)}" download="${h(P.download.name)}">${ico("download")}Baixar novamente</a></div>` : ""}<div class="pm-pack-tabs">${P.packs.map((p, i) => `<button data-pm="pack" data-index="${i}" class="${P.active === i ? "active" : ""}"><strong>${h(p.name)}</strong><small>${filled(p)}/${p.count} produtos · 3 formatos</small></button>`).join("")}</div><div class="pm-layout"><div class="pm-main"><div class="pm-slots">${p.slots.map((product, i) => `<button class="pm-slot ${product ? "filled" : ""}" data-pm="slot" data-index="${i}">${product ? thumb(product.image) : ico("plus")}<span><b>Slot ${i + 1}</b><small>${product ? h(product.name) : "Clique para selecionar"}</small>${product ? `<small>SKU ${h(product.sku)} · ${h(offerLabel(product))}</small>` : ""}</span>${ico("replace")}</button>`).join("")}</div><div class="pm-preview-toolbar"><b>${h(p.name)} · ${P.focus ? C.formats[P.focus].name : "Todos os formatos"}</b><div><button class="btn small" data-pm="background-quick">${ico("image")}Fundos do conjunto</button><button class="btn small" data-pm="overview">${ico("layout-grid")}Ver os 3</button><button class="btn small" data-pm="export-pack" ${P.busy ? "disabled" : ""}>Exportar conjunto</button></div></div><div class="pm-previews ${P.focus ? "single" : ""}">${Object.entries(
+    const content = `<div class="pm-heading"><div><div class="eyebrow">MÍDIA PAGA</div><h1>Uma seleção. Três formatos.</h1><p>Escolha os slots e adapte cada formato do seu jeito.</p></div><div class="pm-heading-actions"><button class="btn small" data-pm="sources">${ico("file-spreadsheet")}Planilhas</button><button class="btn primary" data-pm="export-all" ${P.busy ? "disabled" : ""}>${ico("download")}${P.busy ? "Exportando…" : "Adicionar todos a fila"}</button></div></div><div class="pm-campaign">${dataField("Nome da campanha", P.title, "data-pm-title", "text")}${campaignThemeSelect()}<span>${all}/${total} produtos · ${Object.keys(C.formats).length * P.packs.length} criativos</span><button class="icon-btn" data-pm="undo" ${P.history.length ? "" : "disabled"} title="Desfazer">${ico("undo-2")}</button><button class="icon-btn" data-pm="redo" ${P.future.length ? "" : "disabled"} title="Refazer">${ico("redo-2")}</button></div><div class="pm-pack-tabs">${P.packs.map((p, i) => `<button data-pm="pack" data-index="${i}" class="${P.active === i ? "active" : ""}"><strong>${h(p.name)}</strong><small>${filled(p)}/${p.count} produtos · 3 formatos</small></button>`).join("")}</div><div class="pm-layout"><div class="pm-main"><div class="pm-slots">${p.slots.map((product, i) => `<button class="pm-slot ${product ? "filled" : ""}" data-pm="slot" data-index="${i}">${product ? thumb(product.image) : ico("plus")}<span><b>Slot ${i + 1}</b><small>${product ? h(product.name) : "Clique para selecionar"}</small>${product ? `<small>SKU ${h(product.sku)} · ${h(offerLabel(product))}</small>` : ""}</span>${ico("replace")}</button>`).join("")}</div><div class="pm-preview-toolbar"><b>${h(p.name)} · ${P.focus ? C.formats[P.focus].name : "Todos os formatos"}</b><div><button class="btn small" data-pm="background-quick">${ico("image")}Fundos do conjunto</button><button class="btn small" data-pm="overview">${ico("layout-grid")}Ver os 3</button><button class="btn small" data-pm="export-pack" ${P.busy ? "disabled" : ""}>Adicionar conjunto à fila</button></div></div><div class="pm-previews ${P.focus ? "single" : ""}">${Object.entries(
       C.formats,
     )
       .filter(([f]) => !P.focus || P.focus === f)
@@ -1268,15 +1267,17 @@ window.PaidMedia = (() => {
     P.busy = true;
     render();
 
-    const zip = new JSZip();
-    const meta = zip.folder("Meta ADS");
-    const google = zip.folder("Google ADS");
+    const pending = [];
     let done = 0;
-    let ready = false;
 
     try {
       for (const p of packs) {
         const number = P.packs.indexOf(p) + 1;
+        const clusters = [...new Set(
+          p.slots.map((product) => product.cluster?.trim() || "Sem cluster"),
+        )];
+
+        const cluster = clusters.length === 1 ? clusters[0] : "Clusters mistos";
 
         for (const [f, c] of Object.entries(C.formats)) {
           const host = document.createElement("div");
@@ -1296,7 +1297,14 @@ window.PaidMedia = (() => {
             }
 
             const original = await paidExportPng(canvas);
-            meta.file(`Meta ADS - ${c.name} - ${number}.png`, original);
+            pending.push([
+              "Mídia Paga",
+              `Meta ADS - ${c.name}`,
+              cluster,
+              `Meta ADS - ${c.name} - ${number}.png`,
+              original,
+              JSON.stringify(["pack", P.title, p.id]),
+            ]);
             done++;
 
             for (const [width, height] of GOOGLE_ADS_SIZES[f] || []) {
@@ -1305,7 +1313,14 @@ window.PaidMedia = (() => {
                 ? original
                 : await paidExportPng(resizeForGoogleAds(canvas, width, height));
 
-              google.file(`Google ADS ${number} - ${width}x${height}.png`, blob);
+              pending.push([
+                "Mídia Paga",
+                `Google ADS - ${width}x${height}`,
+                cluster,
+                `Google ADS - ${width}x${height} - ${number}.png`,
+                blob,
+                JSON.stringify(["pack", P.title, p.id]),
+              ]);
               done++;
             }
           } finally {
@@ -1315,23 +1330,13 @@ window.PaidMedia = (() => {
         }
       }
 
-      const blob = await zip.generateAsync({ type: "blob" });
-      if (P.download) URL.revokeObjectURL(P.download.url);
-
-      const title = P.title.replace(/[<>:"/\\|?*\x00-\x1f]/g, "_");
-      P.download = {
-        url: URL.createObjectURL(blob),
-        name: `${title} - Mídia Paga${all ? "" : " - " + packs[0].name}.zip`,
-      };
-
-      ready = true;
-      toast(`${done} imagens exportadas.`);
+      for (const entry of pending) enqueueDownload(...entry);
+      toast(`${done} imagens adicionadas à fila.`);
     } catch (error) {
       toast("Exportação interrompida: " + error.message);
     } finally {
       P.busy = false;
       render();
-      if (ready) $("#pm-download-ready")?.click();
     }
   }
   async function action(el) {
