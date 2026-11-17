@@ -932,6 +932,7 @@ function snapshot(b = current()) {
   const a = S.history.get(b.id) || [];
   a.push(
     JSON.stringify({
+      format: b.format || "vertical",
       product: b.product,
       theme: b.theme,
       nodes: b.nodes,
@@ -957,6 +958,7 @@ function historyGo(direction) {
   const dest = to.get(b.id) || [];
   dest.push(
     JSON.stringify({
+      format: b.format || "vertical",
       product: b.product,
       theme: b.theme,
       nodes: b.nodes,
@@ -968,16 +970,133 @@ function historyGo(direction) {
     }),
   );
   to.set(b.id, dest);
+  const previousFormat = b.format || "vertical";
   Object.assign(b, JSON.parse(a.pop()));
+  b.preview = null;
   clearModelSelection();
+
+  if ((b.format || "vertical") !== previousFormat) {
+    S.format = b.format || "vertical";
+    S.zoom = 0;
+    render();
+    return;
+  }
+
   drawStage();
   renderProperties();
   renderBoardList();
   updateUndoButtons();
-}
+  }
+
 function editorView() {
   const b = current();
-  return `<div class="editor"><header class="editor-top">${logo()}${supportsPaid() ? '<button class="btn small" data-action="workspace-paid">Mídia Paga</button>' : ""}<span class="editor-brand">${h(brandProfile().label)}</span><div class="top-separator"></div><button class="icon-btn" data-action="back-products" title="Voltar aos produtos">${ico("arrow-left")}</button><input class="project-title" id="project-title" value="${h(S.title)}" aria-label="Nome da campanha"><span class="session-indicator"><span class="status-dot"></span>Alterações mantidas nesta sessão</span><span class="spacer"></span><div class="undo-area" style="display:flex;gap:3px"><button class="icon-btn" id="undo-btn" data-action="undo" title="Desfazer (Ctrl+Z)">${ico("undo-2")}</button><button class="icon-btn" id="redo-btn" data-action="redo" title="Refazer (Ctrl+Shift+Z)">${ico("redo-2")}</button></div><button class="btn small" data-action="download-queue">Fila de download</button><button class="btn primary" data-action="export">${ico("download")}Exportar${ico("chevron-down")}</button></header><div class="editor-body"><aside class="boards-panel"><div class="panel-header">Criativos<span class="counter">${S.boards.length}</span></div><div class="board-search"><label class="search">${ico("search")}<input id="board-query" placeholder="Nome ou SKU" value="${h(S.boardQuery)}" aria-label="Buscar criativos"></label></div><div class="boards-list" id="boards-list"></div><div class="board-panel-bottom"><button class="btn" data-action="back-products">${ico("plus")}Adicionar produtos</button><p>Cada criativo tem suas<br>próprias configurações.</p></div></aside><main class="canvas-workspace"><div class="canvas-toolbar"><div class="left-tools"><button class="icon-btn" data-action="select-all-nodes" title="Selecionar todos os elementos (Ctrl+A)">${ico("scan")}</button><button class="icon-btn active" title="Selecionar e mover">${ico("mouse-pointer-2")}</button><button class="icon-btn" data-action="add-text" title="Adicionar texto">${ico("type")}</button><button class="icon-btn" data-action="add-rect" title="Adicionar forma">${ico("square")}</button><button class="icon-btn" data-action="add-image" title="Adicionar imagem">${ico("image-plus")}</button><div class="tool-divider"></div><button class="icon-btn ${S.guides ? "active" : ""}" data-action="toggle-guides" title="Mostrar guias">${ico("scan-line")}</button></div><span class="format-label">${ico("rectangle-horizontal")}${boardFormat(b).name} · ${boardFormat(b).width} × ${boardFormat(b).height} px</span></div><div class="canvas-area" id="canvas-area"><div class="artboard-wrapper" id="artboard-wrapper"><span class="canvas-caption" id="canvas-caption">01 · ${h(b.product.name)}</span><div id="fabric-container"></div></div></div><div class="canvas-bottom"><span>Shift + clique: selecionar vários · Arraste no fundo para selecionar</span><div class="zoom-controls"><button class="icon-btn" data-action="zoom-out" title="Diminuir zoom">${ico("minus")}</button><button class="zoom-value" data-action="zoom-fit" id="zoom-label" title="Ajustar à tela">Ajustar</button><button class="icon-btn" data-action="zoom-in" title="Aumentar zoom">${ico("plus")}</button><button class="icon-btn" data-action="zoom-fit" title="Ajustar à tela">${ico("maximize")}</button></div></div></main><aside class="properties-panel"><div class="property-tabs">${[
+  return `<div class="editor">
+  <header class="editor-top">
+    ${logo()}
+    ${supportsPaid() ? '<button class="btn small" data-action="workspace-paid">Mídia Paga</button>' : ""}
+    <span class="editor-brand">${h(brandProfile().label)}</span>
+    <div class="top-separator"></div>
+    <button class="icon-btn" data-action="back-products" title="Voltar aos produtos">
+      ${ico("arrow-left")}
+    </button>
+    <input class="project-title" id="project-title" value="${h(S.title)}" aria-label="Nome da campanha">
+    <span class="session-indicator">
+      <span class="status-dot"></span>Alterações mantidas nesta sessão
+    </span>
+    <span class="spacer"></span>
+    <div class="undo-area" style="display:flex;gap:3px">
+      <button class="icon-btn" id="undo-btn" data-action="undo" title="Desfazer (Ctrl+Z)">
+        ${ico("undo-2")}
+      </button>
+      <button class="icon-btn" id="redo-btn" data-action="redo" title="Refazer (Ctrl+Shift+Z)">
+        ${ico("redo-2")}
+      </button>
+    </div>
+    <button class="btn small" data-action="download-queue">Fila de download</button>
+    <button type="button" class="btn small" data-action="open-format-conversion">
+      Converter formato
+    </button>
+    <button class="btn primary" data-action="export">
+      ${ico("download")}Exportar${ico("chevron-down")}
+    </button>
+  </header>
+
+  <div class="editor-body">
+    <aside class="boards-panel">
+      <div class="panel-header">
+        Criativos<span class="counter">${S.boards.length}</span>
+      </div>
+      <div class="board-search">
+        <label class="search">
+          ${ico("search")}
+          <input id="board-query" placeholder="Nome ou SKU" value="${h(S.boardQuery)}" aria-label="Buscar criativos">
+        </label>
+      </div>
+      <div class="boards-list" id="boards-list"></div>
+      <div class="board-panel-bottom">
+        <button class="btn" data-action="back-products">
+          ${ico("plus")}Adicionar produtos
+        </button>
+        <p>Cada criativo tem suas<br>próprias configurações.</p>
+      </div>
+    </aside>
+
+    <main class="canvas-workspace">
+      <div class="canvas-toolbar">
+        <div class="left-tools">
+          <button class="icon-btn" data-action="select-all-nodes" title="Selecionar todos os elementos (Ctrl+A)">
+            ${ico("scan")}
+          </button>
+          <button class="icon-btn active" title="Selecionar e mover">
+            ${ico("mouse-pointer-2")}
+          </button>
+          <button class="icon-btn" data-action="add-text" title="Adicionar texto">
+            ${ico("type")}
+          </button>
+          <button class="icon-btn" data-action="add-rect" title="Adicionar forma">
+            ${ico("square")}
+          </button>
+          <button class="icon-btn" data-action="add-image" title="Adicionar imagem">
+            ${ico("image-plus")}
+          </button>
+          <div class="tool-divider"></div>
+          <button class="icon-btn ${S.guides ? "active" : ""}" data-action="toggle-guides" title="Mostrar guias">
+            ${ico("scan-line")}
+          </button>
+        </div>
+        <span class="format-label">
+          ${ico("rectangle-horizontal")}${boardFormat(b).name} · ${boardFormat(b).width} × ${boardFormat(b).height} px
+        </span>
+      </div>
+
+      <div class="canvas-area" id="canvas-area">
+        <div class="artboard-wrapper" id="artboard-wrapper">
+          <span class="canvas-caption" id="canvas-caption">01 · ${h(b.product.name)}</span>
+          <div id="fabric-container"></div>
+        </div>
+      </div>
+
+      <div class="canvas-bottom">
+        <span>Shift + clique: selecionar vários · Arraste no fundo para selecionar</span>
+        <div class="zoom-controls">
+          <button class="icon-btn" data-action="zoom-out" title="Diminuir zoom">
+            ${ico("minus")}
+          </button>
+          <button class="zoom-value" data-action="zoom-fit" id="zoom-label" title="Ajustar à tela">
+            Ajustar
+          </button>
+          <button class="icon-btn" data-action="zoom-in" title="Aumentar zoom">
+            ${ico("plus")}
+          </button>
+          <button class="icon-btn" data-action="zoom-fit" title="Ajustar à tela">
+            ${ico("maximize")}
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <aside class="properties-panel">
+      <div class="property-tabs">${[
     ["design", "Design"],
     ["layers", "Camadas"],
     ["elements", "Elementos"],
@@ -2605,6 +2724,210 @@ function applyRows(rows, filename, kind) {
     `${kind === "catalog" ? "Informações dos produtos" : "Preços e mecânicas"} carregados.`,
   );
 }
+
+function openFormatConversion() {
+  const board = current();
+  if (!board) return;
+
+  const source = board.format || "vertical";
+  const formats = bannerPresets(board.brand || S.brand).formats;
+  const count = S.boards.filter(
+    (b) => (b.format || "vertical") === source,
+  ).length;
+
+  S.modal = { type: "format-conversion", source };
+
+  const cards = Object.entries(formats)
+    .filter(([id]) => id !== source)
+    .map(([id, format]) => `
+      <button type="button" class="format-convert-card"
+        data-action="convert-format" data-format="${h(id)}"
+        aria-label="Converter para ${h(format.name)}">
+        <span class="format-convert-preview" aria-hidden="true">
+          <img src="${h(format.preview)}" alt="">
+        </span>
+        <span class="format-convert-meta">
+          <strong>${h(format.name)}</strong>
+          <small>${format.width} × ${format.height} px</small>
+        </span>
+        <span class="format-convert-cta">
+          Converter para este formato ${ico("arrow-right")}
+        </span>
+      </button>
+    `).join("");
+
+  openModal(`
+    <header class="modal-header format-convert-header">
+      <div class="format-convert-heading">
+        <span class="format-convert-icon" aria-hidden="true">
+          ${ico("layout-grid")}
+        </span>
+        <div>
+          <h2 id="modal-title">Converter formato</h2>
+          <p>Escolha o destino para ${count} ${count === 1 ? "criativo" : "criativos"}
+            em ${h(formats[source].name)}.</p>
+        </div>
+      </div>
+      <button type="button" class="icon-btn" data-action="close-modal"
+        aria-label="Fechar">${ico("x")}</button>
+    </header>
+    <div class="modal-content">
+      <div class="format-convert-grid">${cards}</div>
+    </div>
+  `);
+}
+
+async function convertSiteBoards(destination) {
+  const modal = S.modal;
+  if (modal?.type !== "format-conversion") return;
+  if (destination === modal.source) return;
+  if (!Object.hasOwn(bannerPresets().formats, destination)) return;
+
+  const boards = S.boards.filter(
+    (b) => (b.format || "vertical") === modal.source,
+  );
+  if (!boards.length) return;
+
+  const buttons = $$('[data-action="convert-format"]');
+  buttons.forEach((button) => (button.disabled = true));
+
+  try {
+    const changes = await Promise.all(boards.map(async (b) => {
+      const presets = bannerPresets(b.brand || S.brand);
+      const sourceLayout = presets.layouts[modal.source];
+      const targetLayout = presets.layouts[destination];
+
+      const reposition = (node) => {
+        const box = targetLayout[node.role];
+        if (!box) return { ...node };
+
+        const { x, y, width, height, fontSize } = box;
+        const next = { ...node, x, y, width, height };
+        const previousFontSize = sourceLayout[node.role]?.fontSize;
+
+        if (fontSize != null) {
+          next.fontSize = previousFontSize && node.fontSize
+            ? fontSize * (node.fontSize / previousFontSize)
+            : fontSize;
+        }
+
+        return next;
+      };
+
+      const nodes = b.nodes.map(reposition);
+      const images = nodes.filter((node) => node.role === "productImage");
+
+      if (images.length) {
+        const layout = b.imageLayout || "original";
+        const gap = b.imageSpacing ?? 20;
+        const scale = (b.imageScale ?? 100) / 100;
+        const slots = layoutSlots(layout, images.length);
+        const useLayout = images.length > 1 && slots.length === images.length;
+
+        const loaded = images.length > 1 && !useLayout
+          ? await Promise.all(
+              images.map((node) => loadImage(node.src).catch(() => null)),
+            )
+          : [];
+
+        function presetImages(format, applyGap = true) {
+          const result = images.map((node) => ({ ...node }));
+
+          if (useLayout) {
+            const [x, y, width, height] = productBoxes(format, 1)[0];
+            const { padding, paddingRatio } = presets.imageComposition;
+            const inset = Math.min(padding, width * paddingRatio, height * paddingRatio);
+
+            result.forEach((node, index) => {
+              const [sx, sy, sw, sh] = slots[index];
+              node.x = x + inset + sx * (width - 2 * inset);
+              node.y = y + inset + sy * (height - 2 * inset);
+              node.width = sw * (width - 2 * inset);
+              node.height = sh * (height - 2 * inset);
+            });
+          } else {
+            const boxes = productBoxes(format, result.length);
+            result.forEach((node, index) => {
+              [node.x, node.y, node.width, node.height] = boxes[index];
+            });
+          }
+
+          scaleProductNodes(result, scale);
+
+          if (applyGap && result.length > 1) {
+            if (useLayout) offsetLayoutImages(result, layout, gap);
+            else spaceImageNodes(result, gap, loaded);
+          }
+
+          return result;
+        }
+
+        let sourceImages = presetImages(modal.source);
+        const targetImages = presetImages(destination);
+
+        // Pranchetas recém-criadas podem ter o valor de espaçamento salvo
+        // antes de o espaçamento ser aplicado à posição das imagens.
+        if (!useLayout && images.length > 1) {
+          const beforeGap = presetImages(modal.source, false);
+          const distanceTo = (reference) => images.reduce(
+            (total, node, index) => total + Math.abs(node.x - reference[index].x),
+            0,
+          );
+
+          if (distanceTo(beforeGap) < distanceTo(sourceImages)) {
+            sourceImages = beforeGap;
+          }
+        }
+
+        const [, , sourceWidth, sourceHeight] = productBoxes(modal.source, 1)[0];
+        const [, , targetWidth, targetHeight] = productBoxes(destination, 1)[0];
+
+        images.forEach((node, index) => {
+          const source = sourceImages[index];
+          const target = targetImages[index];
+          const offsetX = node.x - source.x;
+          const offsetY = node.y - source.y;
+          const widthRatio = node.width / source.width;
+          const heightRatio = node.height / source.height;
+
+          node.x = target.x + offsetX * (targetWidth / sourceWidth);
+          node.y = target.y + offsetY * (targetHeight / sourceHeight);
+          node.width = target.width * widthRatio;
+          node.height = target.height * heightRatio;
+        });
+      }
+
+      const offerDrafts = Object.fromEntries(
+        Object.entries(b.offerDrafts || {}).map(([role, node]) => [
+          role,
+          reposition(node),
+        ]),
+      );
+
+      return { b, nodes, offerDrafts };
+    }));
+
+    if (S.modal !== modal) return;
+
+    for (const { b, nodes, offerDrafts } of changes) {
+      snapshot(b);
+      spacingRequests.set(b, (spacingRequests.get(b) || 0) + 1);
+      Object.assign(b, { format: destination, nodes, offerDrafts, preview: null });
+    }
+
+    S.format = destination;
+    S.zoom = 0;
+    clearModelSelection();
+    closeModal();
+    render();
+    toast(`${boards.length} ${boards.length === 1 ? "criativo convertido" : "criativos convertidos"}.`);
+  } catch (error) {
+    toast("Não foi possível converter os criativos: " + error.message);
+  } finally {
+    buttons.forEach((button) => (button.disabled = false));
+  }
+}
+
 function startEditor() {
     const productsById = new Map(
     S.report.products.map((product) => [product.id, product]),
@@ -3264,8 +3587,26 @@ async function saveDownloadQueue(button) {
 
   try {
     const zip = new JSZip();
-    for (const { path, data } of downloadQueue.values()) {
-      zip.file(path, data);
+    const clustersByFormat = new Map();
+
+    const files = [...downloadQueue.values()].map(({ path, data }) => {
+      const [media, format, cluster, filename] = path.split("/");
+      const folder = `${media}/${format}`;
+
+      if (!clustersByFormat.has(folder)) {
+        clustersByFormat.set(folder, new Set());
+      }
+
+      clustersByFormat.get(folder).add(cluster);
+      return { folder, cluster, filename, data };
+    });
+
+    for (const { folder, cluster, filename, data } of files) {
+      const directory = clustersByFormat.get(folder).size > 1
+        ? `${folder}/${cluster}`
+        : folder;
+
+      zip.file(`${directory}/${filename}`, data);
     }
 
     const blob = await zip.generateAsync({
@@ -3941,6 +4282,15 @@ async function action(el, event) {
       }
       break;
     }
+
+    case "open-format-conversion":
+      openFormatConversion();
+      break;
+
+    case "convert-format":
+      await convertSiteBoards(el.dataset.format);
+      break;
+
     case "export":
       openExport();
       break;

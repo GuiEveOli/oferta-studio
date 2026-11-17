@@ -36,7 +36,7 @@ window.OFERTA_PRESETS = {
     "backgroundPanels": {"panoramic": {"x": -40, "y": 0, "width": 920, "height": 720, "radius": 40, "outsideColor": "#f6f7f8"}},
     "imageComposition": {"padding": 24, "paddingRatio": 0.08},
     "formats": {
-      "vertical": {"id": "vertical", "name": "Oferta vertical", "width": 720, "height": 1281, "preview": "/assets/preset.jpg"},
+      "vertical": {"id": "vertical", "name": "Vertical", "width": 720, "height": 1281, "preview": "/assets/preset.jpg"},
       "panoramic": {"id": "panoramic", "name": "Panorâmico", "width": 1512, "height": 720, "preview": "/assets/preset-panoramic.png"},
       "mini": {"id": "mini", "name": "Mini", "width": 720, "height": 288, "preview": "/assets/preset-mini.png"}
     },
