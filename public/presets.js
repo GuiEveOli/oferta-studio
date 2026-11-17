@@ -36,14 +36,167 @@ window.OFERTA_PRESETS = {
     "backgroundPanels": {"panoramic": {"x": -40, "y": 0, "width": 920, "height": 720, "radius": 40, "outsideColor": "#f6f7f8"}},
     "imageComposition": {"padding": 24, "paddingRatio": 0.08},
     "formats": {
+    // Banner responsivo: calibre Desktop e Mobile separadamente aqui.
+      "promo-desk": {
+        "id": "promo-desk",
+        "name": "Banner Promoção- Desktop",
+        "cardName": "Banner Promoção",
+        "description": "Desktop 2412 × 300 · Mobile 686 × 240",
+        "width": 2412,
+        "height": 300,
+        "responsiveGroup": "site-responsive",
+        "variantLabel": "Desktop",
+        "preview": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20420%20160%22%3E%3Crect%20x%3D%228%22%20y%3D%2215%22%20width%3D%22404%22%20height%3D%2250%22%20rx%3D%226%22%20fill%3D%22%23123878%22%2F%3E%3Crect%20x%3D%22125%22%20y%3D%2290%22%20width%3D%22170%22%20height%3D%2260%22%20rx%3D%226%22%20fill%3D%22%230753dc%22%2F%3E%3C%2Fsvg%3E"
+      },
+      "promo-mobile": {
+        "id": "promo-mobile",
+        "name": "Banner Promoção - Mobile",
+        "width": 686,
+        "height": 240,
+        "responsiveGroup": "site-responsive",
+        "variantLabel": "Mobile",
+        "hidden": true,
+        "preview": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20420%20160%22%3E%3Crect%20x%3D%228%22%20y%3D%2215%22%20width%3D%22404%22%20height%3D%2250%22%20rx%3D%226%22%20fill%3D%22%23123878%22%2F%3E%3Crect%20x%3D%22125%22%20y%3D%2290%22%20width%3D%22170%22%20height%3D%2260%22%20rx%3D%226%22%20fill%3D%22%230753dc%22%2F%3E%3C%2Fsvg%3E"
+      },
+
       "vertical": {"id": "vertical", "name": "Vertical", "width": 720, "height": 1281, "preview": "/assets/preset.jpg"},
       "panoramic": {"id": "panoramic", "name": "Panorâmico", "width": 1512, "height": 720, "preview": "/assets/preset-panoramic.png"},
       "mini": {"id": "mini", "name": "Mini", "width": 720, "height": 288, "preview": "/assets/preset-mini.png"}
     },
     "layouts": {
+    // Banner responsivo: calibre Desktop e Mobile separadamente aqui.
+      "promo-desk": {
+        "name": {
+          "x": 65,
+          "y": 40,
+          "width": 680,
+          "height": 115,
+          "fontSize": 49
+        },
+        "priceBand": {
+          "x": 790,
+          "y": 55,
+          "width": 595,
+          "height": 160,
+          "roundedCorners": "all",
+          "cornerRadius": 200
+        },
+        "price": {
+          "x": 800,
+          "y": 65,
+          "width": 570,
+          "height": 145,
+          "fontSize": 145
+        },
+        "offerHeadline": {
+          "x": 815,
+          "y": 65,
+          "width": 545,
+          "height": 140,
+          "fontSize": 65
+        },
+        "offerDiscount": {
+          "x": 800,
+          "y": 65,
+          "width": 570,
+          "height": 145,
+          "fontSize": 140
+        },
+        "clubBadge": {
+          "x": 880,
+          "y": 205,
+          "width": 410,
+          "height": 50
+        },
+        "ctaBand": {
+          "x": 2020,
+          "y": 100,
+          "width": 320,
+          "height": 90
+        },
+        "cta": {
+          "x": 2035,
+          "y": 115,
+          "width": 290,
+          "height": 60,
+          "fontSize": 44
+        },
+        "offerLegal": {
+          "x": 790,
+          "y": 265,
+          "width": 610,
+          "height": 24,
+          "fontSize": 16
+        }
+      },
+      "promo-mobile": {
+        "name": {
+          "x": 20,
+          "y": 15,
+          "width": 315,
+          "height": 62,
+          "fontSize": 25
+        },
+        "priceBand": {
+          "x": 0,
+          "y": 85,
+          "width": 345,
+          "height": 95,
+          "roundedCorners": "all",
+          "cornerRadius": 35
+        },
+        "price": {
+          "x": 5,
+          "y": 90,
+          "width": 330,
+          "height": 82,
+          "fontSize": 87
+        },
+        "offerHeadline": {
+          "x": 20,
+          "y": 90,
+          "width": 305,
+          "height": 80,
+          "fontSize": 38
+        },
+        "offerDiscount": {
+          "x": 5,
+          "y": 90,
+          "width": 330,
+          "height": 82,
+          "fontSize": 82
+        },
+        "clubBadge": {
+          "x": 40,
+          "y": 174,
+          "width": 270,
+          "height": 33
+        },
+        "ctaBand": {
+          "x": 425,
+          "y": 170,
+          "width": 235,
+          "height": 52
+        },
+        "cta": {
+          "x": 440,
+          "y": 181,
+          "width": 205,
+          "height": 32,
+          "fontSize": 27
+        },
+        "offerLegal": {
+          "x": 12,
+          "y": 218,
+          "width": 335,
+          "height": 17,
+          "fontSize": 10
+        }
+      },
+
       "vertical": {
         "name": {"x": 40, "y": 125, "width": 640, "height": 170, "fontSize": 56},
-        "priceBand": {"x": 0, "y": 319, "width": 710, "height": 211},
+        "priceBand": {"x": 0, "y": 319, "width": 710, "height": 211, "roundedCorners": "right", "cornerRadius": 200},
         "price": {"x": 0, "y": 330, "width": 720, "height": 220, "fontSize": 218},
         "offerHeadline": {"x": 0, "y": 330, "width": 720, "height": 169, "fontSize": 100},
         "offerDiscount": {"x": 0, "y": 325, "width": 720, "height": 220, "fontSize": 218},
@@ -76,6 +229,28 @@ window.OFERTA_PRESETS = {
       }
     },
     "productImages": {
+    // Banner responsivo: calibre Desktop e Mobile separadamente aqui.
+      "promo-desk": {
+        "area": {
+          "x": 1440,
+          "y": 12,
+          "width": 530,
+          "height": 275
+        },
+        "overlapStep": 0.7,
+        "stagger": 0.04
+      },
+      "promo-mobile": {
+        "area": {
+          "x": 360,
+          "y": 8,
+          "width": 305,
+          "height": 155
+        },
+        "overlapStep": 0.7,
+        "stagger": 0.04
+      },
+
       "vertical": {
         "byCount": {
           "1": [

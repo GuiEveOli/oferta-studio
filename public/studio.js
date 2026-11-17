@@ -393,12 +393,13 @@ function importSummary() {
   return `<section class="import-summary"><strong>${r.products.length} ofertas disponíveis · ${r.skuCount} SKUs · ${r.clusters.length} capas</strong><p>${r.duplicates.toLocaleString("pt-BR")} repetições idênticas agrupadas entre unidades.</p>${r.missingImages ? `<p class="source-error">${r.missingImages} ofertas sem imagem no catálogo. Você poderá enviar ou substituir a imagem no editor.</p>` : ""}${r.issues.length ? `<details><summary>${r.issues.length.toLocaleString("pt-BR")} linhas com pendências — não serão diagramadas</summary><ul>${[...reasons].map(([reason, count]) => `<li>${h(reason)}: <b>${count.toLocaleString("pt-BR")}</b></li>`).join("")}</ul><p>Exemplos de SKUs para conferir:</p><div class="import-issues">${samples.map((i) => `<div><b>${h(i.sku || "Sem SKU")}</b><span>${h(i.reason)}</span></div>`).join("")}</div><p class="hint">Exibindo até 40 combinações de SKU e motivo. Corrija a fonte e importe novamente.</p></details>` : '<p class="success-note">Todos os registros puderam ser cruzados.</p>'}</section>`;
 }
 function formatsView() {
-  return `<div class="page-heading"><div><div class="eyebrow">UM BOM COMEÇO PARA CADA OFERTA</div><h1>Escolha o seu formato.</h1><p>Três layouts prontos para personalizar.</p></div><button class="btn ghost small" data-action="back-products">${ico("arrow-left")}Voltar</button></div><div class="format-layout format-grid">${Object.values(
+  return `<div class="page-heading"><div><div class="eyebrow">UM BOM COMEÇO PARA CADA OFERTA</div><h1>Escolha o seu formato.</h1><p>Escolha um layout para os seus criativos.</p></div><button class="btn ghost small" data-action="back-products">${ico("arrow-left")}Voltar</button></div><div class="format-layout format-grid">${Object.values(
     bannerPresets().formats,
   )
+    .filter((f) => !f.hidden)
     .map(
       (f) =>
-        `<article class="format-card ${S.format === f.id ? "is-selected" : ""}" data-action="choose-format" data-format="${f.id}"><div class="format-image"><img src="${f.preview}" alt="Layout ${f.name}"></div><h3>${f.name}</h3><p>${f.width} × ${f.height} px</p><button class="btn primary" data-action="choose-format" data-format="${f.id}">Usar este formato ${ico("arrow-right")}</button></article>`,
+        `<article class="format-card ${editorFormatKey(S.format) === editorFormatKey(f.id) ? "is-selected" : ""}" data-action="choose-format" data-format="${f.id}"><div class="format-image"><img src="${f.preview}" alt="Layout ${f.name}"></div><h3>${f.cardName || f.name}</h3><p>${f.description || `${f.width} × ${f.height} px`}</p><button class="btn primary" data-action="choose-format" data-format="${f.id}">Usar este formato ${ico("arrow-right")}</button></article>`,
     )
     .join("")}</div>${importSummary()}`;
 }
@@ -728,7 +729,9 @@ function adaptFormatNodes(nodes, format) {
       n.shadowBlur = pano ? 0 : 3;
       n.shadowOffsetY = pano ? 0 : 3;
     }
-    if (n.role === "priceBand") n.cornerRadius = n.height / 2;
+    if (n.role === "priceBand") {
+      n.cornerRadius = box?.cornerRadius ?? n.height / 2;
+    }
     if (n.role === "ctaBand") {
       n.cornerRadius = n.height / 2;
       if (pano) n.fill = "#ffce00";
@@ -905,6 +908,153 @@ function updateBoardPrice(b, value) {
   if (b.product.offerKind === "club") b.product.loyaltyPrice = value;
   else b.product.retailPrice = value;
 }
+// One logical creative, with independent geometry and background in each version.
+const RESPONSIVE_LAYOUT_FIELDS = [
+  "theme", "nodes", "offerDrafts", "imageSpacing", "imageScale", "imageLayout",
+];
+const RESPONSIVE_CONTENT_ROLES = new Set([
+  "name", "price", "offerHeadline", "offerDiscount", "clubBadge", "offerLegal",
+  "productImage", "cta",
+]);
+
+function responsiveFormats(b) {
+  const formats = bannerPresets(b.brand || S.brand).formats;
+  const group = formats[b.format]?.responsiveGroup;
+  return group ? Object.keys(formats).filter((id) => formats[id].responsiveGroup === group) : [];
+}
+
+function editorFormatKey(format) {
+  return bannerPresets().formats[format]?.responsiveGroup || format || "vertical";
+}
+
+function captureResponsiveLayout(b) {
+  return structuredClone(Object.fromEntries(
+    RESPONSIVE_LAYOUT_FIELDS.map((key) => [key, b[key]]),
+  ));
+}
+
+function initializeResponsiveBoard(b) {
+  const formats = responsiveFormats(b);
+  if (!formats.length) {
+    delete b.responsiveVersions;
+    return;
+  }
+  b.responsiveVersions ??= {};
+  for (const format of formats) {
+    if (format === b.format || b.responsiveVersions[format]) continue;
+    const version = {
+      format,
+      nodes: defaultNodes(b.product, ensureOffer(b), format),
+      theme: defaultTheme(format),
+      offerDrafts: {},
+      imageSpacing: 20,
+      imageScale: 100,
+      imageLayout: "original",
+    };
+    applyThemeToBoard(version, version.theme);
+    b.responsiveVersions[format] = captureResponsiveLayout(version);
+  }
+  synchronizeResponsiveBoard(b);
+}
+
+function synchronizeResponsiveBoard(b) {
+  if (!b?.responsiveVersions) return;
+  b.responsiveVersions[b.format] = captureResponsiveLayout(b);
+  const sources = new Map();
+  for (const node of b.nodes) {
+    if (!RESPONSIVE_CONTENT_ROLES.has(node.role)) continue;
+    if (!sources.has(node.role)) sources.set(node.role, []);
+    sources.get(node.role).push(node);
+  }
+  for (const [format, version] of Object.entries(b.responsiveVersions)) {
+    if (format === b.format) continue;
+    // Keep dormant offer positions so toggling the club seal or mechanic restores them.
+    version.offerDrafts ??= {};
+    for (const node of version.nodes) {
+      if (mechanicRoles.has(node.role)) version.offerDrafts[node.role] = { ...node };
+    }
+    const used = new Map();
+    const copyContent = (target, source) => {
+      for (const key of ["text", "value", "src", "upTo"]) {
+        if (Object.hasOwn(source, key)) target[key] = source[key];
+      }
+      return target;
+    };
+    version.nodes = version.nodes.filter((node) => {
+      if (!RESPONSIVE_CONTENT_ROLES.has(node.role)) return true;
+      const index = used.get(node.role) || 0;
+      const source = sources.get(node.role)?.[index];
+      if (!source || source.type !== node.type) return false;
+      copyContent(node, source);
+      used.set(node.role, index + 1);
+      return true;
+    });
+    let defaults;
+    for (const [role, sourceNodes] of sources) {
+      for (let index = used.get(role) || 0; index < sourceNodes.length; index++) {
+        defaults ??= defaultNodes(b.product, ensureOffer(b), format);
+        const source = sourceNodes[index];
+        const saved = version.offerDrafts[role];
+        let target = saved?.type === source.type ? { ...saved } : null;
+        target ??= defaults.find((node) => node.role === role && node.type === source.type);
+        if (!target) continue;
+        target = { ...target, id: uid() };
+        if (role === "productImage") {
+          const box = productBoxes(format, sourceNodes.length)[index];
+          if (box) [target.x, target.y, target.width, target.height] = box;
+        }
+        copyContent(target, source);
+        const at = version.nodes.findIndex((node) => node.role === "productImage");
+        if (mechanicRoles.has(role) && at >= 0) version.nodes.splice(at, 0, target);
+        else if (role === "productImage") {
+          const ctaIndex = version.nodes.findIndex((node) => node.role === "ctaBand");
+          version.nodes.splice(ctaIndex < 0 ? version.nodes.length : ctaIndex, 0, target);
+        } else version.nodes.push(target);
+      }
+    }
+  }
+}
+
+function responsiveVersionControls(b) {
+  const formats = responsiveFormats(b);
+  if (!formats.length) return "";
+  return `<div class="segmented" role="group" aria-label="Versão do banner">
+    ${formats.map((format) => `<button type="button"
+      class="${format === b.format ? "selected" : ""}"
+      data-action="responsive-version" data-format="${h(format)}"
+      aria-pressed="${format === b.format}">${h(bannerPresets().formats[format].variantLabel)}</button>`).join("")}
+  </div>`;
+}
+
+function switchResponsiveVersion(format) {
+  const b = current();
+  if (S.exporting || !b || !responsiveFormats(b).includes(format) || b.format === format) return;
+  // Commit the canvas text editor before saving the version.
+  stage?.getActiveObject?.()?.exitEditing?.();
+  initializeResponsiveBoard(b);
+  spacingRequests.set(b, (spacingRequests.get(b) || 0) + 1);
+  const next = structuredClone(b.responsiveVersions[format]);
+  Object.assign(b, next, { format, preview: null });
+  S.format = format;
+  S.zoom = 0;
+  clearModelSelection();
+  render();
+}
+
+function siteExportBoards(selected) {
+  return selected.flatMap((b) => {
+    if (!responsiveFormats(b).length) return [b];
+    initializeResponsiveBoard(b);
+    return responsiveFormats(b).map((format) => ({
+      ...structuredClone(b),
+      ...structuredClone(b.responsiveVersions[format]),
+      format,
+      exportNumber: S.boards.indexOf(b) + 1,
+      preview: null,
+    }));
+  });
+}
+
 function makeBoard(p) {
   const b = {
     id: uid(),
@@ -920,6 +1070,7 @@ function makeBoard(p) {
     nodes: defaultNodes(p, initialOffer(p), S.format),
     preview: null,
   };
+  initializeResponsiveBoard(b);
   S.history.set(b.id, []);
   S.future.set(b.id, []);
   return b;
@@ -929,10 +1080,12 @@ function current() {
 }
 function snapshot(b = current()) {
   if (!b) return;
+  synchronizeResponsiveBoard(b);
   const a = S.history.get(b.id) || [];
   a.push(
     JSON.stringify({
       format: b.format || "vertical",
+      responsiveVersions: b.responsiveVersions,
       product: b.product,
       theme: b.theme,
       nodes: b.nodes,
@@ -955,10 +1108,12 @@ function historyGo(direction) {
     to = direction === "undo" ? S.future : S.history;
   const a = from.get(b.id) || [];
   if (!a.length) return;
+  synchronizeResponsiveBoard(b);
   const dest = to.get(b.id) || [];
   dest.push(
     JSON.stringify({
       format: b.format || "vertical",
+      responsiveVersions: b.responsiveVersions,
       product: b.product,
       theme: b.theme,
       nodes: b.nodes,
@@ -971,6 +1126,7 @@ function historyGo(direction) {
   );
   to.set(b.id, dest);
   const previousFormat = b.format || "vertical";
+  delete b.responsiveVersions;
   Object.assign(b, JSON.parse(a.pop()));
   b.preview = null;
   clearModelSelection();
@@ -1064,6 +1220,7 @@ function editorView() {
             ${ico("scan-line")}
           </button>
         </div>
+        ${responsiveVersionControls(b)}
         <span class="format-label">
           ${ico("rectangle-horizontal")}${boardFormat(b).name} · ${boardFormat(b).width} × ${boardFormat(b).height} px
         </span>
@@ -1539,7 +1696,7 @@ function loadCreativeFonts() {
     : Promise.resolve());
 }
 function creativeFilename(b, format = S.exportFormat) {
-  const number = S.boards.indexOf(b) + 1,
+  const number = b.exportNumber ?? (S.boards.indexOf(b) + 1),
     label =
       b.format === "vertical" || !b.format ? "Vertical" : boardFormat(b).name,
     sku = String(b.product.sku).replace(/[<>:"/\\|?*\x00-\x1f]/g, "_");
@@ -1857,22 +2014,41 @@ async function sceneNode(n, interactive, failed) {
     return slotGroup(n, [graphic], interactive);
   }
   if (n.type === "rect") {
-    const r = Math.min(n.cornerRadius || 0, n.width / 2, n.height / 2);
-    if (n.role === "priceBand") {
-      return new fabric.Path(
-        `M 0 0 H ${n.width - r} Q ${n.width} 0 ${n.width} ${r} V ${n.height - r} Q ${n.width} ${n.height} ${n.width - r} ${n.height} H 0 Z`,
-        { ...sceneOptions(n, interactive), fill: n.fill },
-      );
-    }
-    return new fabric.Rect({
-      ...sceneOptions(n, interactive),
-      width: n.width,
-      height: n.height,
-      rx: r,
-      ry: r,
-      fill: n.fill,
-    });
+  const r = Math.min(
+    n.cornerRadius ?? 0,
+    n.width / 2,
+    n.height / 2
+  );
+
+  // Faixa com arredondamento apenas à direita.
+  if (
+    n.role === "priceBand" &&
+    n.roundedCorners !== "all"
+  ) {
+    return new fabric.Path(
+      `M 0 0
+       H ${n.width - r}
+       Q ${n.width} 0 ${n.width} ${r}
+       V ${n.height - r}
+       Q ${n.width} ${n.height} ${n.width - r} ${n.height}
+       H 0 Z`,
+      {
+        ...sceneOptions(n, interactive),
+        fill: n.fill,
+      }
+    );
   }
+
+  // Retângulo com os quatro cantos arredondados.
+  return new fabric.Rect({
+    ...sceneOptions(n, interactive),
+    width: n.width,
+    height: n.height,
+    rx: r,
+    ry: r,
+    fill: n.fill,
+  });
+}
   if (n.type === "circle")
     return new fabric.Ellipse({
       ...sceneOptions(n, interactive),
@@ -2275,6 +2451,7 @@ async function createScene(container, b, scale, interactive = false) {
 }
 async function drawStage() {
   if (!$("#fabric-container") || !current()) return;
+  synchronizeResponsiveBoard(current());
   const version = ++stageVersion;
   const previousStage = stage;
   stage = null;
@@ -2515,6 +2692,7 @@ function selectNode(id, properties = true, additive = false) {
   selectNodes(ids, properties);
 }
 function updatePreview(b = current()) {
+  synchronizeResponsiveBoard(b);
   if (
     !stage ||
     b !== current() ||
@@ -2732,13 +2910,13 @@ function openFormatConversion() {
   const source = board.format || "vertical";
   const formats = bannerPresets(board.brand || S.brand).formats;
   const count = S.boards.filter(
-    (b) => (b.format || "vertical") === source,
+    (b) => editorFormatKey(b.format) === editorFormatKey(source),
   ).length;
 
   S.modal = { type: "format-conversion", source };
 
   const cards = Object.entries(formats)
-    .filter(([id]) => id !== source)
+    .filter(([id, format]) => !format.hidden && editorFormatKey(id) !== editorFormatKey(source))
     .map(([id, format]) => `
       <button type="button" class="format-convert-card"
         data-action="convert-format" data-format="${h(id)}"
@@ -2784,7 +2962,7 @@ async function convertSiteBoards(destination) {
   if (!Object.hasOwn(bannerPresets().formats, destination)) return;
 
   const boards = S.boards.filter(
-    (b) => (b.format || "vertical") === modal.source,
+    (b) => editorFormatKey(b.format) === editorFormatKey(modal.source),
   );
   if (!boards.length) return;
 
@@ -2794,28 +2972,66 @@ async function convertSiteBoards(destination) {
   try {
     const changes = await Promise.all(boards.map(async (b) => {
       const presets = bannerPresets(b.brand || S.brand);
-      const sourceLayout = presets.layouts[modal.source];
-      const targetLayout = presets.layouts[destination];
 
-      const reposition = (node) => {
-        const box = targetLayout[node.role];
-        if (!box) return { ...node };
+      // Cria tudo com as configurações padrão do formato de destino.
+      const theme = defaultTheme(destination);
 
-        const { x, y, width, height, fontSize } = box;
-        const next = { ...node, x, y, width, height };
-        const previousFontSize = sourceLayout[node.role]?.fontSize;
+      const defaults = defaultNodes(
+        b.product,
+        ensureOffer(b),
+        destination
+      );
 
-        if (fontSize != null) {
-          next.fontSize = previousFontSize && node.fontSize
-            ? fontSize * (node.fontSize / previousFontSize)
-            : fontSize;
-        }
+      applyThemeToBoard({ nodes: defaults }, theme);
 
-        return next;
+      // Somente estes conteúdos podem vir da prancheta anterior.
+      // Posições, fontes, tamanhos e cores ficam com o preset novo.
+      const transferable = {
+        name: ["text"],
+        price: ["value"],
+        offerHeadline: ["text"],
+        offerDiscount: ["value", "upTo"],
+        clubBadge: ["src"],
       };
 
-      const nodes = b.nodes.map(reposition);
-      const images = nodes.filter((node) => node.role === "productImage");
+      for (const fresh of defaults) {
+        const fields = transferable[fresh.role];
+        if (!fields) continue;
+
+        const previous = b.nodes.find(
+          (node) => node.role === fresh.role
+        );
+
+        if (!previous) continue;
+
+        for (const field of fields) {
+          if (Object.hasOwn(previous, field)) {
+            fresh[field] = structuredClone(previous[field]);
+          }
+        }
+      }
+
+      // Mantém as imagens atuais e suas posições para que o cálculo
+      // abaixo adapte a composição ao espaço do formato de destino.
+      const images = b.nodes
+        .filter((node) => node.role === "productImage")
+        .map((node) => structuredClone(node));
+
+      // Substitui as imagens padrão pelas imagens do criativo anterior,
+      // preservando a ordem das camadas do preset de destino.
+      const imageIndex = defaults.findIndex(
+        (node) => node.role === "productImage"
+      );
+
+      const nodes = defaults.filter(
+        (node) => node.role !== "productImage"
+      );
+
+      nodes.splice(
+        imageIndex < 0 ? nodes.length : imageIndex,
+        0,
+        ...images
+      );
 
       if (images.length) {
         const layout = b.imageLayout || "original";
@@ -2862,13 +3078,13 @@ async function convertSiteBoards(destination) {
           return result;
         }
 
-        let sourceImages = presetImages(modal.source);
+        let sourceImages = presetImages(b.format || "vertical");
         const targetImages = presetImages(destination);
 
         // Pranchetas recém-criadas podem ter o valor de espaçamento salvo
         // antes de o espaçamento ser aplicado à posição das imagens.
         if (!useLayout && images.length > 1) {
-          const beforeGap = presetImages(modal.source, false);
+          const beforeGap = presetImages(b.format || "vertical", false);
           const distanceTo = (reference) => images.reduce(
             (total, node, index) => total + Math.abs(node.x - reference[index].x),
             0,
@@ -2879,7 +3095,7 @@ async function convertSiteBoards(destination) {
           }
         }
 
-        const [, , sourceWidth, sourceHeight] = productBoxes(modal.source, 1)[0];
+        const [, , sourceWidth, sourceHeight] = productBoxes(b.format || "vertical", 1)[0];
         const [, , targetWidth, targetHeight] = productBoxes(destination, 1)[0];
 
         images.forEach((node, index) => {
@@ -2897,22 +3113,26 @@ async function convertSiteBoards(destination) {
         });
       }
 
-      const offerDrafts = Object.fromEntries(
-        Object.entries(b.offerDrafts || {}).map(([role, node]) => [
-          role,
-          reposition(node),
-        ]),
-      );
+      // Descarta posições e estilos antigos das outras mecânicas.
+      const offerDrafts = {};
 
-      return { b, nodes, offerDrafts };
-    }));
+      return { b, nodes, offerDrafts, theme };
+          }));
 
     if (S.modal !== modal) return;
 
-    for (const { b, nodes, offerDrafts } of changes) {
+    for (const { b, nodes, offerDrafts, theme } of changes) {
       snapshot(b);
       spacingRequests.set(b, (spacingRequests.get(b) || 0) + 1);
-      Object.assign(b, { format: destination, nodes, offerDrafts, preview: null });
+      delete b.responsiveVersions;
+      Object.assign(b, {
+        format: destination,
+        nodes,
+        offerDrafts,
+        theme,
+        preview: null,
+      });
+      initializeResponsiveBoard(b);
     }
 
     S.format = destination;
@@ -2939,7 +3159,7 @@ const products = [...S.selected]
   if (!products.length) return;
   const old = new Map(
     S.boards
-      .filter((b) => (b.format || "vertical") === S.format)
+      .filter((b) => editorFormatKey(b.format) === editorFormatKey(S.format))
       .map((b) => [b.product.id, b]),
   );
   S.boards = products.map((p) => old.get(p.id) || makeBoard(p));
@@ -3397,7 +3617,7 @@ ${S.exportFormat !== "png" ? `
     ${S.includeEditableProject !== false ? "checked" : ""}>
 </label>
 </div>
-<div class="export-grid">${S.boards.map((b, i) => `<article class="export-card ${S.exportSelected.has(b.id) ? "selected" : ""}" data-action="export-toggle" data-id="${b.id}" role="checkbox" tabindex="0" aria-checked="${S.exportSelected.has(b.id)}" aria-label="Exportar ${h(b.product.name)}"><div class="checkbox">${S.exportSelected.has(b.id) ? ico("check") : ""}</div><div class="export-card-preview"><img id="export-preview-${b.id}" src="${b.preview || "/assets/blank-preset.svg"}" alt="Prévia de ${h(b.product.name)}"></div><p>${h(b.product.name)}</p><small>${String(i + 1).padStart(2, "0")} · SKU ${h(b.product.sku)} · ${h(b.product.cluster)} · ${boardFormat(b).width} × ${boardFormat(b).height} px</small></article>`).join("")}</div><div id="export-error"></div><div id="export-progress"></div></div><footer class="modal-footer"><small>${n > 1 ? "Os criativos serão reunidos em um arquivo ZIP." : "Exportação no tamanho original do preset."}<br>Seus ajustes são aplicados individualmente.</small><button class="btn primary" data-action="download-export" id="download-export" ${!n ? "disabled" : ""}>${ico("download")}Adicionar à fila ${n} ${n === 1 ? "criativo" : "criativos"}</button></footer>`,
+<p class="hint">Banner Promoção incluem as duas versões na fila e no projeto editável.</p><div class="export-grid">${S.boards.map((b, i) => `<article class="export-card ${S.exportSelected.has(b.id) ? "selected" : ""}" data-action="export-toggle" data-id="${b.id}" role="checkbox" tabindex="0" aria-checked="${S.exportSelected.has(b.id)}" aria-label="Exportar ${h(b.product.name)}"><div class="checkbox">${S.exportSelected.has(b.id) ? ico("check") : ""}</div><div class="export-card-preview"><img id="export-preview-${b.id}" src="${b.preview || "/assets/blank-preset.svg"}" alt="Prévia de ${h(b.product.name)}"></div><p>${h(b.product.name)}</p><small>${String(i + 1).padStart(2, "0")} · SKU ${h(b.product.sku)} · ${h(b.product.cluster)} · ${boardFormat(b).width} × ${boardFormat(b).height} px</small></article>`).join("")}</div><div id="export-error"></div><div id="export-progress"></div></div><footer class="modal-footer"><small>${n > 1 ? "Os criativos serão reunidos em um arquivo ZIP." : "Exportação no tamanho original do preset."}<br>Seus ajustes são aplicados individualmente.</small><button class="btn primary" data-action="download-export" id="download-export" ${!n ? "disabled" : ""}>${ico("download")}Adicionar à fila ${n} ${n === 1 ? "criativo" : "criativos"}</button></footer>`,
   );
   icons();
 }
@@ -3632,7 +3852,7 @@ async function doExport() {
   $$("#modal-root select,#modal-root [data-action]").forEach(
     (e) => (e.disabled = true),
   );
-  const boards = S.boards.filter((b) => S.exportSelected.has(b.id)),
+  const boards = siteExportBoards(S.boards.filter((b) => S.exportSelected.has(b.id))),
     fmt = S.exportFormat,
     type = fmt === "jpg" ? "image/jpeg" : "image/" + fmt;
   const includeProject = S.includeEditableProject !== false;
@@ -3777,6 +3997,15 @@ async function openSavedProject(file) {
     ) {
       throw new Error('O arquivo de projeto é inválido ou incompatível.');
     }
+    for (const board of project.boards) {
+      if (!board.responsiveVersions) continue;
+      const variants = responsiveFormats(board);
+      if (!variants.length || Object.entries(board.responsiveVersions).some(([id, layout]) =>
+        !variants.includes(id) || !layout?.theme || !Array.isArray(layout.nodes) ||
+        !layout.nodes.every((node) => node && validId(node.id))
+      )) throw new Error('As versões Desktop e Mobile do projeto são inválidas.');
+    }
+
 
     const restore = () => {
       if (S.brand !== project.brand) {
@@ -4034,13 +4263,15 @@ async function action(el, event) {
       S.view = "products";
       render();
       break;
+    case "responsive-version":
+      switchResponsiveVersion(el.dataset.format);
+      break;
     case "switch-board":
       updatePreview();
       S.active = Number(el.dataset.index);
+      S.format = current().format;
       clearModelSelection();
-      renderBoardList();
-      drawStage();
-      renderProperties();
+      render();
       break;
     case "property-tab":
       S.tab = el.dataset.tab;
