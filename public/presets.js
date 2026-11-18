@@ -632,6 +632,50 @@ window.OFERTA_PRESETS = {
     }
   ]
 };
+
+// Email: cópia do formato Panorâmico.
+{
+  const banners = window.OFERTA_PRESETS.banners;
+  const shared = banners.shared;
+
+  for (const section of [
+    "formats",
+    "layouts",
+    "productImages",
+    "backgroundPanels",
+  ]) {
+    if (shared[section]?.panoramic) {
+      shared[section].email = structuredClone(
+        shared[section].panoramic
+      );
+    }
+  }
+
+  shared.formats.email.id = "email";
+  shared.formats.email.name = "Email";
+
+  // Copia também os ajustes específicos de cada bandeira.
+  for (const brand of Object.values(banners.byBrand)) {
+    for (const section of [
+      "formats",
+      "layouts",
+      "productImages",
+      "backgroundPanels",
+    ]) {
+      if (brand[section]?.panoramic) {
+        brand[section].email = structuredClone(
+          brand[section].panoramic
+        );
+      }
+    }
+
+    if (brand.formats?.email) {
+      brand.formats.email.id = "email";
+      brand.formats.email.name = "Email";
+    }
+  }
+}
+
 // Resolução e aliases de compatibilidade. Os valores editáveis ficam acima.
 window.resolveBannerPresets = function(brand='superkoch') {
  const merge=(base,patch)=>{const out={...base};for(const [key,value] of Object.entries(patch||{}))out[key]=value&&typeof value==='object'&&!Array.isArray(value)?merge(base?.[key]||{},value):value;return out};

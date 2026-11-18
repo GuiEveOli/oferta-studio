@@ -1182,6 +1182,16 @@ function editorView() {
       <div class="panel-header">
         Criativos<span class="counter">${S.boards.length}</span>
       </div>
+      <div style="padding: 10px 12px 0;">
+        <button
+          type="button"
+          class="btn small"
+          data-action="bulk-cluster-prices"
+          style="width: 100%;"
+        >
+          ${ico("tags")}Trocar preços por capa
+        </button>
+      </div>
       <div class="board-search">
         <label class="search">
           ${ico("search")}
@@ -1269,20 +1279,81 @@ function editorView() {
 function renderBoardList() {
   const el = $("#boards-list");
   if (!el) return;
+
+  const restoreScroll = captureListScroll();
+
   el.innerHTML = S.boards
     .map((b, i) => ({ b, i }))
     .filter(
       ({ b }) =>
         !S.boardQuery ||
-        norm(b.product.name + " " + b.product.sku).includes(norm(S.boardQuery)),
+        norm(b.product.name + " " + b.product.sku)
+          .includes(norm(S.boardQuery))
     )
-    .map(
-      ({ b, i }) =>
-        `<button class="board-card ${i === S.active ? "active" : ""}" data-action="switch-board" data-index="${i}" aria-label="Editar ${h(b.product.name)}"><img class="board-mini" style="aspect-ratio:${boardFormat(b).width}/${boardFormat(b).height};height:auto" id="mini-${b.id}" src="${b.preview || "/assets/blank-preset.svg"}" alt=""><span class="board-card-text"><strong>${h(b.product.name)}</strong><small>SKU ${h(b.product.sku)}</small><small title="${h(b.product.cluster)}">${h(b.product.cluster)} · ${boardFormat(b).name}</small><small style="font-size:10px;color:var(--ui-687f55)">${offerLabel(b.product, b.offer)}</small></span><span class="board-number">${String(i + 1).padStart(2, "0")}</span></button>`,
-    )
+    .map(({ b, i }) => `
+      <div style="position: relative;">
+        <button
+          type="button"
+          class="board-card ${i === S.active ? "active" : ""}"
+          data-action="switch-board"
+          data-index="${i}"
+          aria-label="Editar ${h(b.product.name)}"
+          style="width: 100%; padding-right: 42px;"
+        >
+          <img
+            class="board-mini"
+            style="
+              aspect-ratio: ${boardFormat(b).width}/${boardFormat(b).height};
+              height: auto;
+            "
+            id="mini-${b.id}"
+            src="${b.preview || "/assets/blank-preset.svg"}"
+            alt=""
+          >
+
+          <span class="board-card-text">
+            <strong>${h(b.product.name)}</strong>
+            <small>SKU ${h(b.product.sku)}</small>
+
+            <small title="${h(b.product.cluster)}">
+              ${h(b.product.cluster)} · ${h(boardFormat(b).name)}
+            </small>
+
+            <small style="font-size: 10px;">
+              ${h(offerLabel(b.product, b.offer))}
+            </small>
+          </span>
+
+          <span class="board-number">
+            ${String(i + 1).padStart(2, "0")}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          class="icon-btn"
+          data-action="remove-board"
+          data-id="${h(b.id)}"
+          title="Remover criativo"
+          aria-label="Remover ${h(b.product.name)}"
+          style="
+            position: absolute;
+            right: 6px;
+            top: 8px;
+            color: #dc2626;
+            z-index: 1;
+          "
+        >
+          ${ico("trash-2")}
+        </button>
+      </div>
+    `)
     .join("");
+
   icons();
+  restoreScroll();
 }
+
 function field(label, value, attributes = "") {
   return `<label class="field"><span>${label}</span><input value="${h(value)}" ${attributes}></label>`;
 }
@@ -2731,7 +2802,40 @@ async function generatePreview(b) {
   }
   return b.preview;
 }
+
+function captureListScroll() {
+  const selectors = [
+    ".boards-panel",
+    "#boards-list",
+    "#modal-root .modal-backdrop",
+    "#modal-root .modal",
+    "#modal-root .modal-content",
+    "#modal-root .dq-list",
+  ];
+
+  const positions = selectors.map((selector) => {
+    const element = document.querySelector(selector);
+
+    return {
+      selector,
+      top: element?.scrollTop ?? 0,
+      left: element?.scrollLeft ?? 0,
+    };
+  });
+
+  return () => {
+    for (const position of positions) {
+      const element = document.querySelector(position.selector);
+      if (!element) continue;
+
+      element.scrollTop = position.top;
+      element.scrollLeft = position.left;
+    }
+  };
+}
+
 function render() {
+  const restoreScroll = captureListScroll();
   if (document.documentElement) {
     document.documentElement.dataset.brand = S.brand;
     document.documentElement.style?.setProperty(
@@ -2775,6 +2879,7 @@ function render() {
     requestAnimationFrame(() => drawStage());
   }
   icons();
+  restoreScroll();
 }
 window.renderBannerWorkspace = () => render();
 function campaignTitle(filename) {
@@ -3362,7 +3467,7 @@ function openModal(content, narrow = false) {
     `<div class="modal-backdrop"><section class="modal ${narrow ? "narrow" : ""}" role="dialog" aria-modal="true" aria-labelledby="modal-title">${content}</section></div>`;
   icons();
   const e = $("#modal-root button,#modal-root input");
-  e?.focus();
+  e?.focus({ preventScroll: true });
 }
 function closeModal() {
   if (S.exporting) return;
@@ -3613,14 +3718,83 @@ ${S.exportFormat !== "png" ? `
 
 <label class="toggle-row">
   Incluir projeto editável
-  <input type="checkbox" id="export-editable"
-    ${S.includeEditableProject !== false ? "checked" : ""}>
+  <input
+    type="checkbox"
+    id="export-editable"
+    ${S.includeEditableProject !== false ? "checked" : ""}
+  >
 </label>
 </div>
-<p class="hint">Banner Promoção incluem as duas versões na fila e no projeto editável.</p><div class="export-grid">${S.boards.map((b, i) => `<article class="export-card ${S.exportSelected.has(b.id) ? "selected" : ""}" data-action="export-toggle" data-id="${b.id}" role="checkbox" tabindex="0" aria-checked="${S.exportSelected.has(b.id)}" aria-label="Exportar ${h(b.product.name)}"><div class="checkbox">${S.exportSelected.has(b.id) ? ico("check") : ""}</div><div class="export-card-preview"><img id="export-preview-${b.id}" src="${b.preview || "/assets/blank-preset.svg"}" alt="Prévia de ${h(b.product.name)}"></div><p>${h(b.product.name)}</p><small>${String(i + 1).padStart(2, "0")} · SKU ${h(b.product.sku)} · ${h(b.product.cluster)} · ${boardFormat(b).width} × ${boardFormat(b).height} px</small></article>`).join("")}</div><div id="export-error"></div><div id="export-progress"></div></div><footer class="modal-footer"><small>${n > 1 ? "Os criativos serão reunidos em um arquivo ZIP." : "Exportação no tamanho original do preset."}<br>Seus ajustes são aplicados individualmente.</small><button class="btn primary" data-action="download-export" id="download-export" ${!n ? "disabled" : ""}>${ico("download")}Adicionar à fila ${n} ${n === 1 ? "criativo" : "criativos"}</button></footer>`,
+
+<p class="hint">
+  Banner Promoção incluem as duas versões na fila e no projeto editável.
+</p>
+
+<div class="export-grid">
+  ${S.boards.map((b, i) => `
+    <article
+      class="export-card ${S.exportSelected.has(b.id) ? "selected" : ""}"
+      data-action="export-toggle"
+      data-id="${b.id}"
+      role="checkbox"
+      tabindex="0"
+      aria-checked="${S.exportSelected.has(b.id)}"
+      aria-label="Exportar ${h(b.product.name)}"
+    >
+      <div class="checkbox">
+        ${S.exportSelected.has(b.id) ? ico("check") : ""}
+      </div>
+
+      <div class="export-card-preview">
+        <img
+          id="export-preview-${b.id}"
+          src="${b.preview || "/assets/blank-preset.svg"}"
+          alt="Prévia de ${h(b.product.name)}"
+        >
+      </div>
+
+      <p>${h(b.product.name)}</p>
+      <small>
+        ${String(i + 1).padStart(2, "0")} · SKU ${h(b.product.sku)} · ${h(b.product.cluster)} · ${boardFormat(b).width} × ${boardFormat(b).height} px
+      </small>
+    </article>
+  `).join("")}
+</div>
+
+<div id="export-error"></div>
+<div id="export-progress"></div>
+</div>
+
+<footer class="modal-footer">
+  <small>
+    ${n > 1 ? "Os criativos serão reunidos em um arquivo ZIP." : "Exportação no tamanho original do preset."}
+    <br>
+    Seus ajustes são aplicados individualmente.
+  </small>
+
+  <button
+    type="button"
+    class="btn"
+    data-action="download-export-now"
+    id="download-export-now"
+    ${!n ? "disabled" : ""}
+  >
+    ${ico("download")}Baixar agora
+  </button>
+
+  <button
+    class="btn primary"
+    data-action="download-export"
+    id="download-export"
+    ${!n ? "disabled" : ""}
+  >
+    ${ico("download")}Adicionar à fila ${n} ${n === 1 ? "criativo" : "criativos"}
+  </button>
+</footer>`,
   );
   icons();
 }
+
 function download(blob, name) {
   const url = URL.createObjectURL(blob);
   $("#download-ready")?.remove();
@@ -3710,10 +3884,10 @@ function previewQueueItem(key) {
     "display:block;max-width:100%;max-height:360px;object-fit:contain;margin:12px auto";
 
   preview.replaceChildren(image);
-  preview.scrollIntoView({ block: "nearest" });
 }
 
 function openDownloadQueue() {
+  const restoreScroll = captureListScroll();
   clearQueuePreview();
   S.modal = { type: "download-queue" };
 
@@ -3797,6 +3971,7 @@ function openDownloadQueue() {
         ${count ? "" : "disabled"}>${ico("download")} Baixar ZIP</button>
     </footer>
   `);
+  restoreScroll();
 }
 
 async function saveDownloadQueue(button) {
@@ -3843,10 +4018,117 @@ async function saveDownloadQueue(button) {
   }
 }
 
-async function doExport() {
+async function downloadExportFiles(files) {
+  if (!files.length) return;
+
+  const zip = new JSZip();
+  const clustersByFormat = new Map();
+
+  const entries = files.map((file) => {
+    const media = queueSegment(file.media, "Site");
+    const format = queueSegment(file.format, "Formato");
+
+    const cluster = queueSegment(
+      String(file.cluster ?? "")
+        .replace(/^super\s+koch\s*[-–—]\s*/i, ""),
+      "Sem cluster"
+    );
+
+    const filename = queueSegment(file.filename, "Arquivo");
+    const folder = `${media}/${format}`;
+
+    if (!clustersByFormat.has(folder)) {
+      clustersByFormat.set(folder, new Set());
+    }
+
+    clustersByFormat.get(folder).add(cluster);
+
+    return {
+      folder,
+      cluster,
+      filename,
+      data: file.data,
+    };
+  });
+
+  const usedPaths = new Set();
+
+  for (const entry of entries) {
+    const directory =
+      clustersByFormat.get(entry.folder).size > 1
+        ? `${entry.folder}/${entry.cluster}`
+        : entry.folder;
+
+    let filename = entry.filename;
+    let path = `${directory}/${filename}`;
+    let number = 2;
+
+    // Evita sobrescrever arquivos com nomes iguais.
+    const dot = filename.lastIndexOf(".");
+    const base = dot > 0 ? filename.slice(0, dot) : filename;
+    const extension = dot > 0 ? filename.slice(dot) : "";
+
+    while (usedPaths.has(path)) {
+      filename = `${base} (${number++})${extension}`;
+      path = `${directory}/${filename}`;
+    }
+
+    usedPaths.add(path);
+    zip.file(path, entry.data);
+  }
+
+  const blob = await zip.generateAsync({
+    type: "blob",
+    compression: "STORE",
+  });
+
+  download(
+    blob,
+    `${queueSegment(S.title, "Criativos")}.zip`
+  );
+}
+
+async function doExport(destination = "queue") {
   if (S.exporting || !S.exportSelected.size) return;
   S.exporting = true;
-  const btn = $("#download-export");
+  const directDownload = destination === "download";
+
+  const btn = $(
+    directDownload
+      ? "#download-export-now"
+      : "#download-export"
+  );
+
+  const directFiles = [];
+
+  // Direciona os arquivos para o download ou para a fila.
+  const addExportFile = (
+    media,
+    format,
+    cluster,
+    filename,
+    data,
+    id
+  ) => {
+    if (directDownload) {
+      directFiles.push({
+        media,
+        format,
+        cluster,
+        filename,
+        data,
+      });
+    } else {
+      enqueueDownload(
+        media,
+        format,
+        cluster,
+        filename,
+        data,
+        id
+      );
+    }
+  };
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>Preparando…';
   $$("#modal-root select,#modal-root [data-action]").forEach(
@@ -3884,7 +4166,14 @@ async function doExport() {
         const formatName =
           !b.format || b.format === "vertical" ? "Vertical" : boardFormat(b).name;
 
-        enqueueDownload("Site", formatName, b.product.cluster, name, blob, `board:${b.id}`);
+        addExportFile(
+          "Site",
+          formatName,
+          b.product.cluster,
+          name,
+          blob,
+          `board:${b.id}`
+        );
         done++;
         exportedBoards.push(b);
         $("#export-progress").innerHTML =
@@ -3923,7 +4212,7 @@ async function doExport() {
           boards,
         };
 
-        enqueueDownload(
+        addExportFile(
           "Site",
           format,
           cluster,
@@ -3933,6 +4222,14 @@ async function doExport() {
         );
       }
     }
+
+    if (directDownload && directFiles.length) {
+      btn.innerHTML =
+        '<span class="spinner"></span>Gerando ZIP…';
+
+      await downloadExportFiles(directFiles);
+    }
+
     if (errors.length) {
       $("#export-error").innerHTML =
         `<div class="alert"><strong>${done} exportados. ${errors.length} criativos precisam de ajuste:</strong><br>${errors.map(h).join("<br>")}<br>Substitua as imagens indisponíveis e tente novamente.</div>`;
@@ -3948,7 +4245,18 @@ async function doExport() {
     $$("#modal-root select,#modal-root [data-action]").forEach(
       (e) => (e.disabled = false),
     );
-    btn.innerHTML = ico("download") + "Exportar novamente";
+    const directButton = $("#download-export-now");
+    const queueButton = $("#download-export");
+
+    if (directButton) {
+      directButton.innerHTML =
+        ico("download") + "Baixar agora";
+    }
+
+    if (queueButton) {
+      queueButton.innerHTML =
+        ico("download") + "Adicionar à fila";
+    }
     icons();
   }
 }
@@ -4114,9 +4422,275 @@ function showHelp() {
     true,
   );
 }
+
+function bulkClusterMatches(cluster) {
+  return S.boards.map((board) => {
+    const offer = otherClusterPrices(board).find(
+      (product) => String(product.cluster ?? "") === cluster
+    );
+
+    return { board, offer };
+  });
+}
+
+function openBulkClusterPrices() {
+  if (!S.boards.length) return;
+
+  const clusters = [
+    ...new Set(
+      (S.report?.products ?? [])
+        .filter(
+          (product) =>
+            ["normal", "club"].includes(product.offerKind) &&
+            Number.isFinite(product.price)
+        )
+        .map((product) => String(product.cluster ?? ""))
+    ),
+  ].sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+  S.modal = { type: "bulk-cluster-picker" };
+
+  const options = clusters.map((cluster) => {
+    const matches = bulkClusterMatches(cluster);
+    const available = matches.filter((item) => item.offer).length;
+
+    return `
+      <button
+        type="button"
+        class="btn"
+        data-action="bulk-cluster-confirm"
+        data-cluster="${h(cluster)}"
+        ${available ? "" : "disabled"}
+        style="
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+          text-align: left;
+          white-space: normal;
+          padding: 12px;
+        "
+      >
+        <span>${h(cluster || "Sem capa / cluster")}</span>
+
+        <strong style="white-space: nowrap;">
+          ${available} de ${matches.length}
+        </strong>
+      </button>
+    `;
+  }).join("");
+
+  openModal(`
+    <header class="modal-header">
+      <div>
+        <h2 id="modal-title">Trocar preços por capa</h2>
+        <p>Escolha a capa que fornecerá os novos preços e selos.</p>
+      </div>
+
+      <button
+        type="button"
+        class="icon-btn"
+        data-action="close-modal"
+        aria-label="Fechar"
+      >
+        ${ico("x")}
+      </button>
+    </header>
+
+    <div class="modal-content">
+      <p class="hint">
+        A contagem indica quantos criativos possuem preço disponível
+        em cada capa.
+      </p>
+
+      <div style="display: grid; gap: 8px; margin-top: 16px;">
+        ${options || '<p>Nenhuma capa com preço disponível.</p>'}
+      </div>
+    </div>
+  `);
+}
+
+function openBulkClusterConfirmation(cluster) {
+  const matches = bulkClusterMatches(cluster);
+  const available = matches.filter((item) => item.offer).length;
+  const missing = matches.length - available;
+
+  if (!available) return;
+
+  S.modal = {
+    type: "bulk-cluster-confirmation",
+    cluster,
+  };
+
+  openModal(`
+    <header class="modal-header">
+      <div>
+        <h2 id="modal-title">Confirmar troca de preços</h2>
+        <p>${h(cluster || "Sem capa / cluster")}</p>
+      </div>
+
+      <button
+        type="button"
+        class="icon-btn"
+        data-action="close-modal"
+        aria-label="Fechar"
+      >
+        ${ico("x")}
+      </button>
+    </header>
+
+    <div class="modal-content">
+      <div class="alert">
+        <strong>${available} de ${matches.length} criativos</strong>
+        possuem preço nessa capa e serão atualizados.
+        ${missing
+          ? `<br>${missing} não possuem preço disponível.`
+          : ""}
+      </div>
+
+      <p class="hint" style="margin-top: 14px;">
+        O preço e o selo Clube K serão atualizados.
+        Os nomes, imagens e ajustes da diagramação serão mantidos.
+        As ofertas atualizadas passarão a usar o modelo Preço.
+      </p>
+
+      <label
+        class="toggle-row"
+        style="margin-top: 18px; gap: 12px;"
+      >
+        <span>
+          Excluir os criativos sem preço nessa capa (${missing})
+        </span>
+
+        <input
+          id="bulk-cluster-remove-missing"
+          type="checkbox"
+          ${missing ? "" : "disabled"}
+        >
+      </label>
+
+      <p class="hint">
+        Se deixar desmarcado, esses criativos permanecerão
+        com os valores e as capas atuais.
+      </p>
+
+      <div style="
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 22px;
+      ">
+        <button
+          type="button"
+          class="btn"
+          data-action="bulk-cluster-prices"
+        >
+          Voltar
+        </button>
+
+        <button
+          type="button"
+          class="btn primary"
+          data-action="bulk-cluster-apply"
+        >
+          Confirmar alteração
+        </button>
+      </div>
+    </div>
+  `);
+}
+
+function applyBulkClusterPrices() {
+  if (S.modal?.type !== "bulk-cluster-confirmation") return;
+
+  const cluster = S.modal.cluster;
+  const removeMissing = Boolean(
+    document.getElementById("bulk-cluster-remove-missing")?.checked
+  );
+
+  const matches = bulkClusterMatches(cluster);
+  const activeId = current()?.id;
+  const removedIds = new Set();
+
+  let updated = 0;
+
+  for (const { board, offer } of matches) {
+    if (!offer) {
+      if (removeMissing) removedIds.add(board.id);
+      continue;
+    }
+
+    snapshot(board);
+
+    // Mantém a identidade do produto, o nome e as imagens.
+    // Atualiza somente os dados referentes à nova oferta.
+    board.product.cluster = offer.cluster;
+    board.product.offerKind = offer.offerKind;
+
+    const mechanic = ensureOffer(board);
+    mechanic.model = "price";
+    mechanic.showClub = offer.offerKind === "club";
+
+    updateBoardPrice(board, offer.price);
+    syncOfferNodes(board);
+
+    // Replica os novos dados no par Desktop + Mobile,
+    // mantendo as posições próprias de cada versão.
+    synchronizeResponsiveBoard(board);
+
+    board.preview = null;
+    updated++;
+  }
+
+  if (removedIds.size) {
+    S.boards = S.boards.filter(
+      (board) => !removedIds.has(board.id)
+    );
+
+    for (const id of removedIds) {
+      S.history.delete(id);
+      S.future.delete(id);
+    }
+  }
+
+  const activeIndex = S.boards.findIndex(
+    (board) => board.id === activeId
+  );
+
+  S.active = activeIndex >= 0
+    ? activeIndex
+    : Math.min(S.active, Math.max(0, S.boards.length - 1));
+
+  if (current()) S.format = current().format;
+
+  clearModelSelection();
+  closeModal();
+  render();
+
+  toast(
+    `${updated} criativos atualizados.` +
+    (removedIds.size
+      ? ` ${removedIds.size} criativos excluídos.`
+      : "")
+  );
+}
+
 async function action(el, event) {
   const a = el.dataset.action;
   switch (a) {
+
+    case "bulk-cluster-prices":
+      openBulkClusterPrices();
+      break;
+
+    case "bulk-cluster-confirm":
+      openBulkClusterConfirmation(el.dataset.cluster);
+      break;
+
+    case "bulk-cluster-apply":
+      applyBulkClusterPrices();
+      break;
+
     case "use-cluster-price": {
       const b = current();
       if (!b) break;
@@ -4266,6 +4840,56 @@ async function action(el, event) {
     case "responsive-version":
       switchResponsiveVersion(el.dataset.format);
       break;
+
+    case "remove-board": {
+      const index = S.boards.findIndex(
+        (board) => board.id === el.dataset.id
+      );
+
+      if (index < 0) break;
+
+      updatePreview();
+
+      const activeId = current()?.id;
+      const [removed] = S.boards.splice(index, 1);
+
+      // Cancela possíveis ajustes pendentes desse criativo.
+      spacingRequests.set(
+        removed,
+        (spacingRequests.get(removed) || 0) + 1
+      );
+
+      S.history.delete(removed.id);
+      S.future.delete(removed.id);
+
+      // Desmarca o produto se não houver outro criativo dele.
+      if (!S.boards.some(
+        (board) => board.product.id === removed.product.id
+      )) {
+        S.selected.delete(removed.product.id);
+      }
+
+      if (!S.boards.length) {
+        S.active = 0;
+        S.view = "products";
+      } else {
+        const previousActive = S.boards.findIndex(
+          (board) => board.id === activeId
+        );
+
+        S.active = previousActive >= 0
+          ? previousActive
+          : Math.min(index, S.boards.length - 1);
+
+        S.format = current().format;
+      }
+
+      clearModelSelection();
+      render();
+
+      toast("Criativo removido.");
+      break;
+    } 
     case "switch-board":
       updatePreview();
       S.active = Number(el.dataset.index);
@@ -4563,7 +5187,11 @@ async function action(el, event) {
       renderExport();
       break;
     case "download-export":
-      doExport();
+      await doExport("queue");
+      break;
+
+    case "download-export-now":
+      await doExport("download");
       break;
   }
   
