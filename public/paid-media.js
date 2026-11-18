@@ -30,7 +30,8 @@ window.PaidMedia = (() => {
     title: "Campanha",
     importing: true,
     active: 0,
-    focus: null,
+    focus: "feed",
+    zoomFormat: null,
     layoutFormat: "feed",
     backgroundDraft: null,
     backgroundCanvases: [],
@@ -72,7 +73,7 @@ window.PaidMedia = (() => {
     if (!product) return [];
     const cfg = C.card,
       scale = Math.min(slot.width / 629, slot.height / 377),
-      o = initialOffer(product);
+      o = { ...initialOffer(product), upTo: product.upTo === true };
     const node = (role, type, text) => {
       const r = cfg[role];
       return {
@@ -220,7 +221,54 @@ window.PaidMedia = (() => {
     toast(`Temática ${theme.label} aplicada a todos os conjuntos.`);
   }
 
+  function ensureWorkspaceStyles() {
+    if (document.getElementById("pm-workspace-v2-style")) return;
+    const style = document.createElement("style");
+    style.id = "pm-workspace-v2-style";
+    style.textContent = `
+      .pm2-workspace{--pm-border:#e3e8ef;--pm-muted:#64748b;max-width:1800px;margin:auto;padding-bottom:24px}
+      .pm2-workspace button,.pm2-product-modal button{touch-action:manipulation}
+      .pm2-topbar,.pm2-top-actions,.pm2-stagebar,.pm2-format-header,.pm2-inspector-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+      .pm2-topbar{margin:0 0 20px}.pm2-topbar h1{font-size:26px;margin:0 0 5px}.pm2-topbar p{margin:0;color:var(--pm-muted);font-size:12px}
+      .pm2-top-actions{flex-wrap:wrap;justify-content:flex-end}.pm2-top-actions .icon-btn{border:1px solid var(--pm-border);border-radius:9px}
+      .pm2-campaign{border:1px solid var(--pm-border);border-radius:12px;background:#fff;margin-bottom:16px}.pm2-campaign>summary{padding:12px 16px;cursor:pointer;font-size:13px;font-weight:600}.pm2-campaign-fields{display:grid;grid-template-columns:1fr 1fr auto;gap:16px;padding:4px 16px 16px;align-items:end}.pm2-campaign-fields .field{margin:0}
+      .pm2-packs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}.pm2-packs button{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid var(--pm-border);border-radius:10px;padding:11px 15px;cursor:pointer;color:#334155}.pm2-packs button.active{background:#eff6ff;border-color:var(--brand-primary,#123878);color:var(--brand-primary,#123878)}.pm2-packs small{font-size:11px;color:var(--pm-muted)}
+      .pm2-layout{display:grid;grid-template-columns:minmax(0,1fr) 282px;gap:18px;align-items:start}.pm2-main{min-width:0}.pm2-products{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:18px}.pm2-product-slot{display:flex;align-items:center;gap:10px;text-align:left;background:#fff;border:1px solid var(--pm-border);border-radius:12px;padding:10px;min-width:0;cursor:pointer}.pm2-product-slot>img,.pm2-product-slot .thumb{width:44px;height:44px;object-fit:contain;flex-shrink:0}.pm2-product-slot>span{min-width:0;flex:1}.pm2-product-slot b{display:block;font-size:11px;color:var(--pm-muted);margin-bottom:4px}.pm2-product-slot small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;max-width:100%}.pm2-product-slot>svg{width:15px;flex-shrink:0;color:var(--pm-muted)}
+      .pm2-stagebar{margin-bottom:12px;font-size:13px}.pm2-stagebar span{font-size:11px;color:var(--pm-muted)}.pm2-boards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}.pm2-boards.single{grid-template-columns:minmax(0,1fr);max-width:850px;margin:auto}.pm2-format{min-width:0;border:1px solid var(--pm-border);border-radius:14px;padding:10px;background:#fff;box-shadow:0 3px 15px #10244b05}.pm2-format.active{border-color:#9bb5dc;box-shadow:0 0 0 2px #1238780b}.pm2-format-header{margin-bottom:10px}.pm2-format-header b{font-size:12px;display:block}.pm2-format-header small{font-size:10px;color:var(--pm-muted)}.pm2-format-header .icon-btn{width:28px;height:28px}.pm2-format .pm-artboard{position:relative;width:100%;overflow:hidden;border-radius:6px;max-width:100%;background:#f1f5f9}.pm2-format .canvas-container{max-width:none}.pm2-format .pm-slot-overlay{border:1px dashed #8fa9cc;border-radius:8px;background:#e9f0fcaa;color:#29456b;position:absolute;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px}.pm2-stagehint{font-size:11px;color:var(--pm-muted);margin:12px 0 0}
+      .pm2-workspace .pm-properties{position:sticky;top:14px;width:auto;max-height:calc(100vh - 110px);overflow:auto;border:1px solid var(--pm-border);border-radius:14px;padding:15px;background:#fff}.pm2-inspector-heading{margin-bottom:14px}.pm2-inspector-heading h3{margin:0;font-size:14px}.pm2-workspace .pm-properties .field{margin-bottom:10px}.pm2-workspace .pm-properties details{border-top:1px solid #edf0f5;padding:10px 0;margin:0}.pm2-workspace .pm-properties summary{cursor:pointer;font-weight:600;font-size:12px;padding:4px 0}.pm2-workspace .pm-properties details>div{padding-top:12px}.pm2-workspace .pm-properties .hint{font-size:11px;line-height:1.6}.pm2-selection{padding:12px;background:#f6f8fc;border-radius:10px;margin-bottom:14px}.pm2-selection>b{font-size:12px;display:block;margin-bottom:12px}.pm2-empty-selection{padding:22px 12px;text-align:center;background:#f6f8fc;border-radius:10px;margin-bottom:12px;color:var(--pm-muted);font-size:12px;line-height:1.6}.pm2-empty-selection svg{display:block;width:24px;height:24px;margin:0 auto 10px}.pm2-layers{display:grid;gap:4px;max-height:220px;overflow:auto}.pm2-layers button{display:flex;align-items:center;gap:8px;border:0;border-radius:7px;text-align:left;padding:8px;background:#f8fafc;font-size:11px;cursor:pointer}.pm2-layers button.active{background:#e6eefb;color:#123878}.pm2-layers svg{width:14px;height:14px}.pm2-inspector-format{font-size:12px;margin-bottom:15px}
+      .pm2-product-modal{max-width:100%}.pm2-product-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;padding:22px}.pm2-card-column{background:#f3f6fa;border:1px solid #e5eaf1;border-radius:14px;padding:16px;align-self:start;position:sticky;top:0}.pm2-card-column h3{margin:0 0 12px;font-size:13px}.pm2-live-card{width:100%;aspect-ratio:629/377;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 5px 18px #10244b0a}.pm2-card-note{font-size:11px;line-height:1.6;color:#64748b;margin:12px 0 0}.pm2-product-fields{min-width:0}.pm2-product-fields textarea{min-height:80px;resize:vertical}.pm2-image-options{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.pm2-image-options label{display:flex;gap:5px;align-items:center;font-size:12px;cursor:pointer}.pm2-image-options input{accent-color:#123878}.pm2-product-fields fieldset{border:1px solid #e5eaf1;border-radius:10px;padding:12px;margin:16px 0 0}.pm2-product-fields legend{font-size:12px;font-weight:600;padding:0 5px}.pm2-product-error{color:#b91c1c;font-size:12px;min-height:18px;margin-top:10px}.pm2-product-modal .modal-footer{flex-wrap:wrap}.pm2-product-modal .modal-footer .pm2-danger{color:#be123c;margin-right:auto}.pm2-export-options{display:grid;gap:12px}.pm2-export-summary{padding:14px;background:#f5f8fc;border-radius:10px;font-size:12px;line-height:1.7}
+      @media(min-width:1450px){.pm2-layout{grid-template-columns:minmax(0,1fr) 300px}.pm2-boards{gap:18px}}
+      @media(max-width:1100px){.pm2-layout{grid-template-columns:minmax(0,1fr)}.pm2-workspace .pm-properties{position:static;max-height:none}.pm2-topbar{align-items:flex-start}.pm2-topbar h1{font-size:23px}}
+      @media(max-width:700px){.pm2-topbar{flex-direction:column}.pm2-campaign-fields,.pm2-product-body{grid-template-columns:1fr}.pm2-boards{grid-template-columns:1fr}.pm2-format{max-width:440px;width:100%;margin:auto}.pm2-card-column{position:static}.pm2-top-actions{justify-content:flex-start}.pm2-products{grid-template-columns:1fr}.pm2-stagebar{flex-wrap:wrap}}
+    `;
+    document.head.append(style);
+  }
+
+  function syncActiveFormat() {
+    for (const element of $$(".pm2-format")) {
+      element.classList.toggle("active", element.dataset.format === P.focus);
+    }
+  }
+
+  function activateFormat(format, selected = null) {
+    if (!C.formats[format]) return;
+    P.focus = format;
+    P.layoutFormat = format;
+    P.selected = selected;
+    for (const canvas of P.canvases) {
+      if (canvas.pmFormat !== format && !canvas.disposed) {
+        canvas.pmSyncing = true;
+        canvas.discardActiveObject?.();
+        canvas.requestRenderAll();
+        canvas.pmSyncing = false;
+      }
+    }
+    syncActiveFormat();
+    renderProperties();
+  }
+
   function render() {
+    ensureWorkspaceStyles();
     if (!supportsPaid()) {
       S.workspace = "site";
       window.PaidMedia.dispose();
@@ -233,56 +281,180 @@ window.PaidMedia = (() => {
       icons();
       return;
     }
-    const p = pack(),
-      all = P.packs.reduce((n, p) => n + filled(p), 0),
-      total = P.packs.reduce((n, p) => n + p.count, 0);
-    const content = `<div class="pm-heading"><div><div class="eyebrow">MÍDIA PAGA</div><h1>Uma seleção. Três formatos.</h1><p>Escolha os slots e adapte cada formato do seu jeito.</p></div><div class="pm-heading-actions"><button class="btn small" data-pm="sources">${ico("file-spreadsheet")}Planilhas</button><button class="btn primary" data-pm="export-all" ${P.busy ? "disabled" : ""}>${ico("download")}${P.busy ? "Exportando…" : "Adicionar todos a fila"}</button></div></div><div class="pm-campaign">${dataField("Nome da campanha", P.title, "data-pm-title", "text")}${campaignThemeSelect()}<span>${all}/${total} produtos · ${Object.keys(C.formats).length * P.packs.length} criativos</span><button class="icon-btn" data-pm="undo" ${P.history.length ? "" : "disabled"} title="Desfazer">${ico("undo-2")}</button><button class="icon-btn" data-pm="redo" ${P.future.length ? "" : "disabled"} title="Refazer">${ico("redo-2")}</button></div><div class="pm-pack-tabs">${P.packs.map((p, i) => `<button data-pm="pack" data-index="${i}" class="${P.active === i ? "active" : ""}"><strong>${h(p.name)}</strong><small>${filled(p)}/${p.count} produtos · 3 formatos</small></button>`).join("")}</div><div class="pm-layout"><div class="pm-main"><div class="pm-slots">${p.slots.map((product, i) => `<button class="pm-slot ${product ? "filled" : ""}" data-pm="slot" data-index="${i}">${product ? thumb(product.image) : ico("plus")}<span><b>Slot ${i + 1}</b><small>${product ? h(product.name) : "Clique para selecionar"}</small>${product ? `<small>SKU ${h(product.sku)} · ${h(offerLabel(product))}</small>` : ""}</span>${ico("replace")}</button>`).join("")}</div><div class="pm-preview-toolbar"><b>${h(p.name)} · ${P.focus ? C.formats[P.focus].name : "Todos os formatos"}</b><div><button class="btn small" data-pm="background-quick">${ico("image")}Fundos do conjunto</button><button class="btn small" data-pm="overview">${ico("layout-grid")}Ver os 3</button><button class="btn small" data-pm="export-pack" ${P.busy ? "disabled" : ""}>Adicionar conjunto à fila</button></div></div><div class="pm-previews ${P.focus ? "single" : ""}">${Object.entries(
-      C.formats,
-    )
-      .filter(([f]) => !P.focus || P.focus === f)
-      .map(
-        ([f, c]) =>
-          `<article class="pm-preview"><header><span><b>${c.name}</b><small>${c.width} × ${c.height} px</small></span><button class="btn small" data-pm="focus" data-format="${f}">${ico("sliders-horizontal")}${P.focus ? "Ajustando" : "Editar formato"}</button></header><div class="pm-artboard" data-format="${f}" style="aspect-ratio:${c.width}/${c.height}"><div id="pm-canvas-${f}"></div>${
-            !P.focus
-              ? p.slots
-                  .map((product, i) => {
-                    const s = L.slots(c, p.boards[f], p.count)[i];
-                    return `<button class="pm-slot-overlay ${product ? "has-product" : ""}" data-pm="slot" data-index="${i}" style="left:${(s.x / c.width) * 100}%;top:${(s.y / c.height) * 100}%;width:${(s.width / c.width) * 100}%;height:${(s.height / c.height) * 100}%" aria-label="${product ? "Trocar" : "Selecionar"} produto do slot ${i + 1} em ${c.name}"><b>+ Slot ${i + 1}</b><span>Clique para ${product ? "alterar" : "selecionar"}</span></button>`;
-                  })
-                  .join("")
-              : ""
-          }</div></article>`,
-      )
-      .join(
-        "",
-      )}</div><p class="hint pm-hint">${P.focus ? "Arraste ou redimensione os elementos. Os ajustes visuais ficam somente neste formato. Use os slots acima para trocar o produto nos três." : "Clique em um slot da prancheta para escolher o produto nos três formatos. Use Editar formato para adaptar posições, textos e imagens."}</p></div><aside class="pm-properties" id="pm-properties">${properties()}</aside></div>`;
+    P.focus = C.formats[P.focus] ? P.focus : Object.keys(C.formats)[0];
+    P.layoutFormat = P.focus;
+    const p = pack();
+    const all = P.packs.reduce((n, item) => n + filled(item), 0);
+    const total = P.packs.reduce((n, item) => n + item.count, 0);
+        const content = `<div class="pm2-workspace">
+      <header class="pm2-topbar">
+        <div>
+          <h1>Mídia Paga</h1>
+          <p>${h(P.title)} · ${all}/${total} produtos selecionados</p>
+        </div>
+
+        <div class="pm2-top-actions">
+          <button
+            class="icon-btn"
+            data-pm="undo"
+            ${P.history.length && !P.busy ? "" : "disabled"}
+            title="Desfazer"
+            aria-label="Desfazer"
+          >${ico("undo-2")}</button>
+
+          <button
+            class="icon-btn"
+            data-pm="redo"
+            ${P.future.length && !P.busy ? "" : "disabled"}
+            title="Refazer"
+            aria-label="Refazer"
+          >${ico("redo-2")}</button>
+
+          <button
+            class="btn small"
+            data-pm="sources"
+            ${P.busy ? "disabled" : ""}
+          >${ico("file-spreadsheet")}Planilhas</button>
+
+          <button
+            class="btn primary"
+            data-pm="export-options"
+            ${P.busy ? "disabled" : ""}
+          >${ico("download")}${P.busy ? "Preparando…" : "Exportar"}</button>
+        </div>
+      </header>
+
+      <details class="pm2-campaign">
+        <summary>Campanha e temática</summary>
+        <div class="pm2-campaign-fields">
+          ${dataField("Nome da campanha", P.title, "data-pm-title", "text")}
+          ${campaignThemeSelect()}
+          <span class="hint">${Object.keys(C.formats).length * P.packs.length} criativos vinculados</span>
+        </div>
+      </details>
+
+      <nav class="pm2-packs" aria-label="Conjuntos">
+        ${P.packs
+          .map(
+            (item, i) => `<button
+              type="button"
+              data-pm="pack"
+              data-index="${i}"
+              class="${P.active === i ? "active" : ""}"
+              aria-current="${P.active === i ? "true" : "false"}"
+            ><strong>${h(item.name)}</strong><small>${filled(item)}/${item.count} produtos</small></button>`
+          )
+          .join("")}
+      </nav>
+
+      <div class="pm2-layout">
+        <main class="pm2-main">
+          <div class="pm2-products">
+            ${p.slots
+              .map(
+                (product, i) => `<button
+                  type="button"
+                  class="pm2-product-slot"
+                  data-pm="slot"
+                  data-index="${i}"
+                  ${P.busy ? "disabled" : ""}
+                >${product ? thumb(product.image) : ico("plus")}<span><b>Produto ${i + 1}</b><small>${product ? h(product.name) : "Selecionar produto"}</small></span>${ico(product ? "pencil" : "plus")}</button>`
+              )
+              .join("")}
+          </div>
+
+          <div class="pm2-stagebar">
+            <b>${h(p.name)}</b>
+
+            <div class="pm2-top-actions">
+              <button
+                class="btn small"
+                data-pm="background-quick"
+                ${P.busy ? "disabled" : ""}
+              >${ico("image")}Fundos</button>
+
+              ${
+                P.zoomFormat
+                  ? `<button class="btn small" data-pm="overview">${ico("layout-grid")}Ver os três</button>`
+                  : ""
+              }
+            </div>
+          </div>
+
+          <div class="pm2-boards ${P.zoomFormat ? "single" : ""}">
+            ${Object.entries(C.formats)
+              .filter(([f]) => !P.zoomFormat || P.zoomFormat === f)
+              .map(
+                ([f, c]) => `<article
+                  class="pm2-format ${P.focus === f ? "active" : ""}"
+                  data-format="${f}"
+                >
+                  <header class="pm2-format-header">
+                    <div><b>${h(c.name)}</b><small>${c.width} × ${c.height}</small></div>
+
+                    <button
+                      class="icon-btn"
+                      data-pm="focus"
+                      data-format="${f}"
+                      title="${P.zoomFormat ? "Ver os três formatos" : "Ampliar formato"}"
+                      aria-label="${P.zoomFormat ? "Ver os três formatos" : "Ampliar " + h(c.name)}"
+                    >${ico(P.zoomFormat ? "minimize-2" : "maximize-2")}</button>
+                  </header>
+
+                  <div
+                    class="pm-artboard"
+                    data-format="${f}"
+                    style="aspect-ratio:${c.width}/${c.height}"
+                  >
+                    <div id="pm-canvas-${f}"></div>
+                    ${p.slots
+                      .map((product, i) => {
+                        if (product) return "";
+
+                        const slot = L.slots(c, p.boards[f], p.count)[i];
+
+                        return `<button
+                          class="pm-slot-overlay"
+                          data-pm="slot"
+                          data-index="${i}"
+                          style="left:${slot.x / c.width * 100}%;top:${slot.y / c.height * 100}%;width:${slot.width / c.width * 100}%;height:${slot.height / c.height * 100}%"
+                          aria-label="Selecionar produto ${i + 1}"
+                        >+ Produto ${i + 1}</button>`;
+                      })
+                      .join("")}
+                  </div>
+                </article>`
+              )
+              .join("")}
+          </div>
+
+          <p class="pm2-stagehint">Arraste as imagens diretamente em qualquer formato. Dê dois cliques no produto para editar suas informações.</p>
+        </main>
+
+        <aside class="pm-properties" id="pm-properties">${properties()}</aside>
+      </div>
+    </div>`;
+
     $("#app").innerHTML = shell(content);
     icons();
-    requestAnimationFrame(draw);
+    requestAnimationFrame(() => draw());
   }
+
   function properties() {
-    const p = pack(),
-      f = P.focus,
-      b = p.boards[f],
-      n = b?.nodes.find((n) => n.id === P.selected);
-    return `<h3>${f ? "Adaptação · " + C.formats[f].name : "Configurações do conjunto"}</h3><p class="hint">${f ? "Alterações de layout são independentes." : "Os produtos são vinculados nos três formatos."}</p><label class="field"><span>Produtos neste conjunto</span><select data-pm-count>${[1, 2, 3, 4, 5, 6].map((v) => `<option ${v === p.count ? "selected" : ""}>${v}</option>`).join("")}</select></label>${layoutControls()}${f ? `<details open><summary>Fundo e painel</summary><div>${dataField("Cor do fundo", b.background, 'data-pm-bg="background"', "color")}${dataField("Cor do painel", b.panel, 'data-pm-bg="panel"', "color")}<label class="btn small">${ico("image-plus")}Imagem de fundo<input data-pm-file="background" type="file" accept="image/*" hidden></label>${b.image ? '<button class="btn small" data-pm="remove-bg">Remover imagem</button>' : ""}<button class="btn small" data-pm="background-all">Aplicar fundo aos 3</button></div></details><details open><summary>Elementos do formato</summary><div class="pm-layers">${b.nodes.map((x) => `<button class="${n === x ? "active" : ""}" data-pm="node" data-id="${x.id}">${ico(x.type === "image" ? "image" : "type")}${h(x.label)}</button>`).join("")}</div></details>${n ? `<details open><summary>${h(n.label)}</summary><div>${n.type === "text" ? `<label class="field"><span>Texto neste formato</span><textarea data-pm-node="text">${h(n.text)}</textarea></label>${dataField("Tamanho da fonte", n.fontSize, 'data-pm-node="fontSize"')}${dataField("Cor", n.fill, 'data-pm-node="fill"', "color")}${dataField("Altura de linha", n.lineHeight || 1, 'data-pm-node="lineHeight" step="0.05" min="0.5" max="3"')}` : ""}<div class="field-row">${dataField("X", Math.round(n.x), 'data-pm-node="x"')}${dataField("Y", Math.round(n.y), 'data-pm-node="y"')}</div><div class="field-row">${dataField("Largura", Math.round(n.width), 'data-pm-node="width" min="5"')}${dataField("Altura", Math.round(n.height), 'data-pm-node="height" min="5"')}</div>${dataField("Rotação", Math.round(n.rotation || 0), 'data-pm-node="rotation"')}</div></details>` : '<p class="hint">Selecione um elemento para ajustar.</p>'}<button class="btn small" data-pm="reset-format">Restaurar posições deste formato</button>` : '<p class="hint">Escolha “Editar formato” na prévia para ajustar os elementos individualmente.</p>'}<details><summary>Informações vinculadas</summary><div><p class="hint">Nome, oferta e selo são atualizados nos três formatos. Posições e cores permanecem.</p>${p.slots.map((product, i) => (product ? `<div class="pm-product-settings"><b>Slot ${i + 1} · ${h(product.sku)}</b><label class="field"><span>Nome</span><input value="${h(product.name)}" data-pm-product="name" data-index="${i}"></label>${product.offerKind === "takePay" ? `${dataField("Quantidade Leve", product.takeQty, `data-pm-product="takeQty" data-index="${i}" min="2"`)}${dataField("Quantidade Pague", product.payQty, `data-pm-product="payQty" data-index="${i}" min="1"`)}` : dataField("Preço", product.price, `data-pm-product="price" data-index="${i}" min="0" step="0.01"`)}<label class="toggle-row">Selo Clube K<input type="checkbox" data-pm-product="showClub" data-index="${i}" ${product.showClub ? "checked" : ""}></label><button class="btn small" data-pm="clear-slot" data-index="${i}">Esvaziar slot</button></div>` : "")).join("")}</div></details>`;
+    const p = pack(), f = P.focus || P.layoutFormat;
+    const b = p.boards[f], n = b?.nodes.find((node) => node.id === P.selected);
+    return `<div class="pm2-inspector-heading"><h3>Ajustes</h3>${ico("sliders-horizontal")}</div>
+      <label class="field pm2-inspector-format"><span>Formato selecionado</span><select data-pm-active-format>${Object.entries(C.formats).map(([id,c]) => `<option value="${id}" ${id === f ? "selected" : ""}>${h(c.name)}</option>`).join("")}</select></label>
+      ${n ? `<section class="pm2-selection"><b>${h(n.label)}</b>${n.type === "text" ? `<label class="field"><span>Texto neste formato</span><textarea data-pm-node="text">${h(n.text)}</textarea></label><div class="field-row">${dataField("Fonte (px)",n.fontSize,'data-pm-node="fontSize" min="5"')}${dataField("Cor",n.fill,'data-pm-node="fill"',"color")}</div>${dataField("Altura de linha",n.lineHeight || 1,'data-pm-node="lineHeight" step="0.05" min="0.5" max="3"')}` : ""}<div class="field-row">${dataField("X",Math.round(n.x),'data-pm-node="x"')}${dataField("Y",Math.round(n.y),'data-pm-node="y"')}</div><div class="field-row">${dataField("Largura",Math.round(n.width),'data-pm-node="width" min="5"')}${dataField("Altura",Math.round(n.height),'data-pm-node="height" min="5"')}</div>${dataField("Rotação",Math.round(n.rotation || 0),'data-pm-node="rotation"')}<button type="button" class="btn small" data-pm="slot" data-index="${n.slot}">${ico("pencil")}Editar produto ${n.slot+1}</button><p class="hint">Posição e estilo mudam somente em ${h(C.formats[f].name)}.</p></section>` : `<div class="pm2-empty-selection">${ico("mouse-pointer-2")}Clique em uma imagem ou texto para ajustar.<br>Os outros formatos mantêm suas posições.</div>`}
+      <details><summary>Composição do conjunto</summary><div><label class="field"><span>Quantidade de produtos</span><select data-pm-count>${[1,2,3,4,5,6].map(v => `<option ${v === p.count ? "selected" : ""}>${v}</option>`).join("")}</select></label>${layoutControls()}<button class="btn small" data-pm="reset-format">Restaurar posições</button></div></details>
+      <details><summary>Fundo e painel</summary><div>${dataField("Cor do fundo",b.background,'data-pm-bg="background"',"color")}${dataField("Cor do painel",b.panel,'data-pm-bg="panel"',"color")}<label class="toggle-row">Mostrar painel<input type="checkbox" data-pm-bg="panelVisible" ${b.panelVisible !== false ? "checked" : ""}></label><label class="btn small">${ico("image-plus")}Imagem de fundo<input data-pm-file="background" type="file" accept="image/*" hidden></label>${b.image ? '<button class="btn small" data-pm="remove-bg">Remover imagem</button>' : ""}<button class="btn small" data-pm="background-quick">Configurar os três fundos</button><button class="btn small" data-pm="background-all">Aplicar este fundo aos três</button></div></details>
+      <details><summary>Camadas (${b.nodes.length})</summary><div class="pm2-layers">${b.nodes.map(x => `<button class="${n === x ? "active" : ""}" data-pm="node" data-id="${x.id}">${ico(x.type === "image" ? "image" : "type")}${h(x.label)}</button>`).join("")}</div></details>`;
   }
+
   function layoutControls() {
-    const f = P.focus || P.layoutFormat,
-      c = C.formats[f],
-      l = L.get(c, pack().boards[f]);
-    return `<details open><summary>Posição e escala do conjunto</summary><div>${
-      !P.focus
-        ? `<label class="field"><span>Formato para ajustar</span><select data-pm-layout-format>${Object.entries(
-            C.formats,
-          )
-            .map(
-              ([id, c]) =>
-                `<option value="${id}" ${id === f ? "selected" : ""}>${c.name}</option>`,
-            )
-            .join("")}</select></label>`
-        : ""
-    }<label class="field"><span>Orientação dos produtos</span><select data-pm-layout="direction" aria-label="Orientação dos produtos"><option value="row" ${l.direction === "row" ? "selected" : ""}>Horizontal · lado a lado</option><option value="column" ${l.direction === "column" ? "selected" : ""}>Vertical · empilhados</option></select></label><div class="field-row">${dataField("Posição X (px)", Math.round(l.x), 'data-pm-layout="x"')}${dataField("Posição Y (px)", Math.round(l.y), 'data-pm-layout="y"')}</div>${dataField("Escala do conjunto (%)", Math.round(l.scale * 10) / 10, 'data-pm-layout="scale" min="10" max="200" step="1"')}<input type="range" min="10" max="200" step="1" value="${l.scale}" data-pm-layout-range aria-label="Ajustar escala do conjunto"><button class="btn small" data-pm="layout-center">Centralizar na prancheta</button><p class="hint">Move e dimensiona todos os elementos juntos. Aplica somente em ${c.name}. A orientação reorganiza o painel e os slots.</p><button class="btn small" data-pm="background-quick">${ico("image")}Fundos do conjunto</button></div></details>`;
+    const f = P.focus || P.layoutFormat, c = C.formats[f];
+    const l = L.get(c,pack().boards[f]);
+    return `<label class="field"><span>Orientação dos produtos</span><select data-pm-layout="direction"><option value="row" ${l.direction === "row" ? "selected" : ""}>Horizontal</option><option value="column" ${l.direction === "column" ? "selected" : ""}>Vertical</option></select></label><div class="field-row">${dataField("Conjunto X",Math.round(l.x),'data-pm-layout="x"')}${dataField("Conjunto Y",Math.round(l.y),'data-pm-layout="y"')}</div>${dataField("Escala do conjunto (%)",Math.round(l.scale*10)/10,'data-pm-layout="scale" min="10" max="200" step="1"')}<input type="range" min="10" max="200" step="1" value="${l.scale}" data-pm-layout-range aria-label="Escala do conjunto"><button class="btn small" data-pm="layout-center">Centralizar conjunto</button><p class="hint">Ajustes de composição somente em ${h(c.name)}.</p>`;
   }
   function syncOverlays() {
     for (const el of $$(".pm-slot-overlay")) {
@@ -376,6 +548,7 @@ window.PaidMedia = (() => {
   });
   const BG_KEYS = ["background", "panel", "image", "panelVisible"];
   function closeBackgrounds() {
+    closeProductPreview();
     P.backgroundEpoch++;
     P.backgroundCanvases.splice(0).forEach((c) => c.dispose());
     P.backgroundDraft = null;
@@ -502,8 +675,12 @@ window.PaidMedia = (() => {
   function renderProperties() {
     const el = $("#pm-properties");
     if (el) {
+      const scroll = el.scrollTop;
+      const open = [...el.querySelectorAll("details")].map(d => d.open);
       el.innerHTML = properties();
+      el.querySelectorAll("details").forEach((d,i) => d.open = open[i] || false);
       icons();
+      el.scrollTop = scroll;
     }
   }
   async function scene(
@@ -615,6 +792,7 @@ window.PaidMedia = (() => {
         "selection:updated",
         "selection:cleared",
         "mouse:dblclick",
+        "mouse:down",
         "before:transform",
         "object:scaling",
         "object:modified",
@@ -634,24 +812,32 @@ window.PaidMedia = (() => {
     if (interactive) {
       st.on("selection:created", (e) => {
         if (st.pmSyncing) return;
-        P.selected = e.selected[0]?.modelId;
-        renderProperties();
+        activateFormat(f, e.selected[0]?.modelId);
       });
       st.on("selection:updated", (e) => {
         if (st.pmSyncing) return;
-        P.selected = e.selected[0]?.modelId;
-        renderProperties();
+        activateFormat(f, e.selected[0]?.modelId);
       });
       st.on("selection:cleared", () => {
         if (st.pmSyncing) return;
-        P.selected = null;
-        renderProperties();
+        if (P.focus === f) {
+          P.selected = null;
+          renderProperties();
+        }
       });
       st.on("mouse:dblclick", (e) => {
         const n = b.nodes.find((n) => n.id === e.target?.modelId);
-        if (n) openPicker(n.slot);
+        if (n) openSlotEditor(p,n.slot);
       });
-      st.on("before:transform", () => record());
+      st.on("mouse:down", (e) => {
+        if (P.busy || st.pmSyncing) return;
+        if (!e.target?.modelId) activateFormat(f);
+      });
+      st.on("before:transform", () => {
+        P.focus = f;
+        P.layoutFormat = f;
+        record();
+      });
       st.on("object:scaling", (e) => {
         const n = b.nodes.find((n) => n.id === e.target.modelId);
         if (n?.type === "text") previewTextResize(e.target, n);
@@ -678,7 +864,7 @@ window.PaidMedia = (() => {
         queueMicrotask(() => draw(f));
         renderProperties();
       });
-      if (P.selected) {
+      if (P.selected && P.focus === f) {
         const object = st.getObjects().find((o) => o.modelId === P.selected);
         if (object) st.setActiveObject(object);
       }
@@ -709,7 +895,7 @@ window.PaidMedia = (() => {
           let r;
           try {
             const scale = el.parentElement.clientWidth / C.formats[f].width;
-            r = await scene(el, pack(), f, scale, !!P.focus, previous);
+            r = await scene(el, pack(), f, scale, !P.busy, previous);
             if (epoch !== P.epoch) {
               if (!previous) r.st.dispose();
               break;
@@ -749,368 +935,167 @@ window.PaidMedia = (() => {
       `<span>${results.length} ofertas · ${P.page}/${pages}</span><button class="btn small" data-pm="prev-page" ${P.page === 1 ? "disabled" : ""}>Anterior</button><button class="btn small" data-pm="next-page" ${P.page === pages ? "disabled" : ""}>Próxima</button>`;
     icons();
   }
-  function openSlotEditor(p, index) {
-    const product = p.slots[index];
-    if (!product) return;
-
-    const offer = initialOffer(product);
-    let offerFields = "";
-
-    if (offer.model === "takePay") {
-      offerFields = `<div class="field-row">
-        ${dataField("Quantidade Leve", offer.takeQty, 'name="takeQty" min="2" step="1" required')}
-        ${dataField("Quantidade Pague", offer.payQty, 'name="payQty" min="1" step="1" required')}
-      </div>`;
-    } else if (offer.model === "percentage") {
-      offerFields = dataField(
-        "Desconto (%)",
-        offer.percentage,
-        'name="percentage" min="0" max="100" step="1" required',
-      );
-    } else {
-      offerFields = dataField(
-        "Preço (R$)",
-        offer.price,
-        'name="price" min="0" step="0.01" required',
-      );
-    }
-
-    S.modal = { type: "paid-slot-editor" };
-    openModal(`
-      <header class="modal-header">
-        <div>
-          <h2 id="modal-title">Editar produto · Slot ${index + 1}</h2>
-          <p>SKU ${h(product.sku)} · As alterações valem para os três formatos.</p>
-        </div>
-        <button type="button" class="icon-btn" data-action="close-modal"
-          aria-label="Fechar">${ico("x")}</button>
-      </header>
-
-      <form id="pm-slot-editor">
-        <div class="modal-content">
-          ${dataField("Nome do produto", product.name, 'name="name" required', "text")}
-          ${offerFields}
-
-          <label class="toggle-row">
-            Mostrar selo Clube K
-            <input type="checkbox" name="showClub" ${offer.showClub ? "checked" : ""}>
-          </label>
-
-          <label class="field">
-            <span>Substituir imagem</span>
-            <input type="file" name="image" accept="image/*">
-          </label>
-          <p class="hint">Deixe o campo vazio para usar a imagem atual.</p>
-        </div>
-
-        <footer class="modal-footer">
-          <button type="button" class="btn" data-pm="clear-slot"
-            data-index="${index}">Remover produto</button>
-          <button type="button" class="btn" data-pm="replace-slot"
-            data-index="${index}">Trocar produto</button>
-          <button type="submit" class="btn primary">Salvar alterações</button>
-        </footer>
-      </form>
-    `);
-
-    const form = $("#pm-slot-editor");
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const data = new FormData(form);
-      const updated = {
-        ...product,
-        name: String(data.get("name")).trim(),
-        showClub: data.has("showClub"),
-      };
-
-      if (!updated.name) return toast("Informe o nome do produto.");
-
-      if (offer.model === "takePay") {
-        updated.takeQty = Number(data.get("takeQty"));
-        updated.payQty = Number(data.get("payQty"));
-
-        if (updated.takeQty <= updated.payQty) {
-          return toast("A quantidade Leve deve ser maior que Pague.");
-        }
-      } else if (offer.model === "percentage") {
-        updated.percentage = Number(data.get("percentage"));
-      } else {
-        updated.price = Number(data.get("price"));
-      }
-
-      const submit = form.querySelector('button[type="submit"]');
-      submit.disabled = true;
-
-      try {
-        const file = data.get("image");
-        if (file?.size) {
-          if (!file.type.startsWith("image/") || file.size > 15 * 1024 * 1024) {
-            return toast("Selecione uma imagem de até 15 MB.");
-          }
-
-          updated.image = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
-
-          await loadImage(updated.image);
-        }
-
-        // O usuário pode ter fechado o popup durante o upload.
-        if (!form.isConnected || p.slots[index] !== product) return;
-
-        assign(p, index, updated);
-      } catch {
-        if (form.isConnected) toast("Não foi possível carregar a imagem.");
-      } finally {
-        submit.disabled = false;
-      }
-    });
-  }function openSlotEditor(p, index) {
-    const product = p.slots[index];
-    if (!product) return;
-
-    const offer = initialOffer(product);
-    let offerFields = "";
-
-    if (offer.model === "takePay") {
-      offerFields = `<div class="field-row">
-        ${dataField("Quantidade Leve", offer.takeQty, 'name="takeQty" min="2" step="1" required')}
-        ${dataField("Quantidade Pague", offer.payQty, 'name="payQty" min="1" step="1" required')}
-      </div>`;
-    } else if (offer.model === "percentage") {
-      offerFields = dataField(
-        "Desconto (%)",
-        offer.percentage,
-        'name="percentage" min="0" max="100" step="1" required',
-      );
-    } else {
-      offerFields = dataField(
-        "Preço (R$)",
-        offer.price,
-        'name="price" min="0" step="0.01" required',
-      );
-    }
-
-    S.modal = { type: "paid-slot-editor" };
-    openModal(`
-      <header class="modal-header">
-        <div>
-          <h2 id="modal-title">Editar produto · Slot ${index + 1}</h2>
-          <p>SKU ${h(product.sku)} · As alterações valem para os três formatos.</p>
-        </div>
-        <button type="button" class="icon-btn" data-action="close-modal"
-          aria-label="Fechar">${ico("x")}</button>
-      </header>
-
-      <form id="pm-slot-editor">
-        <div class="modal-content">
-          ${dataField("Nome do produto", product.name, 'name="name" required', "text")}
-          ${offerFields}
-
-          <label class="toggle-row">
-            Mostrar selo Clube K
-            <input type="checkbox" name="showClub" ${offer.showClub ? "checked" : ""}>
-          </label>
-
-          <label class="field">
-            <span>Substituir imagem</span>
-            <input type="file" name="image" accept="image/*">
-          </label>
-          <p class="hint">Deixe o campo vazio para usar a imagem atual.</p>
-        </div>
-
-        <footer class="modal-footer">
-          <button type="button" class="btn" data-pm="clear-slot"
-            data-index="${index}">Remover produto</button>
-          <button type="button" class="btn" data-pm="replace-slot"
-            data-index="${index}">Trocar produto</button>
-          <button type="submit" class="btn primary">Salvar alterações</button>
-        </footer>
-      </form>
-    `);
-
-    const form = $("#pm-slot-editor");
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const data = new FormData(form);
-      const updated = {
-        ...product,
-        name: String(data.get("name")).trim(),
-        showClub: data.has("showClub"),
-      };
-
-      if (!updated.name) return toast("Informe o nome do produto.");
-
-      if (offer.model === "takePay") {
-        updated.takeQty = Number(data.get("takeQty"));
-        updated.payQty = Number(data.get("payQty"));
-
-        if (updated.takeQty <= updated.payQty) {
-          return toast("A quantidade Leve deve ser maior que Pague.");
-        }
-      } else if (offer.model === "percentage") {
-        updated.percentage = Number(data.get("percentage"));
-      } else {
-        updated.price = Number(data.get("price"));
-      }
-
-      const submit = form.querySelector('button[type="submit"]');
-      submit.disabled = true;
-
-      try {
-        const file = data.get("image");
-        if (file?.size) {
-          if (!file.type.startsWith("image/") || file.size > 15 * 1024 * 1024) {
-            return toast("Selecione uma imagem de até 15 MB.");
-          }
-
-          updated.image = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
-
-          await loadImage(updated.image);
-        }
-
-        // O usuário pode ter fechado o popup durante o upload.
-        if (!form.isConnected || p.slots[index] !== product) return;
-
-        assign(p, index, updated);
-      } catch {
-        if (form.isConnected) toast("Não foi possível carregar a imagem.");
-      } finally {
-        submit.disabled = false;
-      }
-    });
-  }function openSlotEditor(p, index) {
-    const product = p.slots[index];
-    if (!product) return;
-
-    const offer = initialOffer(product);
-    let offerFields = "";
-
-    if (offer.model === "takePay") {
-      offerFields = `<div class="field-row">
-        ${dataField("Quantidade Leve", offer.takeQty, 'name="takeQty" min="2" step="1" required')}
-        ${dataField("Quantidade Pague", offer.payQty, 'name="payQty" min="1" step="1" required')}
-      </div>`;
-    } else if (offer.model === "percentage") {
-      offerFields = dataField(
-        "Desconto (%)",
-        offer.percentage,
-        'name="percentage" min="0" max="100" step="1" required',
-      );
-    } else {
-      offerFields = dataField(
-        "Preço (R$)",
-        offer.price,
-        'name="price" min="0" step="0.01" required',
-      );
-    }
-
-    S.modal = { type: "paid-slot-editor" };
-    openModal(`
-      <header class="modal-header">
-        <div>
-          <h2 id="modal-title">Editar produto · Slot ${index + 1}</h2>
-          <p>SKU ${h(product.sku)} · As alterações valem para os três formatos.</p>
-        </div>
-        <button type="button" class="icon-btn" data-action="close-modal"
-          aria-label="Fechar">${ico("x")}</button>
-      </header>
-
-      <form id="pm-slot-editor">
-        <div class="modal-content">
-          ${dataField("Nome do produto", product.name, 'name="name" required', "text")}
-          ${offerFields}
-
-          <label class="toggle-row">
-            Mostrar selo Clube K
-            <input type="checkbox" name="showClub" ${offer.showClub ? "checked" : ""}>
-          </label>
-
-          <label class="field">
-            <span>Substituir imagem</span>
-            <input type="file" name="image" accept="image/*">
-          </label>
-          <p class="hint">Deixe o campo vazio para usar a imagem atual.</p>
-        </div>
-
-        <footer class="modal-footer">
-          <button type="button" class="btn" data-pm="clear-slot"
-            data-index="${index}">Remover produto</button>
-          <button type="button" class="btn" data-pm="replace-slot"
-            data-index="${index}">Trocar produto</button>
-          <button type="submit" class="btn primary">Salvar alterações</button>
-        </footer>
-      </form>
-    `);
-
-    const form = $("#pm-slot-editor");
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const data = new FormData(form);
-      const updated = {
-        ...product,
-        name: String(data.get("name")).trim(),
-        showClub: data.has("showClub"),
-      };
-
-      if (!updated.name) return toast("Informe o nome do produto.");
-
-      if (offer.model === "takePay") {
-        updated.takeQty = Number(data.get("takeQty"));
-        updated.payQty = Number(data.get("payQty"));
-
-        if (updated.takeQty <= updated.payQty) {
-          return toast("A quantidade Leve deve ser maior que Pague.");
-        }
-      } else if (offer.model === "percentage") {
-        updated.percentage = Number(data.get("percentage"));
-      } else {
-        updated.price = Number(data.get("price"));
-      }
-
-      const submit = form.querySelector('button[type="submit"]');
-      submit.disabled = true;
-
-      try {
-        const file = data.get("image");
-        if (file?.size) {
-          if (!file.type.startsWith("image/") || file.size > 15 * 1024 * 1024) {
-            return toast("Selecione uma imagem de até 15 MB.");
-          }
-
-          updated.image = await new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-          });
-
-          await loadImage(updated.image);
-        }
-
-        // O usuário pode ter fechado o popup durante o upload.
-        if (!form.isConnected || p.slots[index] !== product) return;
-
-        assign(p, index, updated);
-      } catch {
-        if (form.isConnected) toast("Não foi possível carregar a imagem.");
-      } finally {
-        submit.disabled = false;
-      }
+  let productPreviewCanvas = null;
+  let productPreviewEpoch = 0;
+  function closeProductPreview() {
+    productPreviewEpoch++;
+    productPreviewCanvas?.dispose();
+    productPreviewCanvas = null;
+  }
+  function readProductImageFile(file) {
+    if (!file?.type.startsWith("image/") || file.size > 15 * 1024 * 1024)
+      return Promise.reject(Error("Selecione uma imagem de até 15 MB."));
+    return new Promise((resolve,reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(Error("Não foi possível ler a imagem."));
+      reader.readAsDataURL(file);
     });
   }
-  
+  function checkedImageUrl(value) {
+    const url = new URL(value);
+    if (!["https:","http:"].includes(url.protocol))
+      throw Error("Use uma URL de imagem iniciada por https:// ou http://.");
+    return url.href;
+  }
+  async function drawProductPreview(product, host, epoch) {
+    await loadCreativeFonts();
+    const slot = {x:0,y:0,width:629,height:377};
+    const nodes = slotNodes(product,"feed",slot,0);
+    window.PaidMediaText.compact(nodes,slot,measureText,C.textGap);
+    const failed = [];
+    const objects = (await Promise.all(nodes.map(n => {
+      if (n.type !== "text") return sceneNode(n,false,failed);
+      const text = textObject(n.text,n);
+      text.set("top",0);
+      return slotGroup(n,[text],false);
+    }))).filter(Boolean);
+    if (epoch !== productPreviewEpoch || !host.isConnected) return;
+    if (!productPreviewCanvas) {
+      const canvas = document.createElement("canvas");
+      host.replaceChildren(canvas);
+      productPreviewCanvas = new fabric.StaticCanvas(canvas, {
+        width: host.clientWidth || 360,
+        height: (host.clientWidth || 360)*377/629,
+        renderOnAddRemove:false,
+        enableRetinaScaling:true,
+      });
+    }
+    const st = productPreviewCanvas;
+    const width = host.clientWidth || 360;
+    st.setDimensions({width,height:width*377/629});
+    st.setViewportTransform([width/629,0,0,width/629,0,0]);
+    st.remove(...st.getObjects());
+    st.backgroundColor = "#ffffff";
+    st.add(...objects);
+    st.renderAll();
+    return failed;
+  }
+
+  function openSlotEditor(p,index) {
+    const product = p.slots[index];
+    if (!product) return;
+    ensureWorkspaceStyles();
+    closeProductPreview();
+    const offer = { ...initialOffer(product), upTo: product.upTo === true };
+    const fields = offer.model === "takePay"
+      ? `<div class="field-row">${dataField("Quantidade Leve",offer.takeQty,'name="takeQty" min="2" step="1" required')}${dataField("Quantidade Pague",offer.payQty,'name="payQty" min="1" step="1" required')}</div>`
+      : offer.model === "percentage"
+        ? `${dataField("Desconto (%)",offer.percentage,'name="percentage" min="0" max="100" step="1" required')}<label class="toggle-row">Mostrar “com até”<input type="checkbox" name="upTo" ${offer.upTo ? "checked" : ""}></label>`
+        : dataField("Preço (R$)",offer.price,'name="price" min="0" step="0.01" required');
+    S.modal = {type:"paid-slot-editor"};
+    openModal(`<div class="pm2-product-modal">
+      <header class="modal-header"><div><h2 id="modal-title">Editar produto ${index+1}</h2><p>SKU ${h(product.sku)} · Informações vinculadas aos três formatos.</p></div><button type="button" class="icon-btn" data-action="close-modal" aria-label="Fechar">${ico("x")}</button></header>
+      <form id="pm-slot-editor"><div class="modal-content pm2-product-body">
+        <aside class="pm2-card-column"><h3>Prévia do card</h3><div id="pm-product-preview" class="pm2-live-card"></div><p class="pm2-card-note">Prévia do card padrão. Posições e estilos adaptados em cada formato são preservados ao salvar.</p></aside>
+        <div class="pm2-product-fields"><label class="field"><span>Nome do produto</span><textarea name="name" maxlength="100" required>${h(product.name)}</textarea></label>${fields}<label class="toggle-row">Mostrar selo Clube K<input type="checkbox" name="showClub" ${offer.showClub ? "checked" : ""}></label>
+          <fieldset><legend>Imagem do produto</legend><div class="pm2-image-options"><label><input type="radio" name="imageSource" value="current" checked>Atual</label><label><input type="radio" name="imageSource" value="upload">Arquivo</label><label><input type="radio" name="imageSource" value="url">URL</label></div>
+          <div data-pm-image-upload hidden><label class="field"><span>Enviar imagem</span><input type="file" name="image" accept="image/*"></label><p class="hint">PNG, JPG ou WEBP de até 15 MB.</p></div>
+          <div data-pm-image-url hidden><label class="field"><span>Link direto da imagem</span><input type="url" name="imageUrl" placeholder="https://site.com/produto.png"></label><p class="hint">O servidor da imagem precisa permitir o carregamento para exportação.</p></div></fieldset>
+          <div id="pm-product-error" class="pm2-product-error" role="status" aria-live="polite"></div>
+        </div></div><footer class="modal-footer"><button type="button" class="btn pm2-danger" data-pm="clear-slot" data-index="${index}">${ico("trash-2")}Remover</button><button type="button" class="btn" data-pm="replace-slot" data-index="${index}">${ico("replace")}Trocar produto</button><button type="submit" class="btn primary">Salvar alterações</button></footer></form></div>`);
+    const form = $("#pm-slot-editor"), host = $("#pm-product-preview"), error = $("#pm-product-error");
+    let timer, fileSource = "", fileToken = 0, submitting = false;
+    const draft = () => {
+      const data = new FormData(form);
+      const next = {...product,name:String(data.get("name") || "").trim(),showClub:data.has("showClub")};
+      if (offer.model === "takePay") {
+        next.takeQty = Number(data.get("takeQty")); next.payQty = Number(data.get("payQty"));
+      } else if (offer.model === "percentage") {
+        next.percentage = Number(data.get("percentage")); next.upTo = data.has("upTo");
+      } else next.price = Number(data.get("price"));
+      const source = data.get("imageSource");
+      if (source === "upload") {
+        if (!fileSource) throw Error("Selecione um arquivo de imagem.");
+        next.image = fileSource;
+      } else if (source === "url") {
+        const value = String(data.get("imageUrl") || "").trim();
+        if (!value) throw Error("Informe o link da imagem.");
+        try { next.image = checkedImageUrl(value); }
+        catch { throw Error("Informe uma URL válida de imagem: https://site.com/imagem.png"); }
+      }
+      return next;
+    };
+    const preview = async () => {
+      const epoch = ++productPreviewEpoch;
+      try {
+        const next = draft();
+        const failed = await drawProductPreview(next,host,epoch);
+        if (epoch === productPreviewEpoch && form.isConnected)
+          error.textContent = failed?.length ? "Não foi possível carregar a imagem na prévia." : "";
+      } catch (e) {
+        if (epoch === productPreviewEpoch && form.isConnected) error.textContent = e.message;
+      }
+    };
+    form.addEventListener("input", () => {
+      clearTimeout(timer); timer = setTimeout(preview,180);
+    });
+    form.addEventListener("change", async (event) => {
+      const source = form.elements.imageSource.value;
+      form.querySelector("[data-pm-image-upload]").hidden = source !== "upload";
+      form.querySelector("[data-pm-image-url]").hidden = source !== "url";
+      // Campos de fontes inativas não devem bloquear a validação do formulário.
+      form.elements.imageUrl.disabled = source !== "url";
+      if (event.target === form.elements.image) {
+        const token = ++fileToken;
+        try {
+          const result = await readProductImageFile(form.elements.image.files[0]);
+          if (token !== fileToken || !form.isConnected) return;
+          fileSource = result;
+        } catch (e) { fileSource = ""; error.textContent = e.message; return; }
+      }
+      clearTimeout(timer); preview();
+    });
+    form.elements.imageUrl.disabled = true;
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (submitting) return;
+      const submit = form.querySelector('[type="submit"]');
+      submitting = true; submit.disabled = true; error.textContent = "";
+      try {
+        const next = draft();
+        if (!next.name) throw Error("Informe o nome do produto.");
+        if (offer.model === "takePay" && (!Number.isInteger(next.takeQty) || !Number.isInteger(next.payQty) || next.payQty < 1 || next.takeQty <= next.payQty))
+          throw Error("Use quantidades inteiras. Leve deve ser maior que Pague.");
+        if (offer.model === "percentage" && (!Number.isFinite(next.percentage) || next.percentage < 0 || next.percentage > 100))
+          throw Error("Informe uma porcentagem entre 0 e 100.");
+        if (offer.model === "price" && (!Number.isFinite(next.price) || next.price < 0))
+          throw Error("Informe um preço válido.");
+        await loadImage(next.image);
+        if (!form.isConnected || p.slots[index] !== product) return;
+        assign(p,index,next);
+      } catch (e) {
+        if (form.isConnected) error.textContent = e.message || "Não foi possível carregar a imagem.";
+      } finally { submitting = false; submit.disabled = false; }
+    });
+    const observer = new MutationObserver(() => {
+      if (!form.isConnected) {
+        clearTimeout(timer); fileToken++; closeProductPreview(); observer.disconnect();
+      }
+    });
+    observer.observe($("#modal-root"),{childList:true,subtree:true});
+    requestAnimationFrame(preview);
+  }
   function openPicker(index) {
     P.slot = index;
     P.query = "";
@@ -1256,7 +1241,30 @@ window.PaidMedia = (() => {
     return blob;
   }
 
-  async function exportImages(all) {
+  function openExportOptions() {
+    ensureWorkspaceStyles();
+    S.modal = {type:"paid-export"};
+    const count = Object.values(GOOGLE_ADS_SIZES).reduce((sum,sizes) => sum+sizes.length,0) + Object.keys(C.formats).length;
+    openModal(`<header class="modal-header"><div><h2 id="modal-title">Exportar Mídia Paga</h2><p>Meta ADS e Google ADS em pastas separadas.</p></div><button class="icon-btn" data-action="close-modal" aria-label="Fechar">${ico("x")}</button></header><div class="modal-content pm2-export-options"><label class="field"><span>Conjuntos</span><select id="pm-export-scope"><option value="current">${h(pack().name)} · ${count} imagens</option><option value="all">Todos os conjuntos · ${count*P.packs.length} imagens</option></select></label><div class="pm2-export-summary"><b>Meta ADS</b> · Feed, Stories e Horizontal<br><b>Google ADS</b> · Seis tamanhos derivados<br><span>Exemplo: Meta ADS 1 - Feed.png</span></div><p class="hint">Cada pasta reúne todos os conjuntos, sem subpastas de formato ou capa.</p></div><footer class="modal-footer"><button class="btn" data-pm="export-selected" data-destination="queue">Adicionar à fila</button><button class="btn primary" data-pm="export-selected" data-destination="download">${ico("download")}Baixar agora</button></footer>`);
+  }
+
+  // Usado pelo exportador central do studio.js para achatar apenas Mídia Paga.
+  // Banners Site continua com sua hierarquia atual.
+  function queueExportPath(path) {
+    const parts = String(path).split("/");
+    if (parts[0] !== "Mídia Paga") return null;
+    if (parts[1] !== "Meta ADS" && parts[1] !== "Google ADS") return null;
+    return `${parts[1]}/${parts.slice(3).join("/")}`;
+  }
+
+  async function downloadPaidFiles(files) {
+    const zip = new JSZip();
+    for (const [,media,,filename,data] of files) zip.file(`${media}/${filename}`,data);
+    const blob = await zip.generateAsync({type:"blob",compression:"STORE"});
+    download(blob,`${queueSegment(P.title,"Campanha")} - Mídia Paga.zip`);
+  }
+
+  async function exportImages(all, destination = "queue") {
     if (P.busy) return;
 
     const packs = all ? P.packs : [pack()];
@@ -1264,6 +1272,7 @@ window.PaidMedia = (() => {
       return toast("Preencha todos os slots dos conjuntos que deseja exportar.");
     }
 
+    closeModal();
     P.busy = true;
     render();
 
@@ -1273,11 +1282,8 @@ window.PaidMedia = (() => {
     try {
       for (const p of packs) {
         const number = P.packs.indexOf(p) + 1;
-        const clusters = [...new Set(
-          p.slots.map((product) => product.cluster?.trim() || "Sem cluster"),
-        )];
-
-        const cluster = clusters.length === 1 ? clusters[0] : "Clusters mistos";
+        // A exportação de Mídia Paga não cria pastas por capa.
+        const cluster = "Todos os conjuntos";
 
         for (const [f, c] of Object.entries(C.formats)) {
           const host = document.createElement("div");
@@ -1299,11 +1305,11 @@ window.PaidMedia = (() => {
             const original = await paidExportPng(canvas);
             pending.push([
               "Mídia Paga",
-              `Meta ADS - ${c.name}`,
+              "Meta ADS",
               cluster,
-              `Meta ADS - ${c.name} - ${number}.png`,
+              `Meta ADS ${number} - ${c.name}.png`,
               original,
-              JSON.stringify(["pack", P.title, p.id]),
+              JSON.stringify(["pack", P.title, p.id, "meta", f]),
             ]);
             done++;
 
@@ -1315,11 +1321,11 @@ window.PaidMedia = (() => {
 
               pending.push([
                 "Mídia Paga",
-                `Google ADS - ${width}x${height}`,
+                "Google ADS",
                 cluster,
-                `Google ADS - ${width}x${height} - ${number}.png`,
+                `Google ADS ${number} - ${width}x${height}.png`,
                 blob,
-                JSON.stringify(["pack", P.title, p.id]),
+                JSON.stringify(["pack", P.title, p.id, "google", width, height]),
               ]);
               done++;
             }
@@ -1330,8 +1336,13 @@ window.PaidMedia = (() => {
         }
       }
 
-      for (const entry of pending) enqueueDownload(...entry);
-      toast(`${done} imagens adicionadas à fila.`);
+      if (destination === "download") {
+        await downloadPaidFiles(pending);
+        toast(`ZIP preparado com ${done} imagens.`);
+      } else {
+        for (const entry of pending) enqueueDownload(...entry);
+        toast(`${done} imagens adicionadas à fila.`);
+      }
     } catch (error) {
       toast("Exportação interrompida: " + error.message);
     } finally {
@@ -1346,6 +1357,15 @@ window.PaidMedia = (() => {
       f = P.focus,
       b = p.boards[f];
     switch (a) {
+      case "replace-slot":
+        openPicker(Number(el.dataset.index));
+        break;
+      case "export-options":
+        openExportOptions();
+        break;
+      case "export-selected":
+        await exportImages($("#pm-export-scope").value === "all",el.dataset.destination);
+        break;
       case "background-quick":
         openBackgrounds();
         break;
@@ -1441,13 +1461,14 @@ window.PaidMedia = (() => {
         pickerRows();
         break;
       case "focus":
+        P.zoomFormat = P.zoomFormat === el.dataset.format ? null : el.dataset.format;
         P.focus = el.dataset.format;
         P.layoutFormat = P.focus;
         P.selected = null;
         render();
         break;
       case "overview":
-        P.focus = null;
+        P.zoomFormat = null;
         P.selected = null;
         render();
         break;
@@ -1461,12 +1482,6 @@ window.PaidMedia = (() => {
         break;
       case "redo":
         undo(true);
-        break;
-      case "clear-slot":
-        record();
-        p.slots[el.dataset.index] = null;
-        refreshSlot(p, Number(el.dataset.index));
-        render();
         break;
       case "reset-format":
         openConfirm(
@@ -1494,6 +1509,7 @@ window.PaidMedia = (() => {
           other.background = b.background;
           other.panel = b.panel;
           other.image = b.image;
+          other.panelVisible = b.panelVisible;
         });
         render();
         break;
@@ -1522,6 +1538,11 @@ window.PaidMedia = (() => {
   document.addEventListener("change", (e) => {
     const el = e.target;
     if (P.busy) return;
+    if (el.hasAttribute("data-pm-active-format")) {
+      activateFormat(el.value);
+      draw(el.value);
+      return;
+    }
     if (el.hasAttribute("data-pm-theme")) {
       applyCampaignTheme(el.value);
       return;
@@ -1582,7 +1603,7 @@ window.PaidMedia = (() => {
     }
     if (el.dataset.pmBg) {
       record();
-      pack().boards[P.focus][el.dataset.pmBg] = el.value;
+      pack().boards[P.focus][el.dataset.pmBg] = el.type === "checkbox" ? el.checked : el.value;
       draw();
     }
     if (el.dataset.pmNode) {
@@ -1600,7 +1621,7 @@ window.PaidMedia = (() => {
       }
       record();
       updateNodeGeometry(n, key, v);
-      draw();
+      draw(P.focus);
     }
     if (el.dataset.pmProduct) {
       const i = Number(el.dataset.index),
@@ -1673,5 +1694,6 @@ window.PaidMedia = (() => {
     assign,
     state: P,
     closeBackgrounds,
+    queueExportPath,
   };
 })();

@@ -206,7 +206,7 @@ window.OFERTA_PRESETS = {
         "offerLegal": {"x": 30, "y": 1220, "width": 660, "height": 40, "fontSize": 26}
       },
       "panoramic": {
-        "name": {"x": 45, "y": 40, "width": 775, "height": 185, "fontSize": 65},
+        "name": {"x": 45, "y": 40, "width": 775, "height": 185, "fontSize": 65, "align": "center"},
         "priceBand": {"x": 0, "y": 251, "width": 833, "height": 249},
         "price": {"x": 0, "y": 267, "width": 844, "height": 253, "fontSize": 300},
         "offerHeadline": {"x": 0, "y": 260, "width": 844, "height": 133, "fontSize": 110},

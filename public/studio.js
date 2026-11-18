@@ -719,13 +719,13 @@ function productBoxes(format, count) {
 }
 function adaptFormatNodes(nodes, format) {
   if (format === "vertical") return nodes;
-  const pano = ["panoramic", "email"].includes(format) === "panoramic",
+  const pano = ["panoramic", "email"].includes(format),
     layout = bannerPresets().layouts[format] || bannerPresets().layouts.mini;
   for (const n of nodes) {
     const box = layout[n.role];
     if (box) Object.assign(n, box);
     if (n.role === "name") {
-      n.align = pano ? "center" : "left";
+      n.align = box?.align ?? (pano ? "center" : "left");
       n.shadowBlur = pano ? 0 : 3;
       n.shadowOffsetY = pano ? 0 : 3;
     }
@@ -3978,45 +3978,49 @@ async function saveDownloadQueue(button) {
   if (downloadingQueue || !downloadQueue.size) return;
 
   downloadingQueue = true;
-  button.disabled = true;
+  if (button) button.disabled = true;
 
   try {
     const zip = new JSZip();
     const clustersByFormat = new Map();
 
     const files = [...downloadQueue.values()].map(({ path, data }) => {
+      const paidPath = window.PaidMedia?.queueExportPath?.(path);
+      if (paidPath) return { paidPath, data };
+
       const [media, format, cluster, filename] = path.split("/");
       const folder = `${media}/${format}`;
-
       if (!clustersByFormat.has(folder)) {
         clustersByFormat.set(folder, new Set());
       }
-
       clustersByFormat.get(folder).add(cluster);
       return { folder, cluster, filename, data };
     });
 
-    for (const { folder, cluster, filename, data } of files) {
-      const directory = clustersByFormat.get(folder).size > 1
-        ? `${folder}/${cluster}`
-        : folder;
-
-      zip.file(`${directory}/${filename}`, data);
+    for (const file of files) {
+      if (file.paidPath) {
+        zip.file(file.paidPath, file.data);
+        continue;
+      }
+      const directory = clustersByFormat.get(file.folder).size > 1
+        ? `${file.folder}/${file.cluster}`
+        : file.folder;
+      zip.file(`${directory}/${file.filename}`, file.data);
     }
 
     const blob = await zip.generateAsync({
       type: "blob",
       compression: "STORE",
     });
-
     download(blob, "Criativos.zip");
   } catch (error) {
     toast("Não foi possível gerar o ZIP: " + error.message);
   } finally {
     downloadingQueue = false;
-    button.disabled = false;
+    if (button) button.disabled = false;
   }
 }
+
 
 async function downloadExportFiles(files) {
   if (!files.length) return;
