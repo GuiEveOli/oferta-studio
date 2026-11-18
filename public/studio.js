@@ -483,8 +483,8 @@ function defaultTheme(format = "vertical") {
         ?.backgroundEnd || "#073381",
     gradient: true,
     priceColor: "#ff0800",
-    ctaColor: format === "panoramic" ? "#ffce00" : "#ff0800",
-    ctaTextColor: format === "panoramic" ? "#ff0800" : "#ffffff",
+    ctaColor: ["panoramic", "email"].includes(format) ? "#ffce00" : "#ff0800",
+    ctaTextColor: ["panoramic", "email"].includes(format) ? "#ff0800" : "#ffffff",
     textColor: "#ffffff",
   };
   const creative = brandProfile().creative;
@@ -719,7 +719,7 @@ function productBoxes(format, count) {
 }
 function adaptFormatNodes(nodes, format) {
   if (format === "vertical") return nodes;
-  const pano = format === "panoramic",
+  const pano = ["panoramic", "email"].includes(format) === "panoramic",
     layout = bannerPresets().layouts[format] || bannerPresets().layouts.mini;
   for (const n of nodes) {
     const box = layout[n.role];
@@ -1398,7 +1398,7 @@ function renderProperties() {
 }
 
 function panoramicBackgroundPanel(b) {
-  if (b.format !== "panoramic") return null;
+  if (!["panoramic", "email"].includes(b.format)) return null;
 
   const mode = b.theme.backgroundMode || "template";
   const imageOnPanel =
@@ -1443,7 +1443,7 @@ function backgroundProperties(b) {
         hasPanel ? "Cor da forma" : "Cor do fundo",
         t.background,
         'data-theme="background"',
-      )}${colorField("Fim do degradê", t.backgroundEnd, 'data-theme="backgroundEnd"')}</div><label class="toggle-row">Usar degradê<input type="checkbox" data-theme="gradient" ${t.gradient ? "checked" : ""}></label>${b.format === "panoramic" ? `
+      )}${colorField("Fim do degradê", t.backgroundEnd, 'data-theme="backgroundEnd"')}</div><label class="toggle-row">Usar degradê<input type="checkbox" data-theme="gradient" ${t.gradient ? "checked" : ""}></label>${["panoramic", "email"].includes(b.format) ? `
   <label class="field">
     <span>Aplicar imagem em</span>
     <select data-background="target" aria-label="Aplicar imagem em">
@@ -1539,11 +1539,11 @@ function applyBackgroundToAll() {
             : key === "backgroundImage"
               ? ""
               : theme[key]);
-    if (source.format === "panoramic" && b.format === "panoramic") {
+    if (["panoramic", "email"].includes(source.format) && ["panoramic", "email"].includes(b.format)) {
       theme.outsideColor = source.theme.outsideColor;
     }
     theme.backgroundTarget =
-      b.format === "panoramic"
+      ["panoramic", "email"].includes(b.format)
         ? source.theme.backgroundTarget ?? "canvas"
         : "canvas";
     b.theme = theme;
@@ -5526,7 +5526,7 @@ function updateProperty(el, refresh) {
     if (["background", "backgroundEnd"].includes(key)) t.stylePreset = "custom";
     const isBackgroundColor = ["background", "backgroundEnd", "gradient"].includes(key);
     const isPanoramicTemplate =
-      b.format === "panoramic" &&
+      ["panoramic", "email"].includes(b.format) &&
       (!t.backgroundMode || t.backgroundMode === "template");
 
     if (

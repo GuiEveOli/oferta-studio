@@ -3205,3 +3205,31 @@ svg.lucide {
     height: 140px;
   }
 }
+
+/* Área de prévia no popup de conversão */
+.format-convert-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 180px;
+  min-height: 180px;
+  overflow: hidden;
+
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+/* Mantém qualquer formato dentro da área */
+.format-convert-preview img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+
+  object-fit: contain;
+  object-position: center;
+}
